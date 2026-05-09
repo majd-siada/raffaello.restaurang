@@ -1,0 +1,13 @@
+{
+  "name": "raffaello-restaurang",
+  "private": true,
+  "description": "Run frontend + Django API together for local dev",
+  "scripts": {
+    "dev": "concurrently -n web,api -c cyan,magenta \"npm run dev --prefix frontend\" \"venv\\\\Scripts\\\\python.exe backend\\\\manage.py runserver 127.0.0.1:8000\"",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "venv\\Scripts\\python.exe backend\\manage.py runserver 127.0.0.1:8000"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
