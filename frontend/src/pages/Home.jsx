@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { SITE } from '../siteConfig'
+import HeroBackdrop from '../components/HeroBackdrop'
+import SectionPhoto from '../components/SectionPhoto'
 
 const API_URL = `${import.meta.env.VITE_API_URL || ''}/api/menu/`
 
@@ -30,14 +32,7 @@ export default function Home() {
     <div>
       {/* ===== HERO ===== */}
       <section className="relative flex min-h-screen items-center justify-center overflow-hidden text-center">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/75 to-dark">
-          <img
-            src={SITE.logoImage}
-            alt=""
-            className="absolute left-1/2 top-1/2 w-[560px] max-w-[92vw] -translate-x-1/2 -translate-y-1/2 opacity-[0.13] mix-blend-screen pointer-events-none select-none"
-            decoding="async"
-          />
-        </div>
+        <HeroBackdrop src={SITE.images.hero} alt={SITE.brandImageAlt} />
         <div className="relative z-10 px-6 max-w-4xl">
           <p className="mb-5 text-xs uppercase tracking-[0.35em] text-gold md:text-sm">
             {SITE.tagline}
@@ -115,13 +110,7 @@ export default function Home() {
             </Link>
           </div>
           <div className="relative">
-            <img
-              src={SITE.logoImage}
-              alt=""
-              className="h-[450px] w-full object-contain p-10 md:p-14 opacity-95"
-              decoding="async"
-            />
-            <div className="absolute inset-0 border border-gold/30 translate-x-4 translate-y-4 -z-10" />
+            <SectionPhoto src={SITE.images.dining} alt={SITE.brandImageAlt} />
           </div>
         </div>
       </section>
@@ -169,13 +158,7 @@ export default function Home() {
       <section className="bg-dark py-24 px-6">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
           <div className="relative">
-            <img
-              src={SITE.logoImage}
-              alt=""
-              className="h-[450px] w-full object-contain p-10 md:p-14 opacity-95"
-              decoding="async"
-            />
-            <div className="absolute inset-0 border border-gold/30 -translate-x-4 translate-y-4 -z-10" />
+            <SectionPhoto src={SITE.images.ambiance} alt={SITE.brandImageAlt} borderOffset="left" />
           </div>
           <div>
             <p className="text-gold uppercase tracking-[0.2em] text-sm mb-3">Privata Events</p>

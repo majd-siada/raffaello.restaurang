@@ -12,7 +12,7 @@ export default function BrandLogo({ className = '' }) {
           <img
             src={SITE.logoImage}
             alt=""
-            className="h-10 w-10 rounded-full object-cover ring-2 ring-white/85 group-hover:ring-gold/90 transition-[box-shadow,ring-color]"
+            className="h-10 w-10 rounded-full object-contain bg-dark ring-2 ring-white/85 group-hover:ring-gold/90 transition-[box-shadow,ring-color]"
             decoding="async"
           />
         ) : null}

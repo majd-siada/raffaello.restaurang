@@ -13,8 +13,15 @@ export const SITE = {
   brandSubtitle: 'Stekhus & Bar',
   /** Original logotyp (från restaurangen). */
   logoImage: '/raffaello-logo.png',
-  /** Foto från Google Maps (Place) — logotyp och miljö i lokalen. */
-  brandImage: '/raffaello-google-photo.jpg',
+  /** Restaurang- och matfoton för hero och sektioner. */
+  images: {
+    hero: '/images/hero-interior.jpg',
+    dining: '/images/interior-dining.jpg',
+    ambiance: '/images/interior-ambiance.jpg',
+    bar: '/images/interior-bar.jpg',
+    steak: '/images/dish-steak.jpg',
+    salad: '/images/dish-salad.jpg',
+  },
   brandImageAlt: 'Raffaello Stekhus & Bar — restaurang i Boden',
   addressLine1: 'Drottninggatan 18',
   addressLine2: '961 35 Boden',

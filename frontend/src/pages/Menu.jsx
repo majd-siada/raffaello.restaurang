@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { SITE } from '../siteConfig'
+import HeroBackdrop from '../components/HeroBackdrop'
 
 const API_URL = `${import.meta.env.VITE_API_URL || ''}/api/menu/`
 
@@ -101,15 +102,8 @@ export default function Menu() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative flex h-[50vh] items-center justify-center overflow-hidden text-center">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/80 to-dark">
-          <img
-            src={SITE.logoImage}
-            alt=""
-            className="absolute left-1/2 top-1/2 w-[520px] max-w-[88vw] -translate-x-1/2 -translate-y-1/2 opacity-[0.12] mix-blend-screen pointer-events-none select-none"
-            decoding="async"
-          />
-        </div>
+      <section className="relative flex h-[50vh] min-h-[300px] items-center justify-center overflow-hidden text-center">
+        <HeroBackdrop src={SITE.images.steak} alt="" objectPosition="center center" />
         <div className="relative z-10 px-6">
           <p className="text-gold uppercase tracking-[0.2em] text-sm mb-4">Smaka på</p>
           <h1 className="font-heading text-5xl md:text-6xl text-white mb-4">Vår Meny</h1>

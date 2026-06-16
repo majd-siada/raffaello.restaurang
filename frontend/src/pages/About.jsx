@@ -1,19 +1,14 @@
 import { Link } from 'react-router-dom'
 import { SITE } from '../siteConfig'
+import HeroBackdrop from '../components/HeroBackdrop'
+import SectionPhoto from '../components/SectionPhoto'
 
 export default function About() {
   return (
     <div>
       {/* Hero */}
       <section className="relative flex h-[50vh] items-center justify-center overflow-hidden text-center">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/78 to-dark">
-          <img
-            src={SITE.logoImage}
-            alt=""
-            className="absolute left-1/2 top-1/2 w-[520px] max-w-[88vw] -translate-x-1/2 -translate-y-1/2 opacity-[0.12] mix-blend-screen pointer-events-none select-none"
-            decoding="async"
-          />
-        </div>
+        <HeroBackdrop src={SITE.images.dining} alt={SITE.brandImageAlt} />
         <div className="relative z-10 px-6">
           <p className="text-gold uppercase tracking-[0.2em] text-sm mb-4">Vår berättelse</p>
           <h1 className="font-heading text-5xl md:text-6xl text-white mb-4">Om Oss</h1>
@@ -44,13 +39,7 @@ export default function About() {
             </p>
           </div>
           <div className="relative">
-            <img
-              src={SITE.logoImage}
-              alt=""
-              className="h-[450px] w-full object-contain p-10 md:p-14 opacity-95"
-              decoding="async"
-            />
-            <div className="absolute inset-0 border border-gold/30 translate-x-4 translate-y-4 -z-10" />
+            <SectionPhoto src={SITE.images.dining} alt={SITE.brandImageAlt} />
           </div>
         </div>
       </section>
@@ -81,13 +70,7 @@ export default function About() {
       <section className="bg-dark py-24 px-6">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
           <div className="relative order-2 md:order-1">
-            <img
-              src={SITE.logoImage}
-              alt=""
-              className="h-[450px] w-full object-contain p-10 md:p-14 opacity-95"
-              decoding="async"
-            />
-            <div className="absolute inset-0 border border-gold/30 -translate-x-4 translate-y-4 -z-10" />
+            <SectionPhoto src={SITE.images.ambiance} alt={SITE.brandImageAlt} borderOffset="left" />
           </div>
           <div className="order-1 md:order-2">
             <p className="text-gold uppercase tracking-[0.2em] text-sm mb-3">Atmosfären</p>
@@ -123,14 +106,7 @@ export default function About() {
 
       {/* CTA */}
       <section className="relative overflow-hidden py-32 px-6 text-center">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/82 to-dark">
-          <img
-            src={SITE.logoImage}
-            alt=""
-            className="absolute left-1/2 top-1/2 w-[560px] max-w-[92vw] -translate-x-1/2 -translate-y-1/2 opacity-[0.12] mix-blend-screen pointer-events-none select-none"
-            decoding="async"
-          />
-        </div>
+        <HeroBackdrop src={SITE.images.salad} alt="" />
         <div className="relative z-10 max-w-2xl mx-auto">
           <p className="text-gold uppercase tracking-[0.2em] text-sm mb-4">{SITE.tagline}</p>
           <h2 className="font-heading text-4xl md:text-5xl text-white mb-6">
