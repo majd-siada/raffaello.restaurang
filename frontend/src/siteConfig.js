@@ -37,8 +37,7 @@ export const SITE = {
   /**
    * Fullständig profil-URL. Tom sträng = ingen länk i sidfot (undvik generiska startsidor).
    */
-  instagramUrl: '',
-  tiktokUrl: '',
+  instagramUrl: 'https://www.instagram.com/raffaello_restaurang_iboden/',
   /**
    * Visas på startsidan och i sidfot. Uppdatera vid ändrade öppettider.
    */
