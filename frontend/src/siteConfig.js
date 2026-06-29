@@ -28,8 +28,8 @@ export const SITE = {
   phoneDisplay: '0921-214 010',
   phoneTel: '0921214010',
   email: 'info@raffaello.se',
-  /** Bokning sker via telefon (inga uppgifter om bokabord.se hittades). */
-  bookingUrl: 'tel:0921214010',
+  /** Bokningsknappar scrollar till adress/kontakt på kontaktsidan. */
+  bookingUrl: '/kontakt#besok-oss',
   mapsUrl:
     'https://www.google.com/maps/place/Raffaello+Restaurang/@65.8226176,21.6817581,17z/data=!3m1!4b1!4m6!3m5!1s0x467f59ce90cbad0b:0xe08174b1ff4c6a65!8m2!3d65.8226176!4d21.6817581!16s%2Fg%2F11vs7x8lg9',
   mapsEmbedUrl:

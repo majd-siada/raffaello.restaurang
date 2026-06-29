@@ -15,7 +15,7 @@ export default function Contact() {
       </section>
 
       {/* Info cards */}
-      <section className="bg-dark py-24 px-6">
+      <section id="besok-oss" className="scroll-mt-24 bg-dark py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-gold uppercase tracking-[0.2em] text-sm mb-3">Hitta Oss</p>

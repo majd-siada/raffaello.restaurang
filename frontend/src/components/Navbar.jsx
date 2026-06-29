@@ -144,13 +144,13 @@ export default function Navbar() {
                 </Link>
               )
             })}
-            <a
-              href={SITE.bookingUrl}
+            <Link
+              to={SITE.bookingUrl}
               onClick={closeMenu}
               className="mt-2 border border-gold px-8 py-3 text-sm uppercase tracking-widest text-gold transition-colors hover:bg-gold hover:text-dark"
             >
               Boka bord
-            </a>
+            </Link>
           </div>
         </div>
       )}
@@ -170,12 +170,12 @@ export default function Navbar() {
             {navLinksRight.map(link => (
               <DesktopNavLink key={link.to} {...link} />
             ))}
-            <a
-              href={SITE.bookingUrl}
+            <Link
+              to={SITE.bookingUrl}
               className="ml-2 shrink-0 border border-gold px-5 py-2 text-xs uppercase tracking-widest text-gold transition-all duration-300 hover:bg-gold hover:text-dark"
             >
               Boka bord
-            </a>
+            </Link>
           </div>
         </div>
       </div>

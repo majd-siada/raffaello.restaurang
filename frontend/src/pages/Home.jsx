@@ -57,12 +57,12 @@ export default function Home() {
             >
               Vår Meny
             </Link>
-            <a
-              href={SITE.bookingUrl}
+            <Link
+              to={SITE.bookingUrl}
               className="bg-gold text-dark px-8 py-3 uppercase tracking-widest text-sm hover:bg-gold-hover transition-all duration-300"
             >
               Boka bord
-            </a>
+            </Link>
           </div>
         </div>
 
