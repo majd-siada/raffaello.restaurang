@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://raffaello.se/sitemap.xml
+
