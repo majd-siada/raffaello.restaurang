@@ -1,9 +1,18 @@
+import { Helmet } from 'react-helmet-async'
 import { SITE } from '../siteConfig'
 import HeroBackdrop from '../components/HeroBackdrop'
 
 export default function Contact() {
   return (
     <div>
+      <Helmet>
+        <title>Kontakt | Raffaello Restaurang Boden</title>
+        <meta
+          name="description"
+          content="Kontakta Raffaello Restaurang i Boden. Hitta adress, telefon, öppettider och boka ditt bord enkelt."
+        />
+      </Helmet>
+
       {/* Hero */}
       <section className="relative flex min-h-[min(52vh,480px)] items-center justify-center overflow-hidden bg-dark text-center">
         <HeroBackdrop src={SITE.images.bar} alt={SITE.brandImageAlt} />

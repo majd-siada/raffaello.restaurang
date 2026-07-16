@@ -1,10 +1,19 @@
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { SITE } from '../siteConfig'
 import HeroBackdrop from '../components/HeroBackdrop'
 
 export default function PrivateEvents() {
   return (
     <div>
+      <Helmet>
+        <title>Privata Event | Raffaello Restaurang</title>
+        <meta
+          name="description"
+          content="Boka Raffaello Restaurang för privata event, företagsmiddagar, födelsedagar och andra speciella tillfällen i Boden."
+        />
+      </Helmet>
+
       {/* Hero */}
       <section className="relative flex h-[50vh] items-center justify-center overflow-hidden text-center">
         <HeroBackdrop src={SITE.images.ambiance} alt={SITE.brandImageAlt} />

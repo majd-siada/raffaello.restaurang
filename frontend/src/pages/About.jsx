@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { SITE } from '../siteConfig'
 import HeroBackdrop from '../components/HeroBackdrop'
 import SectionPhoto from '../components/SectionPhoto'
@@ -6,6 +7,14 @@ import SectionPhoto from '../components/SectionPhoto'
 export default function About() {
   return (
     <div>
+      <Helmet>
+        <title>Om oss | Raffaello Restaurang</title>
+        <meta
+          name="description"
+          content="Lär känna Raffaello Restaurang i Boden. Vår passion är att erbjuda hög kvalitet, italienska smaker och förstklassig service."
+        />
+      </Helmet>
+
       {/* Hero */}
       <section className="relative flex h-[50vh] items-center justify-center overflow-hidden text-center">
         <HeroBackdrop src={SITE.images.dining} alt={SITE.brandImageAlt} />

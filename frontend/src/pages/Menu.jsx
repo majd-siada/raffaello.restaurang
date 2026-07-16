@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { SITE } from '../siteConfig'
 import HeroBackdrop from '../components/HeroBackdrop'
 
@@ -101,6 +102,14 @@ export default function Menu() {
 
   return (
     <div>
+      <Helmet>
+        <title>Meny | Raffaello Restaurang Boden</title>
+        <meta
+          name="description"
+          content="Utforska vår meny med saftiga steaks, italienska klassiker, pizza, pasta, hamburgare och desserter på Raffaello Restaurang i Boden."
+        />
+      </Helmet>
+
       {/* Hero */}
       <section className="relative flex h-[50vh] min-h-[300px] items-center justify-center overflow-hidden text-center">
         <HeroBackdrop src={SITE.images.steak} alt="" objectPosition="center center" />
