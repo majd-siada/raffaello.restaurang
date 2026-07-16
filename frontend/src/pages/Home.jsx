@@ -37,6 +37,78 @@ export default function Home() {
           name="description"
           content="Välkommen till Raffaello Restaurang i Boden. Njut av premium steaks, italienska rätter, pizza, pasta och en unik matupplevelse."
         />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Restaurant',
+            '@id': 'https://raffaello.se/#restaurant',
+
+            name: 'Raffaello Stekhus & Bar',
+            alternateName: 'Raffaello Restaurang',
+
+            description:
+              'Raffaello Stekhus & Bar i Boden erbjuder grillat kött, hamburgare, pizza, pasta och en avslappnad restaurangupplevelse med bar.',
+
+            url: 'https://raffaello.se/',
+            logo: 'https://raffaello.se/raffaello-logo.png',
+            image: 'https://raffaello.se/raffaello-logo.png',
+
+            telephone: '+46921214010',
+            email: 'info@raffaello.se',
+
+            servesCuisine: [
+              'Steakhouse',
+              'Grill',
+              'Hamburgare',
+              'Pizza',
+              'Pasta',
+            ],
+
+            address: {
+              '@type': 'PostalAddress',
+              streetAddress: 'Drottninggatan 18',
+              postalCode: '961 35',
+              addressLocality: 'Boden',
+              addressRegion: 'Norrbottens län',
+              addressCountry: 'SE',
+            },
+
+            openingHoursSpecification: [
+              {
+                '@type': 'OpeningHoursSpecification',
+                dayOfWeek: [
+                  'https://schema.org/Monday',
+                  'https://schema.org/Tuesday',
+                  'https://schema.org/Wednesday',
+                  'https://schema.org/Thursday',
+                ],
+                opens: '11:00',
+                closes: '21:00',
+              },
+              {
+                '@type': 'OpeningHoursSpecification',
+                dayOfWeek: [
+                  'https://schema.org/Friday',
+                  'https://schema.org/Saturday',
+                ],
+                opens: '11:00',
+                closes: '23:00',
+              },
+              {
+                '@type': 'OpeningHoursSpecification',
+                dayOfWeek: 'https://schema.org/Sunday',
+                opens: '11:00',
+                closes: '21:00',
+              },
+            ],
+
+            menu: 'https://raffaello.se/meny',
+
+            sameAs: [
+              'https://www.instagram.com/raffaello_restaurang_iboden/',
+            ],
+          })}
+        </script>
       </Helmet>
 
       {/* ===== HERO ===== */}
