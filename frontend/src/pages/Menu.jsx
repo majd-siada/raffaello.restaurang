@@ -106,9 +106,8 @@ export default function Menu() {
         <title>Meny | Raffaello Restaurang Boden</title>
         <meta
           name="description"
-          content="Upptäck Raffaello Restaurangs meny med premium steaks, italienska rätter, pizza, pasta och mycket mer i Boden."
+          content="Utforska vår meny med premium steaks, italienska rätter, pizza, pasta, hamburgare och mycket mer på Raffaello Restaurang i Boden."
         />
-        <link rel="canonical" href="https://raffaello.se/meny" />
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',
@@ -129,6 +128,7 @@ export default function Menu() {
             ],
           })}
         </script>
+        <link rel="canonical" href="https://raffaello.se/meny" />
       </Helmet>
 
       {/* Hero */}
