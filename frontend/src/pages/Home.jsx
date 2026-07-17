@@ -37,6 +37,16 @@ export default function Home() {
           name="description"
           content="Välkommen till Raffaello Restaurang i Boden. Njut av premium steaks, italienska rätter, pizza, pasta och en unik matupplevelse."
         />
+        <link rel="canonical" href="https://raffaello.se/" />
+        <meta property="og:title" content="Raffaello Restaurang" />
+        <meta
+          property="og:description"
+          content="Välkommen till Raffaello Restaurang i Boden. Njut av premium steaks, italienska rätter, pizza, pasta och en unik matupplevelse."
+        />
+        <meta property="og:image" content="https://raffaello.se/og-image.jpg" />
+        <meta property="og:url" content="https://raffaello.se/" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',

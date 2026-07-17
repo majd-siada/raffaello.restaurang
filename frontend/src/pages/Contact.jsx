@@ -11,6 +11,7 @@ export default function Contact() {
           name="description"
           content="Kontakta Raffaello Restaurang i Boden. Hitta adress, telefon, öppettider och boka ditt bord enkelt."
         />
+        <link rel="canonical" href="https://raffaello.se/kontakt" />
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',

@@ -108,6 +108,7 @@ export default function Menu() {
           name="description"
           content="Upptäck Raffaello Restaurangs meny med premium steaks, italienska rätter, pizza, pasta och mycket mer i Boden."
         />
+        <link rel="canonical" href="https://raffaello.se/meny" />
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',
