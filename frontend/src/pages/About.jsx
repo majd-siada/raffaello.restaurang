@@ -13,6 +13,26 @@ export default function About() {
           name="description"
           content="Lär känna Raffaello Restaurang i Boden. Vår passion är att erbjuda hög kvalitet, italienska smaker och förstklassig service."
         />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Hem',
+                item: 'https://raffaello.se/',
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Om oss',
+                item: 'https://raffaello.se/om-oss',
+              },
+            ],
+          })}
+        </script>
       </Helmet>
 
       {/* Hero */}

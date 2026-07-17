@@ -106,8 +106,28 @@ export default function Menu() {
         <title>Meny | Raffaello Restaurang Boden</title>
         <meta
           name="description"
-          content="Utforska vår meny med saftiga steaks, italienska klassiker, pizza, pasta, hamburgare och desserter på Raffaello Restaurang i Boden."
+          content="Upptäck Raffaello Restaurangs meny med premium steaks, italienska rätter, pizza, pasta och mycket mer i Boden."
         />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Hem',
+                item: 'https://raffaello.se/',
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Meny',
+                item: 'https://raffaello.se/meny',
+              },
+            ],
+          })}
+        </script>
       </Helmet>
 
       {/* Hero */}

@@ -12,6 +12,26 @@ export default function PrivateEvents() {
           name="description"
           content="Boka Raffaello Restaurang för privata event, företagsmiddagar, födelsedagar och andra speciella tillfällen i Boden."
         />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Hem',
+                item: 'https://raffaello.se/',
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Privata event',
+                item: 'https://raffaello.se/privata-events',
+              },
+            ],
+          })}
+        </script>
       </Helmet>
 
       {/* Hero */}
