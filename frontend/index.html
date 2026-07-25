@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Raffaello Stekhus &amp; Bar</title>
     <link rel="icon" href="/raffaello-logo.webp" type="image/webp" />
+    <!-- Preload LCP hero early (before React boot) for the homepage -->
+    <link
+      rel="preload"
+      as="image"
+      href="/images/hero-interior-800.webp"
+      type="image/webp"
+      fetchpriority="high"
+    />
   </head>
   <body>
     <div id="root"></div>

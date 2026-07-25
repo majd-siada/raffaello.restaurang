@@ -39,6 +39,13 @@ export default function Home() {
           content="Välkommen till Raffaello Restaurang i Boden. Njut av premium steaks, italienska rätter, pizza, pasta och en unik matupplevelse."
         />
         <link rel="canonical" href="https://raffaello.se/" />
+        <link
+          rel="preload"
+          as="image"
+          href={SITE.images.heroMobile}
+          type="image/webp"
+          fetchPriority="high"
+        />
 
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="sv_SE" />
@@ -141,7 +148,13 @@ export default function Home() {
 
       {/* ===== HERO ===== */}
       <section className="relative flex min-h-screen items-center justify-center overflow-hidden text-center">
-        <HeroBackdrop src={SITE.images.hero} alt={SITE.imageAlts.hero} />
+        <HeroBackdrop
+          src={SITE.images.hero}
+          srcSet={`${SITE.images.heroMobile} 800w, ${SITE.images.hero} 1024w`}
+          sizes="100vw"
+          alt={SITE.imageAlts.hero}
+          priority
+        />
         <div className="relative z-10 px-6 max-w-4xl">
           <p className="mb-5 text-xs uppercase tracking-[0.35em] text-gold md:text-sm">
             {SITE.tagline}

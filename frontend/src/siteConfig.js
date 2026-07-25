@@ -14,6 +14,7 @@ export const SITE = {
   /** Restaurang- och matfoton för hero och sektioner (WebP). */
   images: {
     hero: '/images/hero-interior.webp',
+    heroMobile: '/images/hero-interior-800.webp',
     dining: '/images/interior-dining.webp',
     ambiance: '/images/interior-ambiance.webp',
     bar: '/images/interior-bar.webp',

@@ -6,16 +6,22 @@ export default function HeroBackdrop({
   alt = '',
   objectPosition = 'center',
   loading,
+  priority = false,
+  srcSet,
+  sizes,
 }) {
   return (
-    <div className="absolute inset-0 overflow-hidden bg-dark" aria-hidden>
+    <div className="absolute inset-0 overflow-hidden bg-dark" aria-hidden={!alt}>
       <img
         src={src}
         alt={alt}
+        srcSet={srcSet}
+        sizes={sizes}
         className="h-full w-full object-cover brightness-[0.85]"
         style={{ objectPosition }}
-        decoding="async"
-        {...(loading ? { loading } : {})}
+        decoding={priority ? 'sync' : 'async'}
+        fetchPriority={priority ? 'high' : undefined}
+        loading={priority ? 'eager' : loading}
       />
       <div className={`absolute inset-0 bg-gradient-to-b ${OVERLAY_MAIN}`} />
       <div className={`absolute inset-0 bg-gradient-to-t ${OVERLAY_TOP}`} />
