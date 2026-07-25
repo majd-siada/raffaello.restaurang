@@ -38,15 +38,32 @@ export default function Home() {
           content="Välkommen till Raffaello Restaurang i Boden. Njut av premium steaks, italienska rätter, pizza, pasta och en unik matupplevelse."
         />
         <link rel="canonical" href="https://raffaello.se/" />
-        <meta property="og:title" content="Raffaello Restaurang" />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="sv_SE" />
+        <meta property="og:site_name" content="Raffaello Restaurang" />
+        <meta property="og:title" content="Raffaello Restaurang i Boden" />
         <meta
           property="og:description"
-          content="Välkommen till Raffaello Restaurang i Boden. Njut av premium steaks, italienska rätter, pizza, pasta och en unik matupplevelse."
+          content="Upptäck Raffaello Restaurang i Boden – italienska rätter, premium steaks, pizza, pasta och en unik restaurangupplevelse."
         />
-        <meta property="og:image" content="https://raffaello.se/og-image.jpg" />
         <meta property="og:url" content="https://raffaello.se/" />
-        <meta property="og:type" content="website" />
+        <meta
+          property="og:image"
+          content="https://raffaello.se/images/hero-interior.jpg"
+        />
+        <meta property="og:image:alt" content="Raffaello Restaurang i Boden" />
+
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Raffaello Restaurang i Boden" />
+        <meta
+          name="twitter:description"
+          content="Italienska rätter, premium steaks, pizza och pasta på Raffaello Restaurang i Boden."
+        />
+        <meta
+          name="twitter:image"
+          content="https://raffaello.se/images/hero-interior.jpg"
+        />
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',
