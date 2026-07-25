@@ -24,12 +24,12 @@ export const SITE = {
   },
   /** Alt-texter för SEO och tillgänglighet — unikt per bild. */
   imageAlts: {
-    hero: 'Interiör på Raffaello Restaurang i Boden',
+    hero: 'Raffaello Restaurang i Boden interiör',
     dining: 'Matsal på Raffaello Restaurang i Boden',
-    ambiance: 'Atmosfär på Raffaello Restaurang i Boden',
+    ambiance: 'Restaurangens atmosfär på Raffaello i Boden',
     bar: 'Bar på Raffaello Restaurang i Boden',
-    steak: 'Steak på Raffaello Restaurang i Boden',
-    salad: 'Sallad på Raffaello Restaurang i Boden',
+    steak: 'Premium steak på Raffaello Restaurang i Boden',
+    salad: 'Färsk sallad på Raffaello Restaurang i Boden',
     logo: 'Raffaello Restaurang logotyp',
   },
   brandImageAlt: 'Raffaello Stekhus & Bar — restaurang i Boden',

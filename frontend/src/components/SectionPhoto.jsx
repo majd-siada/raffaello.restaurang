@@ -10,6 +10,7 @@ export default function SectionPhoto({ src, alt = '', borderOffset = 'right' }) 
         src={src}
         alt={alt}
         className="h-[450px] w-full object-cover object-center"
+        loading="lazy"
         decoding="async"
       />
       <div className={`absolute inset-0 border border-gold/30 ${borderClass} -z-10`} />

@@ -136,7 +136,7 @@ export default function About() {
 
       {/* CTA */}
       <section className="relative overflow-hidden py-32 px-6 text-center">
-        <HeroBackdrop src={SITE.images.salad} alt={SITE.imageAlts.salad} />
+        <HeroBackdrop src={SITE.images.salad} alt={SITE.imageAlts.salad} loading="lazy" />
         <div className="relative z-10 max-w-2xl mx-auto">
           <p className="text-gold uppercase tracking-[0.2em] text-sm mb-4">{SITE.tagline}</p>
           <h2 className="font-heading text-4xl md:text-5xl text-white mb-6">
