@@ -18,7 +18,11 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
+            set -e
             cd /root/raffaello.restaurang
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
+            git clean -fd
+            docker compose build --no-cache frontend
             docker compose up -d --build
             docker image prune -f
