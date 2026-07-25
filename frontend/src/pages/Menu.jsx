@@ -1,107 +1,232 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { SITE } from '../siteConfig'
-import HeroBackdrop from '../components/HeroBackdrop'
+import { MENU_PAGES } from '../data/menuPages'
 
-const API_URL = `${import.meta.env.VITE_API_URL || ''}/api/menu/`
+function formatPrice(price) {
+  if (price == null) return null
+  return `${price} SEK`
+}
 
-function CategorySection({ cat, isSubcategory = false }) {
+function MenuItemRow({ item, sectionPrice }) {
+  const price = item.price ?? sectionPrice
   return (
-    <div className={isSubcategory ? 'mb-8 ml-2' : 'mb-16'}>
-      <h2
-        className={`font-heading text-center ${
-          isSubcategory
-            ? 'text-xl text-white/70 mb-4 tracking-widest uppercase'
-            : 'text-3xl text-gold mb-2'
-        }`}
-      >
-        {isSubcategory ? cat.name : `— ${cat.name} —`}
-      </h2>
-
-      {cat.description && (
-        <p className={`text-center text-sm mb-6 whitespace-pre-line max-w-2xl mx-auto ${
-          isSubcategory ? 'text-white/30' : 'text-white/40'
-        }`}>
-          {cat.description}
+    <div className="mb-4 last:mb-0">
+      <div className="flex items-baseline justify-between gap-3">
+        <h3 className="font-heading text-[0.95rem] font-semibold leading-snug text-gold sm:text-base">
+          {item.name}
+        </h3>
+        {price != null && (
+          <span className="shrink-0 font-heading text-[0.95rem] font-semibold text-gold sm:text-base">
+            {formatPrice(price)}
+          </span>
+        )}
+      </div>
+      {item.description && (
+        <p className="mt-0.5 text-[0.8rem] italic leading-relaxed text-white/85 sm:text-sm">
+          {item.description}
         </p>
-      )}
-
-      {(cat.items || []).length > 0 && (
-        <div className="space-y-5">
-          {(cat.items || []).map(item => (
-            <div key={item.id} className="group">
-              <div className="flex items-end gap-2">
-                <h3
-                  className={`font-heading text-xl whitespace-nowrap ${
-                    item.is_available ? 'text-white' : 'text-white/40'
-                  }`}
-                >
-                  {item.name}
-                  {!item.is_available && (
-                    <span className="ml-2 text-xs uppercase tracking-wider text-red-400/80">
-                      Slutsåld
-                    </span>
-                  )}
-                </h3>
-                <div className="flex-1 border-b border-dotted border-gold/30 mb-1" />
-                <span
-                  className={`font-heading text-xl whitespace-nowrap ${
-                    item.is_available ? 'text-gold' : 'text-gold/40'
-                  }`}
-                >
-                  {item.price} kr
-                </span>
-              </div>
-              {item.description && (
-                <p className="text-white/40 text-sm mt-1 whitespace-pre-line">
-                  {item.description}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {(cat.subcategories || []).length > 0 && (
-        <div className="mt-8 space-y-6">
-          {(cat.subcategories || []).map(sub => (
-            <CategorySection key={sub.id} cat={sub} isSubcategory />
-          ))}
-        </div>
       )}
     </div>
   )
 }
 
-export default function Menu() {
-  const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
-  const [activeCategory, setActiveCategory] = useState(null)
+function SectionBlock({ title, notes, items, sectionPrice }) {
+  return (
+    <div className="mb-8 last:mb-0">
+      {title && (
+        <div className="mb-3">
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className="font-heading text-xl font-bold text-white sm:text-2xl">{title}</h2>
+            {sectionPrice != null && (
+              <span className="font-heading text-sm font-semibold italic text-gold sm:text-base">
+                {formatPrice(sectionPrice)}
+              </span>
+            )}
+          </div>
+          <div className="mt-1 h-px w-full bg-white/70" />
+        </div>
+      )}
+      {notes?.map((note, i) => (
+        <p
+          key={i}
+          className={`mb-2 text-sm italic ${
+            note.tone === 'gold' ? 'text-gold' : 'text-white/70'
+          }`}
+        >
+          {note.text}
+        </p>
+      ))}
+      <div className="space-y-1">
+        {items?.map((item, i) => (
+          <MenuItemRow key={`${item.name}-${i}`} item={item} sectionPrice={sectionPrice} />
+        ))}
+      </div>
+    </div>
+  )
+}
 
-  useEffect(() => {
-    fetch(API_URL)
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        return res.json()
-      })
-      .then(data => {
-        if (!Array.isArray(data)) throw new Error('Invalid menu response')
-        setCategories(data)
-        setLoading(false)
-      })
-      .catch(() => {
-        setError(true)
-        setLoading(false)
-      })
-  }, [])
-
-  const filtered = activeCategory
-    ? categories.filter(c => c.id === activeCategory)
-    : categories
+function ColumnContent({ column }) {
+  if (column.sections) {
+    return column.sections.map((section, i) => (
+      <SectionBlock
+        key={`${section.title}-${i}`}
+        title={section.title}
+        notes={section.notes}
+        items={section.items}
+        sectionPrice={section.sectionPrice}
+      />
+    ))
+  }
 
   return (
-    <div>
+    <SectionBlock
+      title={column.title}
+      notes={column.notes}
+      items={column.items}
+      sectionPrice={column.sectionPrice}
+    />
+  )
+}
+
+function WineCard({ wine }) {
+  return (
+    <article className="mb-8 border-l-2 border-gold/70 pl-4 last:mb-0">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h3 className="font-heading text-lg font-semibold text-gold underline decoration-gold/50 underline-offset-4">
+            {wine.name}
+          </h3>
+          {wine.details?.map((line) => (
+            <p key={line} className="mt-1 text-sm text-white/80">
+              {line}
+            </p>
+          ))}
+        </div>
+        <div className="shrink-0 text-sm text-gold sm:text-right">
+          <p>Ett glas {wine.glass} SEK</p>
+          <p>En flaska {wine.bottle} SEK</p>
+        </div>
+      </div>
+      {wine.pairsWith && (
+        <div className="mt-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gold">
+            Passar perfekt till:
+          </p>
+          <p className="mt-1 text-sm leading-relaxed text-white/85">{wine.pairsWith}</p>
+        </div>
+      )}
+      {wine.why && (
+        <p className="mt-2 text-sm italic leading-relaxed text-white/70">
+          <span className="not-italic font-semibold text-white/90">Varför: </span>
+          {wine.why}
+        </p>
+      )}
+    </article>
+  )
+}
+
+function MenuBoard({ page }) {
+  return (
+    <article
+      id={`meny-${page.id}`}
+      className="relative scroll-mt-28 overflow-hidden rounded-sm border border-white/10 bg-black"
+    >
+      <div
+        className="pointer-events-none absolute inset-0 bg-cover bg-bottom opacity-40"
+        style={{ backgroundImage: "url('/images/menu-grill.webp')" }}
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black via-black/92 to-black/55"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-orange-700/35 via-amber-900/15 to-transparent"
+        aria-hidden
+      />
+
+      <div className="relative z-10 px-5 py-10 sm:px-8 sm:py-12 md:px-12">
+        <header className="mb-10 text-center">
+          <h2 className="font-brand text-4xl font-bold tracking-tight text-gold sm:text-5xl">
+            Raffaello
+          </h2>
+          <p className="mt-2 font-brand-sub text-sm uppercase tracking-[0.35em] text-white sm:text-base">
+            Stekhus &amp; Bar
+          </p>
+          {page.intro && (
+            <p className="mt-4 text-sm italic text-gold sm:text-base">{page.intro}</p>
+          )}
+        </header>
+
+        {page.layout === 'wine' ? (
+          <div className="mx-auto max-w-3xl">
+            {page.wines?.map((wine) => (
+              <WineCard key={wine.name} wine={wine} />
+            ))}
+            {page.wineGroups?.map((group) => (
+              <section key={group.title} className="mb-10 last:mb-0">
+                <h3 className="mb-5 font-heading text-lg font-bold tracking-wide text-gold">
+                  <span className="mr-2 inline-block h-4 w-1 bg-white/80 align-middle" />
+                  {group.title}
+                </h3>
+                {group.wines.map((wine) => (
+                  <WineCard key={wine.name} wine={wine} />
+                ))}
+              </section>
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-10 md:grid-cols-2 md:gap-0">
+            {page.columns.map((column, index) => (
+              <div
+                key={index}
+                className={
+                  index === 0
+                    ? 'md:border-r md:border-gold/40 md:pr-8'
+                    : 'md:pl-8'
+                }
+              >
+                <ColumnContent column={column} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        <p className="mt-12 text-center text-[0.65rem] uppercase tracking-[0.45em] text-white/70">
+          www.raffaello.se
+        </p>
+      </div>
+    </article>
+  )
+}
+
+export default function Menu() {
+  const [activeId, setActiveId] = useState(MENU_PAGES[0].id)
+
+  useEffect(() => {
+    const sections = MENU_PAGES.map((page) => document.getElementById(`meny-${page.id}`)).filter(
+      Boolean
+    )
+    if (!sections.length) return undefined
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+        if (visible?.target?.id) {
+          setActiveId(visible.target.id.replace(/^meny-/, ''))
+        }
+      },
+      { rootMargin: '-30% 0px -50% 0px', threshold: [0.15, 0.35, 0.6] }
+    )
+
+    sections.forEach((section) => observer.observe(section))
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div className="bg-dark">
       <Helmet>
         <title>Meny | Raffaello Restaurang Boden</title>
         <meta
@@ -131,84 +256,51 @@ export default function Menu() {
         <link rel="canonical" href="https://raffaello.se/meny" />
       </Helmet>
 
-      {/* Hero */}
-      <section className="relative flex h-[50vh] min-h-[300px] items-center justify-center overflow-hidden text-center">
-        <HeroBackdrop src={SITE.images.steak} alt={SITE.imageAlts.steak} objectPosition="center center" />
-        <div className="relative z-10 px-6">
-          <p className="text-gold uppercase tracking-[0.2em] text-sm mb-4">Smaka på</p>
-          <h1 className="font-heading text-5xl md:text-6xl text-white mb-4">Vår Meny</h1>
-          <p className="text-white/55 text-sm max-w-md mx-auto leading-relaxed mt-2">
-            Grill, burgare, dryck och mer — avslappnat som på menyn i lokalen.
+      <section className="relative flex min-h-[38vh] items-center justify-center overflow-hidden text-center">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/images/menu-grill.webp')" }}
+          aria-hidden
+        />
+        <div className="absolute inset-0 bg-black/75" aria-hidden />
+        <div className="relative z-10 px-6 py-16">
+          <p className="mb-3 text-xs uppercase tracking-[0.35em] text-gold">Meny</p>
+          <h1 className="font-brand text-5xl font-bold text-gold sm:text-6xl">Raffaello</h1>
+          <p className="mt-2 font-brand-sub text-lg uppercase tracking-[0.3em] text-white">
+            Stekhus &amp; Bar
           </p>
-          <div className="w-16 h-px bg-gold mx-auto mt-6" />
+          <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-white/70">
+            Grill, pizza, pasta, burgare och dryck — som på menyn i lokalen.
+          </p>
         </div>
       </section>
 
-      {/* Category filter tabs */}
-      {categories.length > 1 && (
-        <div className="bg-dark py-8 px-6">
-          <div className="flex flex-wrap justify-center gap-3 max-w-6xl mx-auto">
-            <button
-              onClick={() => setActiveCategory(null)}
-              className={`px-5 py-2 text-xs uppercase tracking-widest border transition-all duration-300 cursor-pointer ${
-                activeCategory === null
-                  ? 'bg-gold text-dark border-gold'
-                  : 'border-gold/40 text-gold hover:bg-gold hover:text-dark'
+      <nav
+        className="sticky top-0 z-30 border-b border-white/10 bg-dark/95 backdrop-blur-md"
+        aria-label="Menykategorier"
+      >
+        <div className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 py-3 scrollbar-thin">
+          {MENU_PAGES.map((page) => (
+            <a
+              key={page.id}
+              href={`#meny-${page.id}`}
+              className={`shrink-0 border px-3 py-2 text-[0.65rem] uppercase tracking-widest transition-colors sm:text-xs ${
+                activeId === page.id
+                  ? 'border-gold bg-gold text-dark'
+                  : 'border-gold/35 text-gold hover:border-gold hover:bg-gold/10'
               }`}
             >
-              Alla
-            </button>
-            {categories.map(cat => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                className={`px-5 py-2 text-xs uppercase tracking-widest border transition-all duration-300 cursor-pointer ${
-                  activeCategory === cat.id
-                    ? 'bg-gold text-dark border-gold'
-                    : 'border-gold/40 text-gold hover:bg-gold hover:text-dark'
-                }`}
-              >
-                {cat.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Menu content */}
-      <section className="bg-dark py-24 px-6">
-        <div className="max-w-4xl mx-auto">
-          {loading && (
-            <div className="space-y-6">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="flex items-end gap-2 animate-pulse">
-                  <div className="h-5 w-48 bg-white/10 rounded" />
-                  <div className="flex-1 border-b border-dotted border-gold/20 mb-1" />
-                  <div className="h-5 w-16 bg-white/10 rounded" />
-                </div>
-              ))}
-            </div>
-          )}
-
-          {!loading && !error && filtered.map(cat => (
-            <CategorySection key={cat.id} cat={cat} />
+              {page.label}
+            </a>
           ))}
+        </div>
+      </nav>
 
-          {!loading && error && (
-            <p className="text-center text-white/40 text-lg">
-              Menyn kunde inte laddas. Kontrollera att API:t körs (t.ex.{' '}
-              <code className="text-gold/80">npm run dev</code> eller{' '}
-              <code className="text-gold/80">python manage.py runserver</code> på port 8000) och ladda om sidan.
-            </p>
-          )}
-
-          {!loading && !error && categories.length === 0 && (
-            <p className="text-center text-white/40 text-lg max-w-xl mx-auto">
-              Ingen huvudkategori finns än. I admin: skapa kategori med{' '}
-              <span className="text-white/60">överordnad kategori</span> tomt så den syns på menyn;
-              underrubriker får en överordnad kategori satt.
-            </p>
-          )}
+      <section className="px-4 py-10 sm:px-6 sm:py-14">
+        <div className="mx-auto flex max-w-5xl flex-col gap-10">
+          {MENU_PAGES.map((page) => (
+            <MenuBoard key={page.id} page={page} />
+          ))}
         </div>
       </section>
     </div>
