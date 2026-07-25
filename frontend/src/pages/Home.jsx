@@ -123,7 +123,7 @@ export default function Home() {
 
       {/* ===== HERO ===== */}
       <section className="relative flex min-h-screen items-center justify-center overflow-hidden text-center">
-        <HeroBackdrop src={SITE.images.hero} alt={SITE.brandImageAlt} />
+        <HeroBackdrop src={SITE.images.hero} alt={SITE.imageAlts.hero} />
         <div className="relative z-10 px-6 max-w-4xl">
           <p className="mb-5 text-xs uppercase tracking-[0.35em] text-gold md:text-sm">
             {SITE.tagline}
@@ -201,7 +201,7 @@ export default function Home() {
             </Link>
           </div>
           <div className="relative">
-            <SectionPhoto src={SITE.images.dining} alt={SITE.brandImageAlt} />
+            <SectionPhoto src={SITE.images.dining} alt={SITE.imageAlts.dining} />
           </div>
         </div>
       </section>
@@ -249,7 +249,7 @@ export default function Home() {
       <section className="bg-dark py-24 px-6">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
           <div className="relative">
-            <SectionPhoto src={SITE.images.ambiance} alt={SITE.brandImageAlt} borderOffset="left" />
+            <SectionPhoto src={SITE.images.ambiance} alt={SITE.imageAlts.ambiance} borderOffset="left" />
           </div>
           <div>
             <p className="text-gold uppercase tracking-[0.2em] text-sm mb-3">Privata Events</p>

@@ -133,7 +133,7 @@ export default function Menu() {
 
       {/* Hero */}
       <section className="relative flex h-[50vh] min-h-[300px] items-center justify-center overflow-hidden text-center">
-        <HeroBackdrop src={SITE.images.steak} alt="" objectPosition="center center" />
+        <HeroBackdrop src={SITE.images.steak} alt={SITE.imageAlts.steak} objectPosition="center center" />
         <div className="relative z-10 px-6">
           <p className="text-gold uppercase tracking-[0.2em] text-sm mb-4">Smaka på</p>
           <h1 className="font-heading text-5xl md:text-6xl text-white mb-4">Vår Meny</h1>

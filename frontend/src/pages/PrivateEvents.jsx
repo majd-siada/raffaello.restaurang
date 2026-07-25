@@ -37,7 +37,7 @@ export default function PrivateEvents() {
 
       {/* Hero */}
       <section className="relative flex h-[50vh] items-center justify-center overflow-hidden text-center">
-        <HeroBackdrop src={SITE.images.ambiance} alt={SITE.brandImageAlt} />
+        <HeroBackdrop src={SITE.images.ambiance} alt={SITE.imageAlts.ambiance} />
         <div className="relative z-10 px-6">
           <p className="text-gold uppercase tracking-[0.2em] text-sm mb-4">{SITE.name}</p>
           <h1 className="font-heading text-5xl md:text-6xl text-white mb-4">Privata Events</h1>

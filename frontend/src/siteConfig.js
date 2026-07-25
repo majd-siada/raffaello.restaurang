@@ -22,6 +22,16 @@ export const SITE = {
     steak: '/images/dish-steak.jpg',
     salad: '/images/dish-salad.jpg',
   },
+  /** Alt-texter för SEO och tillgänglighet — unikt per bild. */
+  imageAlts: {
+    hero: 'Interiör på Raffaello Restaurang i Boden',
+    dining: 'Matsal på Raffaello Restaurang i Boden',
+    ambiance: 'Atmosfär på Raffaello Restaurang i Boden',
+    bar: 'Bar på Raffaello Restaurang i Boden',
+    steak: 'Steak på Raffaello Restaurang i Boden',
+    salad: 'Sallad på Raffaello Restaurang i Boden',
+    logo: 'Raffaello Restaurang logotyp',
+  },
   brandImageAlt: 'Raffaello Stekhus & Bar — restaurang i Boden',
   addressLine1: 'Drottninggatan 18',
   addressLine2: '961 35 Boden',

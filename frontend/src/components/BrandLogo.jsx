@@ -7,11 +7,11 @@ export default function BrandLogo({ className = '' }) {
       to="/"
       className={`group flex items-center gap-2.5 md:gap-3 outline-none focus-visible:ring-2 focus-visible:ring-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-dark rounded-sm ${className}`}
     >
-      <span className="relative flex h-10 w-10 shrink-0 items-center justify-center" aria-hidden>
+      <span className="relative flex h-10 w-10 shrink-0 items-center justify-center">
         {SITE.logoImage ? (
           <img
             src={SITE.logoImage}
-            alt=""
+            alt={SITE.imageAlts.logo}
             className="h-10 w-10 rounded-full object-contain bg-dark ring-2 ring-white/85 group-hover:ring-gold/90 transition-[box-shadow,ring-color]"
             decoding="async"
           />

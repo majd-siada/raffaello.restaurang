@@ -38,7 +38,7 @@ export default function About() {
 
       {/* Hero */}
       <section className="relative flex h-[50vh] items-center justify-center overflow-hidden text-center">
-        <HeroBackdrop src={SITE.images.dining} alt={SITE.brandImageAlt} />
+        <HeroBackdrop src={SITE.images.dining} alt={SITE.imageAlts.dining} />
         <div className="relative z-10 px-6">
           <p className="text-gold uppercase tracking-[0.2em] text-sm mb-4">Vår berättelse</p>
           <h1 className="font-heading text-5xl md:text-6xl text-white mb-4">Om Oss</h1>
@@ -69,7 +69,7 @@ export default function About() {
             </p>
           </div>
           <div className="relative">
-            <SectionPhoto src={SITE.images.dining} alt={SITE.brandImageAlt} />
+            <SectionPhoto src={SITE.images.dining} alt={SITE.imageAlts.dining} />
           </div>
         </div>
       </section>
@@ -100,7 +100,7 @@ export default function About() {
       <section className="bg-dark py-24 px-6">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
           <div className="relative order-2 md:order-1">
-            <SectionPhoto src={SITE.images.ambiance} alt={SITE.brandImageAlt} borderOffset="left" />
+            <SectionPhoto src={SITE.images.ambiance} alt={SITE.imageAlts.ambiance} borderOffset="left" />
           </div>
           <div className="order-1 md:order-2">
             <p className="text-gold uppercase tracking-[0.2em] text-sm mb-3">Atmosfären</p>
@@ -136,7 +136,7 @@ export default function About() {
 
       {/* CTA */}
       <section className="relative overflow-hidden py-32 px-6 text-center">
-        <HeroBackdrop src={SITE.images.salad} alt="" />
+        <HeroBackdrop src={SITE.images.salad} alt={SITE.imageAlts.salad} />
         <div className="relative z-10 max-w-2xl mx-auto">
           <p className="text-gold uppercase tracking-[0.2em] text-sm mb-4">{SITE.tagline}</p>
           <h2 className="font-heading text-4xl md:text-5xl text-white mb-6">
