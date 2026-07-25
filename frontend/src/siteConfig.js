@@ -11,16 +11,14 @@ export const SITE = {
   tagline: 'Stekhus & bar · Boden',
   /** Rad under logotypen i navbar och hero (kursiv). */
   brandSubtitle: 'Stekhus & Bar',
-  /** Original logotyp (från restaurangen). */
-  logoImage: '/raffaello-logo.png',
-  /** Restaurang- och matfoton för hero och sektioner. */
+  /** Restaurang- och matfoton för hero och sektioner (WebP). */
   images: {
-    hero: '/images/hero-interior.jpg',
-    dining: '/images/interior-dining.jpg',
-    ambiance: '/images/interior-ambiance.jpg',
-    bar: '/images/interior-bar.jpg',
-    steak: '/images/dish-steak.jpg',
-    salad: '/images/dish-salad.jpg',
+    hero: '/images/hero-interior.webp',
+    dining: '/images/interior-dining.webp',
+    ambiance: '/images/interior-ambiance.webp',
+    bar: '/images/interior-bar.webp',
+    steak: '/images/dish-steak.webp',
+    salad: '/images/dish-salad.webp',
   },
   /** Alt-texter för SEO och tillgänglighet — unikt per bild. */
   imageAlts: {
@@ -33,6 +31,8 @@ export const SITE = {
     logo: 'Raffaello Restaurang logotyp',
   },
   brandImageAlt: 'Raffaello Stekhus & Bar — restaurang i Boden',
+  /** Original logotyp (från restaurangen). */
+  logoImage: '/raffaello-logo.webp',
   addressLine1: 'Drottninggatan 18',
   addressLine2: '961 35 Boden',
   phoneDisplay: '0921-214 010',

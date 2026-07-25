@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async'
 import { SITE } from '../siteConfig'
 import HeroBackdrop from '../components/HeroBackdrop'
 import SectionPhoto from '../components/SectionPhoto'
+import LazyMap from '../components/LazyMap'
 
 const API_URL = `${import.meta.env.VITE_API_URL || ''}/api/menu/`
 
@@ -50,7 +51,7 @@ export default function Home() {
         <meta property="og:url" content="https://raffaello.se/" />
         <meta
           property="og:image"
-          content="https://raffaello.se/images/hero-interior.jpg"
+          content="https://raffaello.se/images/hero-interior.webp"
         />
         <meta property="og:image:alt" content="Raffaello Restaurang i Boden" />
 
@@ -62,7 +63,7 @@ export default function Home() {
         />
         <meta
           name="twitter:image"
-          content="https://raffaello.se/images/hero-interior.jpg"
+          content="https://raffaello.se/images/hero-interior.webp"
         />
         <script type="application/ld+json">
           {JSON.stringify({
@@ -77,8 +78,8 @@ export default function Home() {
               'Raffaello Stekhus & Bar i Boden erbjuder grillat kött, hamburgare, pizza, pasta och en avslappnad restaurangupplevelse med bar.',
 
             url: 'https://raffaello.se/',
-            logo: 'https://raffaello.se/raffaello-logo.png',
-            image: 'https://raffaello.se/raffaello-logo.png',
+            logo: 'https://raffaello.se/raffaello-logo.webp',
+            image: 'https://raffaello.se/images/hero-interior.webp',
 
             telephone: '+46921214010',
             email: 'info@raffaello.se',
@@ -281,7 +282,7 @@ export default function Home() {
               to="/privata-events"
               className="inline-block border border-gold text-gold px-6 py-2.5 uppercase tracking-widest text-sm hover:bg-gold hover:text-dark transition-all duration-300"
             >
-              Läs mer
+              Läs mer om privata events
             </Link>
           </div>
         </div>
@@ -297,17 +298,8 @@ export default function Home() {
             </h2>
           </div>
           <div className="grid md:grid-cols-3 gap-8 items-start">
-            <div className="md:col-span-2 border border-white/10 overflow-hidden">
-              <iframe
-                title={`${SITE.name} på kartan`}
-                src={SITE.mapsEmbedUrl}
-                width="100%"
-                height="400"
-                style={{ border: 0, filter: 'grayscale(0.25) brightness(0.92) contrast(1.05)' }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
+            <div className="md:col-span-2">
+              <LazyMap />
             </div>
             <div className="space-y-8">
               <a

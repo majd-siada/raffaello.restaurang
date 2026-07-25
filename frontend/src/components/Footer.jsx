@@ -42,7 +42,7 @@ export default function Footer() {
           {/* Kontakt Oss */}
           <div>
             <h4 className="font-heading text-lg text-white mb-4">Kontakta Oss</h4>
-            <ul className="space-y-3 text-white/40 text-sm">
+            <ul className="space-y-3 text-white/80 text-sm">
               <li>
                 <a href={`tel:${SITE.phoneTel}`} className="hover:text-gold transition-colors flex items-center gap-2">
                   <PhoneIcon /> {SITE.phoneDisplay}
@@ -63,7 +63,7 @@ export default function Footer() {
               href={SITE.mapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white/40 text-sm leading-relaxed hover:text-gold transition-colors flex items-start gap-2"
+              className="text-white/80 text-sm leading-relaxed hover:text-gold transition-colors flex items-start gap-2"
             >
               <MapIcon />
               <span>{SITE.addressLine1}<br />{SITE.addressLine2}</span>
@@ -80,7 +80,7 @@ export default function Footer() {
                     href={SITE.instagramUrl.trim()}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white/40 text-sm hover:text-gold transition-colors flex items-center gap-2"
+                    className="text-white/80 text-sm hover:text-gold transition-colors flex items-center gap-2"
                   >
                     <InstagramIcon /> Instagram
                   </a>
@@ -92,7 +92,7 @@ export default function Footer() {
           {/* Öppettider */}
           <div>
             <h4 className="font-heading text-lg text-white mb-4">Öppettider</h4>
-            <ul className="space-y-3 text-white/40 text-sm">
+            <ul className="space-y-3 text-white/80 text-sm">
               {SITE.openingHours.map(row => (
                 <li key={row.label} className="flex items-center gap-2">
                   <ClockIcon />
@@ -109,7 +109,7 @@ export default function Footer() {
       <div className="border-t border-white/5 py-6 px-6">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
           <BrandLogo className="scale-90 origin-left md:scale-100" />
-          <p className="text-white/25 text-xs">
+          <p className="text-white/60 text-xs">
             &copy; {new Date().getFullYear()} {SITE.name}. Alla rättigheter förbehållna.
           </p>
         </div>
