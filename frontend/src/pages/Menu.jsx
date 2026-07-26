@@ -112,14 +112,14 @@ export default function Menu() {
 
   return (
     <div className="relative min-h-screen bg-black text-white/80">
-      {/* Canva-style grill + smoke atmosphere */}
+      {/* Grill + smoke atmosphere */}
       <div
         className="pointer-events-none fixed inset-0 z-0 bg-black bg-cover bg-bottom bg-no-repeat"
         style={{ backgroundImage: "url('/images/menu-bg.webp')" }}
         aria-hidden
       />
       <div
-        className="pointer-events-none fixed inset-0 z-0 bg-gradient-to-b from-black via-black/75 to-black/25"
+        className="pointer-events-none fixed inset-0 z-0 bg-gradient-to-b from-black/60 via-black/35 to-black/55"
         aria-hidden
       />
 
