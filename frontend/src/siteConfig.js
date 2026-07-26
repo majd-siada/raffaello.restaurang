@@ -65,10 +65,11 @@ export const SITE = {
    * Visas på startsidan och i sidfot. Uppdatera vid ändrade öppettider.
    */
   openingHours: [
-    { label: 'Mån–tors', hours: '11:00 – 21:00' },
-    { label: 'Fredag', hours: '11:00 – 23:00' },
-    { label: 'Lördag', hours: '11:00 – 23:00' },
-    { label: 'Söndag', hours: '11:00 – 21:00' },
+    { label: 'Måndag', hours: '10:45 – 21:00' },
+    { label: 'Tis–tors', hours: '11:00 – 21:00' },
+    { label: 'Fredag', hours: '10:45 – 22:00' },
+    { label: 'Lördag', hours: '12:00 – 22:00' },
+    { label: 'Söndag', hours: '12:00 – 21:00' },
   ],
   /**
    * Siffror för sidan Privata events — bekräfta mot lokalen.

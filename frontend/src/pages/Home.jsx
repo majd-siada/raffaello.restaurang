@@ -177,8 +177,13 @@ export default function Home() {
             openingHoursSpecification: [
               {
                 '@type': 'OpeningHoursSpecification',
+                dayOfWeek: 'https://schema.org/Monday',
+                opens: '10:45',
+                closes: '21:00',
+              },
+              {
+                '@type': 'OpeningHoursSpecification',
                 dayOfWeek: [
-                  'https://schema.org/Monday',
                   'https://schema.org/Tuesday',
                   'https://schema.org/Wednesday',
                   'https://schema.org/Thursday',
@@ -188,17 +193,20 @@ export default function Home() {
               },
               {
                 '@type': 'OpeningHoursSpecification',
-                dayOfWeek: [
-                  'https://schema.org/Friday',
-                  'https://schema.org/Saturday',
-                ],
-                opens: '11:00',
-                closes: '23:00',
+                dayOfWeek: 'https://schema.org/Friday',
+                opens: '10:45',
+                closes: '22:00',
+              },
+              {
+                '@type': 'OpeningHoursSpecification',
+                dayOfWeek: 'https://schema.org/Saturday',
+                opens: '12:00',
+                closes: '22:00',
               },
               {
                 '@type': 'OpeningHoursSpecification',
                 dayOfWeek: 'https://schema.org/Sunday',
-                opens: '11:00',
+                opens: '12:00',
                 closes: '21:00',
               },
             ],
