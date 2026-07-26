@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('email', models.EmailField(max_length=254, verbose_name='e-post')),
                 ('date', models.DateField(verbose_name='datum')),
                 ('time', models.TimeField(verbose_name='tid')),
-                ('guests', models.PositiveSmallIntegerField(validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(40)], verbose_name='antal gäster')),
+                ('guests', models.PositiveSmallIntegerField(validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(6)], verbose_name='antal gäster')),
                 ('message', models.TextField(blank=True, verbose_name='meddelande')),
                 ('whatsapp_sent', models.BooleanField(default=False, verbose_name='WhatsApp skickat')),
                 ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='skapad')),

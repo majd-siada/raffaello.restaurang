@@ -5,6 +5,7 @@ import { SITE } from '../siteConfig'
 import HeroBackdrop from '../components/HeroBackdrop'
 
 const API_URL = `${import.meta.env.VITE_API_URL || ''}/api/bookings/`
+const MAX_GUESTS = 6
 
 const emptyForm = {
   first_name: '',
@@ -21,20 +22,106 @@ const fieldClass =
   'w-full border border-white/15 bg-transparent px-4 py-3 text-white outline-none transition-colors placeholder:text-white/30 focus:border-gold'
 const labelClass = 'mb-2 block text-xs uppercase tracking-[0.2em] text-gold'
 
+/** Local calendar date as YYYY-MM-DD */
+function todayISO() {
+  const d = new Date()
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
+/** Local time as HH:MM (24h) */
+function nowHHMM() {
+  const d = new Date()
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
+/** 24h slots from 11:00 to 22:30 every 30 minutes */
+function buildTimeSlots() {
+  const slots = []
+  for (let h = 11; h <= 22; h += 1) {
+    for (const m of [0, 30]) {
+      if (h === 22 && m === 30) continue
+      slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
+    }
+  }
+  return slots
+}
+
+const ALL_TIME_SLOTS = buildTimeSlots()
+
 function BookingForm() {
   const [form, setForm] = useState(emptyForm)
   const [status, setStatus] = useState('idle') // idle | submitting | success | error
   const [errorText, setErrorText] = useState('')
 
+  const minDate = todayISO()
+  const isToday = form.date === minDate
+  const availableTimes =
+    form.date && isToday
+      ? ALL_TIME_SLOTS.filter((t) => t > nowHHMM())
+      : ALL_TIME_SLOTS
+
   const onChange = (e) => {
     const { name, value } = e.target
+
+    if (name === 'guests') {
+      if (value === '') {
+        setForm((prev) => ({ ...prev, guests: '' }))
+        return
+      }
+      const n = Math.min(MAX_GUESTS, Math.max(1, Number(value) || 1))
+      setForm((prev) => ({ ...prev, guests: String(n) }))
+      return
+    }
+
+    if (name === 'date') {
+      setForm((prev) => {
+        const next = { ...prev, date: value }
+        if (value === todayISO() && prev.time && prev.time <= nowHHMM()) {
+          next.time = ''
+        }
+        return next
+      })
+      return
+    }
+
     setForm((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const validateClient = () => {
+    const guests = Number(form.guests)
+    if (!Number.isInteger(guests) || guests < 1 || guests > MAX_GUESTS) {
+      return `Ange 1–${MAX_GUESTS} gäster. För fler, ring ${SITE.phoneDisplay}.`
+    }
+    if (!form.date || form.date < todayISO()) {
+      return 'Välj ett datum från och med idag.'
+    }
+    if (!form.time) {
+      return 'Välj en tid.'
+    }
+    if (form.date === todayISO() && form.time <= nowHHMM()) {
+      return 'Välj en tid som inte har passerat.'
+    }
+    if (!ALL_TIME_SLOTS.includes(form.time)) {
+      return 'Välj en giltig tid (24-timmarsformat).'
+    }
+    return null
   }
 
   const onSubmit = async (e) => {
     e.preventDefault()
-    setStatus('submitting')
     setErrorText('')
+
+    const clientError = validateClient()
+    if (clientError) {
+      setStatus('error')
+      setErrorText(clientError)
+      return
+    }
+
+    setStatus('submitting')
 
     const payload = {
       first_name: form.first_name.trim(),
@@ -90,7 +177,7 @@ function BookingForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="mx-auto max-w-xl space-y-5">
+    <form onSubmit={onSubmit} className="mx-auto max-w-xl space-y-5" lang="sv-SE" noValidate>
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <label htmlFor="first_name" className={labelClass}>
@@ -166,6 +253,8 @@ function BookingForm() {
             name="date"
             type="date"
             required
+            lang="sv-SE"
+            min={minDate}
             value={form.date}
             onChange={onChange}
             className={fieldClass}
@@ -175,15 +264,29 @@ function BookingForm() {
           <label htmlFor="time" className={labelClass}>
             Tid
           </label>
-          <input
+          <select
             id="time"
             name="time"
-            type="time"
             required
             value={form.time}
             onChange={onChange}
-            className={fieldClass}
-          />
+            className={`${fieldClass} appearance-none`}
+          >
+            <option value="" disabled>
+              Välj tid
+            </option>
+            {availableTimes.length === 0 ? (
+              <option value="" disabled>
+                Inga tider kvar idag
+              </option>
+            ) : (
+              availableTimes.map((t) => (
+                <option key={t} value={t} className="bg-dark text-white">
+                  {t}
+                </option>
+              ))
+            )}
+          </select>
         </div>
         <div>
           <label htmlFor="guests" className={labelClass}>
@@ -195,11 +298,20 @@ function BookingForm() {
             type="number"
             required
             min={1}
-            max={40}
+            max={MAX_GUESTS}
+            step={1}
+            inputMode="numeric"
             value={form.guests}
             onChange={onChange}
             className={fieldClass}
           />
+          <p className="mt-2 text-xs leading-relaxed text-white/40">
+            Max {MAX_GUESTS} via formulär. Fler? Ring{' '}
+            <a href={`tel:${SITE.phoneTel}`} className="text-gold/80 hover:text-gold">
+              {SITE.phoneDisplay}
+            </a>
+            .
+          </p>
         </div>
       </div>
 
@@ -285,7 +397,11 @@ export default function Contact() {
             <p className="mb-3 text-sm uppercase tracking-[0.2em] text-gold">Reservation</p>
             <h2 className="font-heading text-4xl text-white md:text-5xl">Boka bord</h2>
             <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-white/55">
-              Skicka en förfrågan så hör vi av oss. För större sällskap, se även{' '}
+              Skicka en förfrågan för upp till 6 personer. Är ni fler, ring oss på{' '}
+              <a href={`tel:${SITE.phoneTel}`} className="text-gold hover:underline">
+                {SITE.phoneDisplay}
+              </a>
+              . För större sällskap, se även{' '}
               <Link to="/privata-events" className="text-gold hover:underline">
                 privata events
               </Link>

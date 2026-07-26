@@ -32,8 +32,10 @@ class BookingSerializer(serializers.ModelSerializer):
         return cleaned
 
     def validate_guests(self, value):
-        if value < 1 or value > 40:
-            raise serializers.ValidationError('Antal gäster måste vara mellan 1 och 40.')
+        if value < 1 or value > 6:
+            raise serializers.ValidationError(
+                'Onlinebokning gäller max 6 personer. Ring oss för större sällskap.'
+            )
         return value
 
     def validate(self, attrs):

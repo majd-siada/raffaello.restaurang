@@ -11,7 +11,7 @@ class Booking(models.Model):
     time = models.TimeField('tid')
     guests = models.PositiveSmallIntegerField(
         'antal gäster',
-        validators=[MinValueValidator(1), MaxValueValidator(40)],
+        validators=[MinValueValidator(1), MaxValueValidator(6)],
     )
     message = models.TextField('meddelande', blank=True)
     whatsapp_sent = models.BooleanField('WhatsApp skickat', default=False)
