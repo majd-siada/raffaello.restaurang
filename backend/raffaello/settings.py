@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'menu',
+    'bookings',
 ]
 
 MIDDLEWARE = [
@@ -193,3 +194,13 @@ if not DEBUG and _hsts_seconds > 0:
     SECURE_HSTS_PRELOAD = os.getenv('SECURE_HSTS_PRELOAD', 'False') == 'True'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_RATES': {
+        'bookings': '10/hour',
+    },
+}
+
+# WhatsApp booking alerts (CallMeBot — free personal notify)
+BOOKING_NOTIFY_PHONE = os.getenv('BOOKING_NOTIFY_PHONE', '46727781150').strip()
+CALLMEBOT_APIKEY = os.getenv('CALLMEBOT_APIKEY', '').strip()

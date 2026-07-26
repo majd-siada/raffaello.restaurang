@@ -240,7 +240,23 @@ Then open **http://127.0.0.1:8000/admin/** for Django admin and **http://localho
 
 2. **Meny tom i dev**: Med tom `VITE_API_URL` proxar Vite `/api` till `http://127.0.0.1:8000` (`frontend/vite.config.js`). Kör backend på port 8000 samtidigt som `npm run dev` i `frontend/` (eller `npm run dev` i repo-roten). I admin måste **överordnad kategori** vara tomt för en **huvudkategori** — annars visas den bara som underrubrik under en annan kategori.
 
-3. **localhost:8000 root**: Visiting `http://localhost:8000/` directly shows a 404. The backend only serves `/admin/` and `/api/menu/`. This is expected — the frontend is the user-facing app.
+3. **localhost:8000 root**: Visiting `http://localhost:8000/` directly shows a 404. The backend only serves `/admin/` and `/api/*`. This is expected — the frontend is the user-facing app.
+
+---
+
+## Bokningar (WhatsApp via CallMeBot)
+
+Gäster fyller i formuläret på **Kontakt → Boka bord** (`/kontakt#boka-bord`). Backend sparar bokningen och skickar ett WhatsApp-meddelande till `0727781150` via [CallMeBot](https://www.callmebot.com/blog/free-api-whatsapp-messages/).
+
+**Engångssetup på mottagartelefonen:**
+
+1. Följ CallMeBots instruktioner och aktivera API för WhatsApp.
+2. Kopiera API-nyckeln till `backend/.env`:
+   ```
+   BOOKING_NOTIFY_PHONE=46727781150
+   CALLMEBOT_APIKEY=din-nyckel-här
+   ```
+3. Starta om backend (lokalt eller Docker). Bokningar syns även under **Admin → Bokningar**.
 
 ---
 
@@ -264,6 +280,7 @@ Then open **http://127.0.0.1:8000/admin/** for Django admin and **http://localho
 
 ## What's Done
 
+- [x] Bokningsformulär → WhatsApp-notifiering (CallMeBot) + adminlista
 - [x] React frontend (Vite + Tailwind v4): Home, Meny, Om oss, Kontakt, Privata events
 - [x] React Router med svenska URL:er
 - [x] Django + DRF, PostgreSQL, admin med menyredigering
