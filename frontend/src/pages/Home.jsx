@@ -177,18 +177,13 @@ export default function Home() {
             openingHoursSpecification: [
               {
                 '@type': 'OpeningHoursSpecification',
-                dayOfWeek: 'https://schema.org/Monday',
-                opens: '10:45',
-                closes: '21:00',
-              },
-              {
-                '@type': 'OpeningHoursSpecification',
                 dayOfWeek: [
+                  'https://schema.org/Monday',
                   'https://schema.org/Tuesday',
                   'https://schema.org/Wednesday',
                   'https://schema.org/Thursday',
                 ],
-                opens: '11:00',
+                opens: '10:45',
                 closes: '21:00',
               },
               {
