@@ -112,15 +112,10 @@ export default function Menu() {
 
   return (
     <div className="relative min-h-screen bg-black text-white/80">
-      {/* Grill + smoke atmosphere */}
+      {/* Full-page grill — no heavy tint so the picture stays clear */}
       <div
         className="pointer-events-none fixed inset-0 z-0 bg-black bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('/images/menu-bg.webp')" }}
-        aria-hidden
-      />
-      {/* Light scrim only — keep the background clear */}
-      <div
-        className="pointer-events-none fixed inset-0 z-0 bg-gradient-to-b from-black/25 via-transparent to-black/40"
         aria-hidden
       />
 
@@ -154,10 +149,16 @@ export default function Menu() {
         <link rel="canonical" href="https://raffaello.se/meny" />
       </Helmet>
 
-      <section className="relative overflow-hidden border-b border-gold/20 px-6 py-16 text-center sm:py-24">
-        <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>
+      <section className="relative flex min-h-[70vh] items-center overflow-hidden border-b border-gold/20 px-6 py-16 text-center sm:min-h-[75vh] sm:py-20">
+        <div className="pointer-events-none absolute inset-0 z-0 bg-black" aria-hidden>
+          {/* Zoomed out so full grill + smoke are visible */}
+          <img
+            src="/images/menu-bg.webp"
+            alt=""
+            className="absolute inset-0 h-full w-full object-contain object-center"
+          />
           <video
-            className="absolute inset-0 h-full w-full scale-110 object-cover object-bottom"
+            className="absolute inset-x-0 bottom-0 h-[45%] w-full object-cover object-bottom opacity-50 mix-blend-screen"
             autoPlay
             muted
             loop
@@ -166,9 +167,9 @@ export default function Menu() {
           >
             <source src="/images/menu-grill.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/50 to-black/70" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.4)_0%,transparent_75%)]" />
         </div>
-        <div className="relative z-10">
+        <div className="relative z-10 mx-auto w-full drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
           <p className="mb-3 text-xs uppercase tracking-[0.35em] text-gold">Meny</p>
           <h1 className="font-brand text-5xl font-bold tracking-tight text-gold sm:text-6xl">
             Raffaello
@@ -176,7 +177,7 @@ export default function Menu() {
           <p className="mt-2 font-brand-sub text-base uppercase tracking-[0.3em] text-white sm:text-lg">
             Stekhus &amp; Bar
           </p>
-          <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-white/65">
+          <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-white/90">
             Grill, pizza, pasta, burgare och dryck — {SITE.addressLine2}.
           </p>
           <div className="mx-auto mt-6 h-px w-20 bg-gold/80" />
@@ -185,7 +186,7 @@ export default function Menu() {
 
       {categories.length > 1 && (
         <nav
-          className="sticky top-0 z-30 border-b border-white/10 bg-black/80 backdrop-blur-md"
+          className="sticky top-0 z-30 border-b border-white/10 bg-black/55 backdrop-blur-sm"
           aria-label="Menykategorier"
         >
           <div className="mx-auto flex max-w-5xl gap-2 overflow-x-auto px-4 py-3">
