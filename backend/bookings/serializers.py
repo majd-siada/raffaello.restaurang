@@ -4,6 +4,17 @@ from rest_framework import serializers
 
 from .models import Booking
 
+# Mirrors frontend siteConfig hoursSchedule (weekday: 0=Mon … 6=Sun via date.weekday())
+OPENING_HOURS = {
+    0: (time(10, 45), time(21, 0)),  # Monday
+    1: (time(10, 45), time(21, 0)),  # Tuesday
+    2: (time(10, 45), time(21, 0)),  # Wednesday
+    3: (time(10, 45), time(21, 0)),  # Thursday
+    4: (time(10, 45), time(22, 0)),  # Friday
+    5: (time(12, 0), time(22, 0)),   # Saturday
+    6: (time(12, 0), time(21, 0)),   # Sunday
+}
+
 
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -41,10 +52,18 @@ class BookingSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         booking_date = attrs.get('date')
         booking_time = attrs.get('time')
-        if booking_date == date.today() and booking_time:
-            now = datetime.now().time()
-            # Allow a small grace; block clearly past times today
-            if isinstance(booking_time, time) and booking_time < now:
+        if booking_date and booking_time and isinstance(booking_time, time):
+            opens, closes = OPENING_HOURS[booking_date.weekday()]
+            if booking_time < opens or booking_time > closes:
+                raise serializers.ValidationError(
+                    {
+                        'time': (
+                            f'Tiden måste vara inom öppettiderna '
+                            f'({opens.strftime("%H:%M")}–{closes.strftime("%H:%M")}).'
+                        )
+                    }
+                )
+            if booking_date == date.today() and booking_time < datetime.now().time():
                 raise serializers.ValidationError(
                     {'time': 'Tiden har redan passerat idag. Välj en senare tid.'}
                 )

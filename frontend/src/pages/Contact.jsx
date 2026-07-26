@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { SITE } from '../siteConfig'
+import { SITE, bookingSlotsForDate } from '../siteConfig'
 import HeroBackdrop from '../components/HeroBackdrop'
 
 const API_URL = `${import.meta.env.VITE_API_URL || ''}/api/bookings/`
@@ -37,19 +37,14 @@ function nowHHMM() {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
-/** 24h slots from 11:00 to 22:30 every 30 minutes */
-function buildTimeSlots() {
-  const slots = []
-  for (let h = 11; h <= 22; h += 1) {
-    for (const m of [0, 30]) {
-      if (h === 22 && m === 30) continue
-      slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
-    }
+function availableSlotsForDate(isoDate) {
+  if (!isoDate) return []
+  const slots = bookingSlotsForDate(isoDate)
+  if (isoDate === todayISO()) {
+    return slots.filter((t) => t > nowHHMM())
   }
   return slots
 }
-
-const ALL_TIME_SLOTS = buildTimeSlots()
 
 function BookingForm() {
   const [form, setForm] = useState(emptyForm)
@@ -57,11 +52,7 @@ function BookingForm() {
   const [errorText, setErrorText] = useState('')
 
   const minDate = todayISO()
-  const isToday = form.date === minDate
-  const availableTimes =
-    form.date && isToday
-      ? ALL_TIME_SLOTS.filter((t) => t > nowHHMM())
-      : ALL_TIME_SLOTS
+  const availableTimes = availableSlotsForDate(form.date)
 
   const onChange = (e) => {
     const { name, value } = e.target
@@ -79,7 +70,8 @@ function BookingForm() {
     if (name === 'date') {
       setForm((prev) => {
         const next = { ...prev, date: value }
-        if (value === todayISO() && prev.time && prev.time <= nowHHMM()) {
+        const slots = availableSlotsForDate(value)
+        if (prev.time && !slots.includes(prev.time)) {
           next.time = ''
         }
         return next
@@ -104,8 +96,9 @@ function BookingForm() {
     if (form.date === todayISO() && form.time <= nowHHMM()) {
       return 'Välj en tid som inte har passerat.'
     }
-    if (!ALL_TIME_SLOTS.includes(form.time)) {
-      return 'Välj en giltig tid (24-timmarsformat).'
+    const daySlots = bookingSlotsForDate(form.date)
+    if (!daySlots.includes(form.time)) {
+      return 'Välj en tid inom öppettiderna.'
     }
     return null
   }
@@ -268,14 +261,15 @@ function BookingForm() {
             id="time"
             name="time"
             required
+            disabled={!form.date}
             value={form.time}
             onChange={onChange}
-            className={`${fieldClass} appearance-none`}
+            className={`${fieldClass} appearance-none disabled:cursor-not-allowed disabled:opacity-50`}
           >
             <option value="" disabled>
-              Välj tid
+              {form.date ? 'Välj tid' : 'Välj datum först'}
             </option>
-            {availableTimes.length === 0 ? (
+            {form.date && availableTimes.length === 0 ? (
               <option value="" disabled>
                 Inga tider kvar idag
               </option>

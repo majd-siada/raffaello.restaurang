@@ -63,13 +63,20 @@ export const SITE = {
   instagramUrl: 'https://www.instagram.com/raffaello_restaurang_iboden/',
   /**
    * Visas på startsidan och i sidfot. Uppdatera vid ändrade öppettider.
+   * `days`: JS getDay() — 0 = söndag … 6 = lördag.
    */
-  openingHours: [
-    { label: 'Mån–tors', hours: '10:45 – 21:00' },
-    { label: 'Fredag', hours: '10:45 – 22:00' },
-    { label: 'Lördag', hours: '12:00 – 22:00' },
-    { label: 'Söndag', hours: '12:00 – 21:00' },
+  hoursSchedule: [
+    { label: 'Mån–tors', days: [1, 2, 3, 4], opens: '10:45', closes: '21:00' },
+    { label: 'Fredag', days: [5], opens: '10:45', closes: '22:00' },
+    { label: 'Lördag', days: [6], opens: '12:00', closes: '22:00' },
+    { label: 'Söndag', days: [0], opens: '12:00', closes: '21:00' },
   ],
+  get openingHours() {
+    return this.hoursSchedule.map(({ label, opens, closes }) => ({
+      label,
+      hours: `${opens} – ${closes}`,
+    }))
+  },
   /**
    * Siffror för sidan Privata events — bekräfta mot lokalen.
    */
@@ -79,3 +86,41 @@ export const SITE = {
     outdoorNote: 'utomhus · sommar',
   },
 }
+
+function hhmmToMinutes(hhmm) {
+  const [h, m] = hhmm.split(':').map(Number)
+  return h * 60 + m
+}
+
+function minutesToHHMM(mins) {
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+}
+
+/** Öppettider för ett datum (YYYY-MM-DD), eller null. */
+export function getHoursForDate(isoDate) {
+  const day = new Date(`${isoDate}T12:00:00`).getDay()
+  return SITE.hoursSchedule.find((row) => row.days.includes(day)) ?? null
+}
+
+/**
+ * Bokningsbara tider (30 min) under öppettid för datumet.
+ * Första slot = öppning (t.ex. 10:45), därefter :00/:30 t.o.m. stängning.
+ */
+export function bookingSlotsForDate(isoDate) {
+  const hours = getHoursForDate(isoDate)
+  if (!hours) return []
+
+  const start = hhmmToMinutes(hours.opens)
+  const end = hhmmToMinutes(hours.closes)
+  const slots = [minutesToHHMM(start)]
+
+  let t = Math.ceil((start + 1) / 30) * 30
+  while (t <= end) {
+    slots.push(minutesToHHMM(t))
+    t += 30
+  }
+  return slots
+}
+
