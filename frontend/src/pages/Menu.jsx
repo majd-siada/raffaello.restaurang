@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async'
 const API_URL = `${import.meta.env.VITE_API_URL || ''}/api/menu/`
 const MENU_BG = '/images/menu-bg.webp'
 const MENU_BG_MOBILE = '/images/menu-bg-720.webp'
+const MENU_BG_LCP = '/images/menu-bg-480.webp'
 
 function formatPrice(price) {
   if (price == null || price === '') return null
@@ -152,7 +153,7 @@ export default function Menu() {
         <link
           rel="preload"
           as="image"
-          href={MENU_BG_MOBILE}
+          href={MENU_BG_LCP}
           type="image/webp"
           fetchPriority="high"
         />
@@ -182,12 +183,13 @@ export default function Menu() {
       <section className="relative flex h-[min(42dvh,360px)] min-h-[240px] items-center justify-center overflow-hidden text-center">
         <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>
           <picture>
-            <source media="(min-width: 768px)" srcSet={MENU_BG} type="image/webp" />
+            <source media="(min-width: 1024px)" srcSet={MENU_BG} type="image/webp" />
+            <source media="(min-width: 768px)" srcSet={MENU_BG_MOBILE} type="image/webp" />
             <img
-              src={MENU_BG_MOBILE}
+              src={MENU_BG_LCP}
               alt=""
-              width={720}
-              height={900}
+              width={480}
+              height={600}
               fetchPriority="high"
               decoding="async"
               className="absolute inset-0 h-full w-full object-cover object-[center_75%]"
@@ -201,7 +203,7 @@ export default function Menu() {
               loop
               playsInline
               preload="none"
-              poster={MENU_BG_MOBILE}
+              poster={MENU_BG_LCP}
             >
               <source src="/images/menu-grill.mp4" type="video/mp4" />
             </video>

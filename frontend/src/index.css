@@ -8,10 +8,10 @@
   --color-gold: #d4af37;
   --color-gold-hover: #e0bc4a;
   --color-gold-dim: rgba(212, 175, 55, 0.14);
-  --font-heading: "Playfair Display", serif;
-  --font-body: "Poppins", sans-serif;
-  --font-brand: "Outfit", system-ui, sans-serif;
-  --font-brand-sub: "Cormorant Garamond", "Playfair Display", serif;
+  --font-heading: system-ui, "Playfair Display", serif;
+  --font-body: system-ui, "Poppins", sans-serif;
+  --font-brand: system-ui, "Outfit", sans-serif;
+  --font-brand-sub: Georgia, "Cormorant Garamond", "Playfair Display", serif;
 }
 
 html {

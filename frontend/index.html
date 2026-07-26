@@ -3,29 +3,61 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="theme-color" content="#0a0908" />
     <title>Raffaello Stekhus &amp; Bar</title>
     <link rel="icon" href="/raffaello-logo.webp" type="image/webp" />
-    <!-- Homepage LCP only; other routes preload via Helmet -->
     <link
       rel="preload"
       as="image"
-      href="/images/hero-interior-800.webp"
+      href="/images/hero-interior-480.webp"
       type="image/webp"
-      media="(max-width: 1023px)"
       fetchpriority="high"
     />
-    <link
-      rel="preload"
-      as="image"
-      href="/images/hero-interior.webp"
-      type="image/webp"
-      media="(min-width: 1024px)"
-      fetchpriority="high"
-    />
+    <style>
+      /* Critical first-paint styles — no wait for JS/CSS bundles */
+      html,body{margin:0;background:#0a0908;color:#c8c4bc}
+      #boot{
+        min-height:100dvh;display:flex;align-items:center;justify-content:center;
+        text-align:center;position:relative;overflow:hidden;background:#0a0908;
+      }
+      #boot img{
+        position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+        filter:brightness(.85);
+      }
+      #boot .veil{
+        position:absolute;inset:0;
+        background:linear-gradient(to bottom,rgba(0,0,0,.55),rgba(10,9,8,.85));
+      }
+      #boot .copy{position:relative;z-index:1;padding:1.5rem}
+      #boot p{margin:0 0 .75rem;font:500 .7rem/1.2 system-ui,sans-serif;
+        letter-spacing:.35em;text-transform:uppercase;color:#d4af37}
+      #boot h1{margin:0;font:700 clamp(2.5rem,8vw,4.5rem)/.95 system-ui,sans-serif;
+        letter-spacing:-.02em;color:#fff}
+      #boot .sub{margin:.5rem 0 0;font:italic 1.25rem/1.2 Georgia,serif;color:rgba(255,255,255,.85)}
+      #boot .rule{width:4rem;height:1px;background:#d4af37;margin:1.25rem auto 0;opacity:.9}
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Static shell paints before React (FCP/LCP) -->
+      <div id="boot" aria-hidden="true">
+        <img
+          src="/images/hero-interior-480.webp"
+          alt=""
+          width="480"
+          height="360"
+          fetchpriority="high"
+          decoding="async"
+        />
+        <div class="veil"></div>
+        <div class="copy">
+          <p>Stekhus &amp; bar · Boden</p>
+          <h1>Raffaello</h1>
+          <p class="sub">Stekhus &amp; Bar</p>
+          <div class="rule"></div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

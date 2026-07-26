@@ -42,7 +42,7 @@ export default function Home() {
         <link
           rel="preload"
           as="image"
-          href={SITE.images.heroMobile}
+          href={SITE.images.heroLcp}
           type="image/webp"
           fetchPriority="high"
         />
@@ -149,8 +149,8 @@ export default function Home() {
       {/* ===== HERO ===== */}
       <section className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden text-center">
         <HeroBackdrop
-          src={SITE.images.heroMobile}
-          srcSet={`${SITE.images.heroMobile} 800w, ${SITE.images.hero} 1024w`}
+          src={SITE.images.heroLcp}
+          srcSet={`${SITE.images.heroLcp} 480w, ${SITE.images.heroMobile} 800w, ${SITE.images.hero} 1024w`}
           sizes="100vw"
           alt={SITE.imageAlts.hero}
           priority
