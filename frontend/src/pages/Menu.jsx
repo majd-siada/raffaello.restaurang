@@ -149,16 +149,15 @@ export default function Menu() {
         <link rel="canonical" href="https://raffaello.se/meny" />
       </Helmet>
 
-      <section className="relative flex min-h-[70vh] items-center overflow-hidden border-b border-gold/20 px-6 py-16 text-center sm:min-h-[75vh] sm:py-20">
+      <section className="relative aspect-[4/5] max-h-[85vh] w-full overflow-hidden border-b border-gold/20 text-center sm:aspect-auto sm:min-h-[70vh]">
         <div className="pointer-events-none absolute inset-0 z-0 bg-black" aria-hidden>
-          {/* Zoomed out so full grill + smoke are visible */}
           <img
             src="/images/menu-bg.webp"
             alt=""
-            className="absolute inset-0 h-full w-full object-contain object-center"
+            className="absolute inset-0 h-full w-full object-cover object-center"
           />
           <video
-            className="absolute inset-x-0 bottom-0 h-[45%] w-full object-cover object-bottom opacity-50 mix-blend-screen"
+            className="absolute inset-x-0 bottom-0 h-1/3 w-full object-cover object-bottom opacity-45 mix-blend-screen"
             autoPlay
             muted
             loop
@@ -167,9 +166,9 @@ export default function Menu() {
           >
             <source src="/images/menu-grill.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.4)_0%,transparent_75%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50" />
         </div>
-        <div className="relative z-10 mx-auto w-full drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
+        <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 py-16 drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)] sm:py-20">
           <p className="mb-3 text-xs uppercase tracking-[0.35em] text-gold">Meny</p>
           <h1 className="font-brand text-5xl font-bold tracking-tight text-gold sm:text-6xl">
             Raffaello
