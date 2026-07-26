@@ -1,28 +1,35 @@
 import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { MENU_PAGES } from '../data/menuPages'
+import { SITE } from '../siteConfig'
+
+const API_URL = `${import.meta.env.VITE_API_URL || ''}/api/menu/`
 
 function formatPrice(price) {
-  if (price == null) return null
-  return `${price} SEK`
+  if (price == null || price === '') return null
+  const n = Number(price)
+  if (Number.isNaN(n)) return `${price} SEK`
+  return `${Number.isInteger(n) ? n : n.toFixed(2).replace(/\.00$/, '')} SEK`
 }
 
-function MenuItemRow({ item, sectionPrice }) {
-  const price = item.price ?? sectionPrice
+function MenuItemRow({ item }) {
+  const available = item.is_available !== false
   return (
-    <div className="mb-4 last:mb-0">
+    <div className={`mb-5 last:mb-0 ${available ? '' : 'opacity-45'}`}>
       <div className="flex items-baseline justify-between gap-3">
-        <h3 className="font-heading text-[0.95rem] font-semibold leading-snug text-gold sm:text-base">
+        <h3 className="font-heading text-base font-semibold leading-snug text-gold sm:text-lg">
           {item.name}
+          {!available && (
+            <span className="ml-2 text-xs font-normal uppercase tracking-wider text-red-400/90">
+              Slutsåld
+            </span>
+          )}
         </h3>
-        {price != null && (
-          <span className="shrink-0 font-heading text-[0.95rem] font-semibold text-gold sm:text-base">
-            {formatPrice(price)}
-          </span>
-        )}
+        <span className="shrink-0 font-heading text-base font-semibold text-gold sm:text-lg">
+          {formatPrice(item.price)}
+        </span>
       </div>
       {item.description && (
-        <p className="mt-0.5 text-[0.8rem] italic leading-relaxed text-white/85 sm:text-sm">
+        <p className="mt-1 whitespace-pre-line text-sm italic leading-relaxed text-white/80">
           {item.description}
         </p>
       )}
@@ -30,203 +37,86 @@ function MenuItemRow({ item, sectionPrice }) {
   )
 }
 
-function SectionBlock({ title, notes, items, sectionPrice }) {
+function CategoryBlock({ cat, isSubcategory = false }) {
+  const hasItems = (cat.items || []).length > 0
+  const hasSubs = (cat.subcategories || []).length > 0
+  if (!hasItems && !hasSubs) return null
+
   return (
-    <div className="mb-8 last:mb-0">
-      {title && (
-        <div className="mb-3">
-          <div className="flex items-baseline justify-between gap-3">
-            <h2 className="font-heading text-xl font-bold text-white sm:text-2xl">{title}</h2>
-            {sectionPrice != null && (
-              <span className="font-heading text-sm font-semibold italic text-gold sm:text-base">
-                {formatPrice(sectionPrice)}
-              </span>
-            )}
-          </div>
-          <div className="mt-1 h-px w-full bg-white/70" />
-        </div>
-      )}
-      {notes?.map((note, i) => (
-        <p
-          key={i}
-          className={`mb-2 text-sm italic ${
-            note.tone === 'gold' ? 'text-gold' : 'text-white/70'
+    <section
+      id={isSubcategory ? undefined : `meny-kat-${cat.id}`}
+      className={`scroll-mt-28 ${isSubcategory ? 'mb-8 ml-1 sm:ml-3' : 'mb-14'}`}
+    >
+      <div className="mb-4">
+        <h2
+          className={`font-heading font-bold tracking-wide text-white ${
+            isSubcategory ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'
           }`}
         >
-          {note.text}
-        </p>
-      ))}
-      <div className="space-y-1">
-        {items?.map((item, i) => (
-          <MenuItemRow key={`${item.name}-${i}`} item={item} sectionPrice={sectionPrice} />
-        ))}
+          {cat.name}
+        </h2>
+        <div className="mt-2 h-px w-full bg-white/60" />
       </div>
-    </div>
-  )
-}
 
-function ColumnContent({ column }) {
-  if (column.sections) {
-    return column.sections.map((section, i) => (
-      <SectionBlock
-        key={`${section.title}-${i}`}
-        title={section.title}
-        notes={section.notes}
-        items={section.items}
-        sectionPrice={section.sectionPrice}
-      />
-    ))
-  }
+      {cat.description && (
+        <p className="mb-5 whitespace-pre-line text-sm italic leading-relaxed text-gold/90">
+          {cat.description}
+        </p>
+      )}
 
-  return (
-    <SectionBlock
-      title={column.title}
-      notes={column.notes}
-      items={column.items}
-      sectionPrice={column.sectionPrice}
-    />
-  )
-}
-
-function WineCard({ wine }) {
-  return (
-    <article className="mb-8 border-l-2 border-gold/70 pl-4 last:mb-0">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h3 className="font-heading text-lg font-semibold text-gold underline decoration-gold/50 underline-offset-4">
-            {wine.name}
-          </h3>
-          {wine.details?.map((line) => (
-            <p key={line} className="mt-1 text-sm text-white/80">
-              {line}
-            </p>
+      {hasItems && (
+        <div className="max-w-3xl">
+          {(cat.items || []).map((item) => (
+            <MenuItemRow key={item.id} item={item} />
           ))}
         </div>
-        <div className="shrink-0 text-sm text-gold sm:text-right">
-          <p>Ett glas {wine.glass} SEK</p>
-          <p>En flaska {wine.bottle} SEK</p>
-        </div>
-      </div>
-      {wine.pairsWith && (
-        <div className="mt-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-gold">
-            Passar perfekt till:
-          </p>
-          <p className="mt-1 text-sm leading-relaxed text-white/85">{wine.pairsWith}</p>
+      )}
+
+      {hasSubs && (
+        <div className="mt-8 space-y-2">
+          {(cat.subcategories || []).map((sub) => (
+            <CategoryBlock key={sub.id} cat={sub} isSubcategory />
+          ))}
         </div>
       )}
-      {wine.why && (
-        <p className="mt-2 text-sm italic leading-relaxed text-white/70">
-          <span className="not-italic font-semibold text-white/90">Varför: </span>
-          {wine.why}
-        </p>
-      )}
-    </article>
-  )
-}
-
-function MenuBoard({ page }) {
-  return (
-    <article
-      id={`meny-${page.id}`}
-      className="relative scroll-mt-28 overflow-hidden rounded-sm border border-white/10 bg-black"
-    >
-      <div
-        className="pointer-events-none absolute inset-0 bg-cover bg-bottom opacity-40"
-        style={{ backgroundImage: "url('/images/menu-grill.webp')" }}
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black via-black/92 to-black/55"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-orange-700/35 via-amber-900/15 to-transparent"
-        aria-hidden
-      />
-
-      <div className="relative z-10 px-5 py-10 sm:px-8 sm:py-12 md:px-12">
-        <header className="mb-10 text-center">
-          <h2 className="font-brand text-4xl font-bold tracking-tight text-gold sm:text-5xl">
-            Raffaello
-          </h2>
-          <p className="mt-2 font-brand-sub text-sm uppercase tracking-[0.35em] text-white sm:text-base">
-            Stekhus &amp; Bar
-          </p>
-          {page.intro && (
-            <p className="mt-4 text-sm italic text-gold sm:text-base">{page.intro}</p>
-          )}
-        </header>
-
-        {page.layout === 'wine' ? (
-          <div className="mx-auto max-w-3xl">
-            {page.wines?.map((wine) => (
-              <WineCard key={wine.name} wine={wine} />
-            ))}
-            {page.wineGroups?.map((group) => (
-              <section key={group.title} className="mb-10 last:mb-0">
-                <h3 className="mb-5 font-heading text-lg font-bold tracking-wide text-gold">
-                  <span className="mr-2 inline-block h-4 w-1 bg-white/80 align-middle" />
-                  {group.title}
-                </h3>
-                {group.wines.map((wine) => (
-                  <WineCard key={wine.name} wine={wine} />
-                ))}
-              </section>
-            ))}
-          </div>
-        ) : (
-          <div className="grid gap-10 md:grid-cols-2 md:gap-0">
-            {page.columns.map((column, index) => (
-              <div
-                key={index}
-                className={
-                  index === 0
-                    ? 'md:border-r md:border-gold/40 md:pr-8'
-                    : 'md:pl-8'
-                }
-              >
-                <ColumnContent column={column} />
-              </div>
-            ))}
-          </div>
-        )}
-
-        <p className="mt-12 text-center text-[0.65rem] uppercase tracking-[0.45em] text-white/70">
-          www.raffaello.se
-        </p>
-      </div>
-    </article>
+    </section>
   )
 }
 
 export default function Menu() {
-  const [activeId, setActiveId] = useState(MENU_PAGES[0].id)
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+  const [activeCategory, setActiveCategory] = useState(null)
 
   useEffect(() => {
-    const sections = MENU_PAGES.map((page) => document.getElementById(`meny-${page.id}`)).filter(
-      Boolean
-    )
-    if (!sections.length) return undefined
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
-        if (visible?.target?.id) {
-          setActiveId(visible.target.id.replace(/^meny-/, ''))
-        }
-      },
-      { rootMargin: '-30% 0px -50% 0px', threshold: [0.15, 0.35, 0.6] }
-    )
-
-    sections.forEach((section) => observer.observe(section))
-    return () => observer.disconnect()
+    fetch(API_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        return res.json()
+      })
+      .then((data) => {
+        if (!Array.isArray(data)) throw new Error('Invalid menu response')
+        setCategories(data)
+        setLoading(false)
+      })
+      .catch(() => {
+        setError(true)
+        setLoading(false)
+      })
   }, [])
 
+  const filtered = activeCategory
+    ? categories.filter((c) => c.id === activeCategory)
+    : categories
+
   return (
-    <div className="bg-dark">
+    <div className="relative min-h-screen bg-dark text-white/80">
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_rgba(212,175,55,0.08),_transparent_55%)]"
+        aria-hidden
+      />
+
       <Helmet>
         <title>Meny | Raffaello Restaurang Boden</title>
         <meta
@@ -256,50 +146,84 @@ export default function Menu() {
         <link rel="canonical" href="https://raffaello.se/meny" />
       </Helmet>
 
-      <section className="relative flex min-h-[38vh] items-center justify-center overflow-hidden text-center">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/images/menu-grill.webp')" }}
-          aria-hidden
-        />
-        <div className="absolute inset-0 bg-black/75" aria-hidden />
-        <div className="relative z-10 px-6 py-16">
-          <p className="mb-3 text-xs uppercase tracking-[0.35em] text-gold">Meny</p>
-          <h1 className="font-brand text-5xl font-bold text-gold sm:text-6xl">Raffaello</h1>
-          <p className="mt-2 font-brand-sub text-lg uppercase tracking-[0.3em] text-white">
-            Stekhus &amp; Bar
-          </p>
-          <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-white/70">
-            Grill, pizza, pasta, burgare och dryck — som på menyn i lokalen.
-          </p>
-        </div>
+      <section className="relative border-b border-gold/20 px-6 py-16 text-center sm:py-20">
+        <p className="mb-3 text-xs uppercase tracking-[0.35em] text-gold">Meny</p>
+        <h1 className="font-brand text-5xl font-bold tracking-tight text-gold sm:text-6xl">
+          Raffaello
+        </h1>
+        <p className="mt-2 font-brand-sub text-base uppercase tracking-[0.3em] text-white sm:text-lg">
+          Stekhus &amp; Bar
+        </p>
+        <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-white/65">
+          Grill, pizza, pasta, burgare och dryck — {SITE.addressLine2}.
+        </p>
+        <div className="mx-auto mt-6 h-px w-20 bg-gold/80" />
       </section>
 
-      <nav
-        className="sticky top-0 z-30 border-b border-white/10 bg-dark/95 backdrop-blur-md"
-        aria-label="Menykategorier"
-      >
-        <div className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 py-3 scrollbar-thin">
-          {MENU_PAGES.map((page) => (
-            <a
-              key={page.id}
-              href={`#meny-${page.id}`}
-              className={`shrink-0 border px-3 py-2 text-[0.65rem] uppercase tracking-widest transition-colors sm:text-xs ${
-                activeId === page.id
+      {categories.length > 1 && (
+        <nav
+          className="sticky top-0 z-30 border-b border-white/10 bg-dark/95 backdrop-blur-md"
+          aria-label="Menykategorier"
+        >
+          <div className="mx-auto flex max-w-5xl gap-2 overflow-x-auto px-4 py-3">
+            <button
+              type="button"
+              onClick={() => setActiveCategory(null)}
+              className={`shrink-0 cursor-pointer border px-3 py-2 text-[0.65rem] uppercase tracking-widest transition-colors sm:text-xs ${
+                activeCategory === null
                   ? 'border-gold bg-gold text-dark'
-                  : 'border-gold/35 text-gold hover:border-gold hover:bg-gold/10'
+                  : 'border-gold/40 text-gold hover:border-gold hover:bg-gold/10'
               }`}
             >
-              {page.label}
-            </a>
-          ))}
-        </div>
-      </nav>
+              Alla
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setActiveCategory(cat.id)}
+                className={`shrink-0 cursor-pointer border px-3 py-2 text-[0.65rem] uppercase tracking-widest transition-colors sm:text-xs ${
+                  activeCategory === cat.id
+                    ? 'border-gold bg-gold text-dark'
+                    : 'border-gold/40 text-gold hover:border-gold hover:bg-gold/10'
+                }`}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+        </nav>
+      )}
 
-      <section className="px-4 py-10 sm:px-6 sm:py-14">
-        <div className="mx-auto flex max-w-5xl flex-col gap-10">
-          {MENU_PAGES.map((page) => (
-            <MenuBoard key={page.id} page={page} />
+      <section className="relative px-5 py-12 sm:px-8 sm:py-16">
+        <div className="mx-auto max-w-4xl">
+          {loading && (
+            <div className="space-y-6">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="animate-pulse space-y-2">
+                  <div className="h-5 w-40 rounded bg-white/10" />
+                  <div className="h-px w-full bg-gold/20" />
+                  <div className="h-4 w-full rounded bg-white/5" />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!loading && error && (
+            <p className="text-center text-lg text-white/50">
+              Menyn kunde inte laddas. Kontrollera att API:t körs och ladda om sidan.
+            </p>
+          )}
+
+          {!loading && !error && categories.length === 0 && (
+            <p className="mx-auto max-w-xl text-center text-lg text-white/50">
+              Ingen meny finns ännu. Lägg till kategorier och rätter i admin, eller kör{' '}
+              <code className="text-gold/90">python manage.py seed_menu --replace</code>.
+            </p>
+          )}
+
+          {!loading && !error && filtered.map((cat) => (
+            <CategoryBlock key={cat.id} cat={cat} />
           ))}
         </div>
       </section>
