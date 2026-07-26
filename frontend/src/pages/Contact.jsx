@@ -36,7 +36,10 @@ export default function Contact() {
 
       {/* Hero */}
       <section className="relative flex min-h-[min(52vh,480px)] items-center justify-center overflow-hidden bg-dark text-center">
-        <HeroBackdrop src={SITE.images.bar} alt={SITE.imageAlts.bar} />
+        <HeroBackdrop
+          images={[...SITE.gallery.slice(3), ...SITE.gallery.slice(0, 3)]}
+          alt={SITE.imageAlts.bar}
+        />
         <div className="relative z-10 flex flex-col items-center justify-center px-6 py-24 text-center">
           <p className="text-gold uppercase tracking-[0.2em] text-sm mb-4">Hör av dig</p>
           <h1 className="font-heading text-5xl md:text-6xl text-white mb-4">Kontakta Oss</h1>

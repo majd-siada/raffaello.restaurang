@@ -32,6 +32,15 @@ export const SITE = {
     salad: 'Färsk sallad på Raffaello Restaurang i Boden',
     logo: 'Raffaello Restaurang logotyp',
   },
+  /** Rotating gallery (~7s) for heroes and section photos. */
+  gallery: [
+    { src: '/images/hero-interior.webp', alt: 'Raffaello Restaurang i Boden interiör' },
+    { src: '/images/interior-dining.webp', alt: 'Matsal på Raffaello Restaurang i Boden' },
+    { src: '/images/interior-ambiance.webp', alt: 'Restaurangens atmosfär på Raffaello i Boden' },
+    { src: '/images/interior-bar.webp', alt: 'Bar på Raffaello Restaurang i Boden' },
+    { src: '/images/dish-steak.webp', alt: 'Premium steak på Raffaello Restaurang i Boden' },
+    { src: '/images/dish-salad.webp', alt: 'Färsk sallad på Raffaello Restaurang i Boden' },
+  ],
   brandImageAlt: 'Raffaello Stekhus & Bar — restaurang i Boden',
   /** Original logotyp (från restaurangen). */
   logoImage: '/raffaello-logo.webp',

@@ -215,9 +215,15 @@ export default function Home() {
       {/* ===== HERO ===== */}
       <section className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden text-center">
         <HeroBackdrop
-          src={SITE.images.heroLcp}
-          srcSet={`${SITE.images.heroLcp} 480w, ${SITE.images.heroMobile} 800w, ${SITE.images.hero} 1024w`}
-          sizes="100vw"
+          images={[
+            {
+              src: SITE.images.heroLcp,
+              srcSet: `${SITE.images.heroLcp} 480w, ${SITE.images.heroMobile} 800w, ${SITE.images.hero} 1024w`,
+              sizes: '100vw',
+              alt: SITE.imageAlts.hero,
+            },
+            ...SITE.gallery.filter((g) => g.src !== SITE.images.hero),
+          ]}
           alt={SITE.imageAlts.hero}
           priority
         />
@@ -298,7 +304,7 @@ export default function Home() {
             </Link>
           </div>
           <div className="relative">
-            <SectionPhoto src={SITE.images.dining} alt={SITE.imageAlts.dining} />
+            <SectionPhoto images={SITE.gallery} alt={SITE.imageAlts.dining} />
           </div>
         </div>
       </section>
@@ -346,7 +352,11 @@ export default function Home() {
       <section className="bg-dark py-24 px-6">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
           <div className="relative">
-            <SectionPhoto src={SITE.images.ambiance} alt={SITE.imageAlts.ambiance} borderOffset="left" />
+            <SectionPhoto
+              images={[...SITE.gallery.slice(2), ...SITE.gallery.slice(0, 2)]}
+              alt={SITE.imageAlts.ambiance}
+              borderOffset="left"
+            />
           </div>
           <div>
             <p className="text-gold uppercase tracking-[0.2em] text-sm mb-3">Privata Events</p>
