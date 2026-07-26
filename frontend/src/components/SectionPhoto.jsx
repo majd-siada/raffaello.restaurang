@@ -1,9 +1,9 @@
 import { useRotatingIndex } from '../hooks/useRotatingIndex'
 
-const ROTATE_MS = 7000
+const ROTATE_MS = 4000
 
 /**
- * Section photo. Pass `images` to crossfade through a gallery every 7s.
+ * Section photo. Pass `images` to crossfade through a gallery every 4s.
  */
 export default function SectionPhoto({
   src,

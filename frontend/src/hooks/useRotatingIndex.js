@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-const DEFAULT_MS = 7000
+const DEFAULT_MS = 4000
 
 /**
  * Cycles 0..length-1 every intervalMs while the element is in view.

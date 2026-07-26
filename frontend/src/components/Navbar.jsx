@@ -6,6 +6,7 @@ import BrandLogo from './BrandLogo'
 const navLinksLeft = [
   { to: '/', label: 'Hem' },
   { to: '/meny', label: 'Meny' },
+  { href: SITE.lunchUrl, label: 'Lunch', external: true },
   { to: '/om-oss', label: 'Om oss' },
 ]
 
@@ -14,18 +15,29 @@ const navLinksRight = [
   { to: '/privata-events', label: 'Events' },
 ]
 
-function DesktopNavLink({ to, label }) {
+function DesktopNavLink({ to, href, label, external }) {
   const location = useLocation()
-  const active =
-    to === '/' ? location.pathname === '/' : location.pathname === to
+  const className = `text-xs uppercase tracking-widest transition-colors ${
+    !external && (to === '/' ? location.pathname === '/' : location.pathname === to)
+      ? 'text-gold'
+      : 'text-white/80 hover:text-gold'
+  }`
+
+  if (external && href) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+      >
+        {label}
+      </a>
+    )
+  }
 
   return (
-    <Link
-      to={to}
-      className={`text-xs uppercase tracking-widest transition-colors ${
-        active ? 'text-gold' : 'text-white/80 hover:text-gold'
-      }`}
-    >
+    <Link to={to} className={className}>
       {label}
     </Link>
   )
@@ -126,19 +138,38 @@ export default function Navbar() {
             <MobileMenuButton menuOpen onToggle={toggleMenu} />
           </div>
           <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-6 overflow-y-auto px-8 py-10">
-            {[...navLinksLeft, ...navLinksRight].map(link => {
+            {[...navLinksLeft, ...navLinksRight].map((link) => {
+              const key = link.href || link.to
               const active =
-                link.to === '/'
+                !link.external &&
+                (link.to === '/'
                   ? location.pathname === '/'
-                  : location.pathname === link.to
+                  : location.pathname === link.to)
+              const className = `font-heading text-2xl tracking-wide transition-colors sm:text-3xl ${
+                active ? 'text-gold' : 'text-white hover:text-gold'
+              }`
+
+              if (link.external && link.href) {
+                return (
+                  <a
+                    key={key}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={closeMenu}
+                    className={className}
+                  >
+                    {link.label}
+                  </a>
+                )
+              }
+
               return (
                 <Link
-                  key={link.to}
+                  key={key}
                   to={link.to}
                   onClick={closeMenu}
-                  className={`font-heading text-2xl tracking-wide transition-colors sm:text-3xl ${
-                    active ? 'text-gold' : 'text-white hover:text-gold'
-                  }`}
+                  className={className}
                 >
                   {link.label}
                 </Link>
@@ -159,16 +190,16 @@ export default function Navbar() {
       <div className="hidden lg:block max-w-7xl mx-auto px-6 py-4">
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-6">
           <div className="flex justify-end items-center gap-8 pr-4">
-            {navLinksLeft.map(link => (
-              <DesktopNavLink key={link.to} {...link} />
+            {navLinksLeft.map((link) => (
+              <DesktopNavLink key={link.href || link.to} {...link} />
             ))}
           </div>
           <div className="flex shrink-0 justify-center">
             <BrandLogo className="justify-center" />
           </div>
           <div className="flex justify-start items-center gap-8 pl-4">
-            {navLinksRight.map(link => (
-              <DesktopNavLink key={link.to} {...link} />
+            {navLinksRight.map((link) => (
+              <DesktopNavLink key={link.href || link.to} {...link} />
             ))}
             <Link
               to={SITE.bookingUrl}

@@ -32,7 +32,7 @@ export const SITE = {
     salad: 'Färsk sallad på Raffaello Restaurang i Boden',
     logo: 'Raffaello Restaurang logotyp',
   },
-  /** Rotating gallery (~7s) for heroes and section photos. */
+  /** Rotating gallery (~4s) for heroes and section photos. */
   gallery: [
     { src: '/images/hero-interior.webp', alt: 'Raffaello Restaurang i Boden interiör' },
     { src: '/images/interior-dining.webp', alt: 'Matsal på Raffaello Restaurang i Boden' },
@@ -44,6 +44,8 @@ export const SITE = {
   brandImageAlt: 'Raffaello Stekhus & Bar — restaurang i Boden',
   /** Original logotyp (från restaurangen). */
   logoImage: '/raffaello-logo.webp',
+  /** Dagens lunch på Mat och Mat. */
+  lunchUrl: 'https://www.matochmat.se/lunch/boden/raffaello-stekhus-bar/',
   addressLine1: 'Drottninggatan 18',
   addressLine2: '961 35 Boden',
   phoneDisplay: '0921-214 010',

@@ -2,10 +2,10 @@ import { useRotatingIndex } from '../hooks/useRotatingIndex'
 
 const OVERLAY_MAIN = 'from-black/60 via-black/75 to-dark'
 const OVERLAY_TOP = 'from-dark via-transparent to-black/20'
-const ROTATE_MS = 7000
+const ROTATE_MS = 4000
 
 /**
- * Full-bleed backdrop. Pass `images` to crossfade through a gallery every 7s.
+ * Full-bleed backdrop. Pass `images` to crossfade through a gallery every 4s.
  * Falls back to a single `src` when no gallery is provided.
  */
 export default function HeroBackdrop({
