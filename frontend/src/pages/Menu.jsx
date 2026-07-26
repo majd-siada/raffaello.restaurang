@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { SITE } from '../siteConfig'
 
 const API_URL = `${import.meta.env.VITE_API_URL || ''}/api/menu/`
+const MENU_BG = '/images/menu-bg.webp'
+const MENU_BG_MOBILE = '/images/menu-bg-720.webp'
 
 function formatPrice(price) {
   if (price == null || price === '') return null
@@ -83,11 +84,41 @@ function CategoryBlock({ cat, isSubcategory = false }) {
   )
 }
 
+function useDesktopMotion() {
+  const [enabled, setEnabled] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px) and (prefers-reduced-motion: no-preference)')
+    if (!mq.matches) return undefined
+
+    let cancelled = false
+    const start = () => {
+      if (!cancelled) setEnabled(true)
+    }
+    const idleId =
+      'requestIdleCallback' in window
+        ? window.requestIdleCallback(start, { timeout: 2500 })
+        : window.setTimeout(start, 1200)
+
+    return () => {
+      cancelled = true
+      if ('cancelIdleCallback' in window && typeof idleId === 'number') {
+        window.cancelIdleCallback(idleId)
+      } else {
+        clearTimeout(idleId)
+      }
+    }
+  }, [])
+
+  return enabled
+}
+
 export default function Menu() {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [activeCategory, setActiveCategory] = useState(null)
+  const showVideo = useDesktopMotion()
 
   useEffect(() => {
     fetch(API_URL)
@@ -111,24 +142,19 @@ export default function Menu() {
     : categories
 
   return (
-    <div className="relative min-h-screen bg-black text-white/80">
-      {/* Page grill atmosphere */}
-      <div
-        className="pointer-events-none fixed inset-0 z-0 bg-black bg-cover bg-[center_70%] bg-no-repeat"
-        style={{ backgroundImage: "url('/images/menu-bg.webp')" }}
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none fixed inset-0 z-0 bg-black/50"
-        aria-hidden
-      />
-
-      <div className="relative z-10">
+    <div className="relative min-h-screen overflow-x-hidden bg-black text-white/80">
       <Helmet>
         <title>Meny | Raffaello Restaurang Boden</title>
         <meta
           name="description"
           content="Utforska vår meny med premium steaks, italienska rätter, pizza, pasta, hamburgare och mycket mer på Raffaello Restaurang i Boden."
+        />
+        <link
+          rel="preload"
+          as="image"
+          href={MENU_BG_MOBILE}
+          type="image/webp"
+          fetchPriority="high"
         />
         <script type="application/ld+json">
           {JSON.stringify({
@@ -153,26 +179,36 @@ export default function Menu() {
         <link rel="canonical" href="https://raffaello.se/meny" />
       </Helmet>
 
-      <section className="relative flex h-[42vh] min-h-[260px] max-h-[380px] items-center justify-center overflow-hidden text-center sm:h-[46vh]">
+      <section className="relative flex h-[min(42dvh,360px)] min-h-[240px] items-center justify-center overflow-hidden text-center">
         <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>
-          <img
-            src="/images/menu-bg.webp"
-            alt=""
-            className="absolute inset-0 h-full w-full scale-105 object-cover object-[center_75%]"
-          />
-          <video
-            className="absolute inset-0 h-full w-full object-cover object-bottom opacity-40 mix-blend-screen"
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster="/images/menu-bg.webp"
-          >
-            <source src="/images/menu-grill.mp4" type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/45 to-black/70" />
+          <picture>
+            <source media="(min-width: 768px)" srcSet={MENU_BG} type="image/webp" />
+            <img
+              src={MENU_BG_MOBILE}
+              alt=""
+              width={720}
+              height={900}
+              fetchPriority="high"
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover object-[center_75%]"
+            />
+          </picture>
+          {showVideo && (
+            <video
+              className="absolute inset-0 hidden h-full w-full object-cover object-bottom opacity-35 mix-blend-screen md:block"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="none"
+              poster={MENU_BG_MOBILE}
+            >
+              <source src="/images/menu-grill.mp4" type="video/mp4" />
+            </video>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/45 to-black/75" />
         </div>
-        <div className="relative z-10 px-6 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+        <div className="relative z-10 px-5 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] sm:px-6">
           <p className="mb-3 text-xs uppercase tracking-[0.35em] text-gold">Meny</p>
           <h1 className="font-brand text-4xl font-bold tracking-tight text-gold sm:text-5xl md:text-6xl">
             Raffaello
@@ -184,74 +220,84 @@ export default function Menu() {
         </div>
       </section>
 
-      {categories.length > 1 && (
-        <nav
-          className="sticky top-0 z-30 border-b border-white/10 bg-black/55 backdrop-blur-sm"
-          aria-label="Menykategorier"
-        >
-          <div className="mx-auto flex max-w-5xl gap-2 overflow-x-auto px-4 py-3">
-            <button
-              type="button"
-              onClick={() => setActiveCategory(null)}
-              className={`shrink-0 cursor-pointer border px-3 py-2 text-[0.65rem] uppercase tracking-widest transition-colors sm:text-xs ${
-                activeCategory === null
-                  ? 'border-gold bg-gold text-dark'
-                  : 'border-gold/40 text-gold hover:border-gold hover:bg-gold/10'
-              }`}
-            >
-              Alla
-            </button>
-            {categories.map((cat) => (
+      <nav
+        className="sticky top-0 z-30 min-h-[52px] border-b border-white/10 bg-black/80 backdrop-blur-sm"
+        aria-label="Menykategorier"
+      >
+        <div className="mx-auto flex max-w-5xl gap-2 overflow-x-auto overscroll-x-contain px-4 py-3 [-webkit-overflow-scrolling:touch]">
+          {loading ? (
+            <>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-9 w-20 shrink-0 animate-pulse rounded-sm bg-white/10"
+                />
+              ))}
+            </>
+          ) : (
+            <>
               <button
-                key={cat.id}
                 type="button"
-                onClick={() => setActiveCategory(cat.id)}
-                className={`shrink-0 cursor-pointer border px-3 py-2 text-[0.65rem] uppercase tracking-widest transition-colors sm:text-xs ${
-                  activeCategory === cat.id
+                onClick={() => setActiveCategory(null)}
+                className={`min-h-[44px] shrink-0 cursor-pointer border px-3 py-2 text-[0.65rem] uppercase tracking-widest transition-colors sm:text-xs ${
+                  activeCategory === null
                     ? 'border-gold bg-gold text-dark'
                     : 'border-gold/40 text-gold hover:border-gold hover:bg-gold/10'
                 }`}
               >
-                {cat.name}
+                Alla
               </button>
-            ))}
-          </div>
-        </nav>
-      )}
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`min-h-[44px] shrink-0 cursor-pointer border px-3 py-2 text-[0.65rem] uppercase tracking-widest transition-colors sm:text-xs ${
+                    activeCategory === cat.id
+                      ? 'border-gold bg-gold text-dark'
+                      : 'border-gold/40 text-gold hover:border-gold hover:bg-gold/10'
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </>
+          )}
+        </div>
+      </nav>
 
-      <section className="relative px-5 py-12 sm:px-8 sm:py-16">
+      <section className="relative bg-gradient-to-b from-black/85 via-black/90 to-black px-4 py-10 sm:px-8 sm:py-16">
         <div className="mx-auto max-w-4xl">
           {loading && (
-            <div className="space-y-6">
-              {Array.from({ length: 8 }).map((_, i) => (
+            <div className="space-y-6" aria-busy="true">
+              {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="animate-pulse space-y-2">
                   <div className="h-5 w-40 rounded bg-white/10" />
                   <div className="h-px w-full bg-gold/20" />
                   <div className="h-4 w-full rounded bg-white/5" />
+                  <div className="h-4 w-3/4 rounded bg-white/5" />
                 </div>
               ))}
             </div>
           )}
 
           {!loading && error && (
-            <p className="text-center text-lg text-white/50">
+            <p className="text-center text-base text-white/50 sm:text-lg">
               Menyn kunde inte laddas. Kontrollera att API:t körs och ladda om sidan.
             </p>
           )}
 
           {!loading && !error && categories.length === 0 && (
-            <p className="mx-auto max-w-xl text-center text-lg text-white/50">
-              Ingen meny finns ännu. Lägg till kategorier och rätter i admin, eller kör{' '}
-              <code className="text-gold/90">python manage.py seed_menu --replace</code>.
+            <p className="mx-auto max-w-xl text-center text-base text-white/50 sm:text-lg">
+              Ingen meny finns ännu. Lägg till kategorier och rätter i admin.
             </p>
           )}
 
-          {!loading && !error && filtered.map((cat) => (
-            <CategoryBlock key={cat.id} cat={cat} />
-          ))}
+          {!loading &&
+            !error &&
+            filtered.map((cat) => <CategoryBlock key={cat.id} cat={cat} />)}
         </div>
       </section>
-      </div>
     </div>
   )
 }

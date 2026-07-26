@@ -12,6 +12,8 @@ export default function BrandLogo({ className = '' }) {
           <img
             src={SITE.logoImage}
             alt={SITE.imageAlts.logo}
+            width={40}
+            height={40}
             className="h-10 w-10 rounded-full object-contain bg-dark ring-2 ring-white/85 group-hover:ring-gold/90 transition-[box-shadow,ring-color]"
             decoding="async"
           />

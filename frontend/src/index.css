@@ -23,6 +23,7 @@ body {
   background-color: var(--color-dark);
   color: #c8c4bc;
   margin: 0;
+  overflow-x: hidden;
 }
 
 ::selection {

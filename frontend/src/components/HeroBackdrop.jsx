@@ -19,7 +19,7 @@ export default function HeroBackdrop({
         sizes={sizes}
         className="h-full w-full object-cover brightness-[0.85]"
         style={{ objectPosition }}
-        decoding={priority ? 'sync' : 'async'}
+        decoding="async"
         fetchPriority={priority ? 'high' : undefined}
         loading={priority ? 'eager' : loading}
       />

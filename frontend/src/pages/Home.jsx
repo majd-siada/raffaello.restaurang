@@ -147,9 +147,9 @@ export default function Home() {
       </Helmet>
 
       {/* ===== HERO ===== */}
-      <section className="relative flex min-h-screen items-center justify-center overflow-hidden text-center">
+      <section className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden text-center">
         <HeroBackdrop
-          src={SITE.images.hero}
+          src={SITE.images.heroMobile}
           srcSet={`${SITE.images.heroMobile} 800w, ${SITE.images.hero} 1024w`}
           sizes="100vw"
           alt={SITE.imageAlts.hero}
@@ -175,13 +175,13 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/meny"
-              className="border border-gold text-gold px-8 py-3 uppercase tracking-widest text-sm hover:bg-gold hover:text-dark transition-all duration-300"
+              className="inline-flex min-h-[44px] items-center justify-center border border-gold px-8 py-3 text-sm uppercase tracking-widest text-gold transition-all duration-300 hover:bg-gold hover:text-dark"
             >
               Vår Meny
             </Link>
             <Link
               to={SITE.bookingUrl}
-              className="bg-gold text-dark px-8 py-3 uppercase tracking-widest text-sm hover:bg-gold-hover transition-all duration-300"
+              className="inline-flex min-h-[44px] items-center justify-center bg-gold px-8 py-3 text-sm uppercase tracking-widest text-dark transition-all duration-300 hover:bg-gold-hover"
             >
               Boka bord
             </Link>

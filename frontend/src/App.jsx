@@ -13,8 +13,11 @@ const PrivateEvents = lazy(() => import('./pages/PrivateEvents'))
 
 function PageFallback() {
   return (
-    <div className="flex min-h-[40vh] items-center justify-center" aria-busy="true">
-      <p className="text-white/50 text-sm uppercase tracking-widest">Laddar…</p>
+    <div
+      className="flex min-h-[50dvh] items-center justify-center"
+      aria-busy="true"
+    >
+      <p className="text-sm uppercase tracking-widest text-white/50">Laddar…</p>
     </div>
   )
 }

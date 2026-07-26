@@ -3,14 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a0a" />
     <title>Raffaello Stekhus &amp; Bar</title>
     <link rel="icon" href="/raffaello-logo.webp" type="image/webp" />
-    <!-- Preload LCP hero early (before React boot) for the homepage -->
+    <!-- Homepage LCP only; other routes preload via Helmet -->
     <link
       rel="preload"
       as="image"
       href="/images/hero-interior-800.webp"
       type="image/webp"
+      media="(max-width: 1023px)"
+      fetchpriority="high"
+    />
+    <link
+      rel="preload"
+      as="image"
+      href="/images/hero-interior.webp"
+      type="image/webp"
+      media="(min-width: 1024px)"
       fetchpriority="high"
     />
   </head>
