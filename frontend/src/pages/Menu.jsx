@@ -114,12 +114,13 @@ export default function Menu() {
     <div className="relative min-h-screen bg-black text-white/80">
       {/* Grill + smoke atmosphere */}
       <div
-        className="pointer-events-none fixed inset-0 z-0 bg-black bg-cover bg-bottom bg-no-repeat"
+        className="pointer-events-none fixed inset-0 z-0 bg-black bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('/images/menu-bg.webp')" }}
         aria-hidden
       />
+      {/* Light scrim only — keep the background clear */}
       <div
-        className="pointer-events-none fixed inset-0 z-0 bg-gradient-to-b from-black/60 via-black/35 to-black/55"
+        className="pointer-events-none fixed inset-0 z-0 bg-gradient-to-b from-black/25 via-transparent to-black/40"
         aria-hidden
       />
 
@@ -153,18 +154,33 @@ export default function Menu() {
         <link rel="canonical" href="https://raffaello.se/meny" />
       </Helmet>
 
-      <section className="relative border-b border-gold/20 px-6 py-16 text-center sm:py-20">
-        <p className="mb-3 text-xs uppercase tracking-[0.35em] text-gold">Meny</p>
-        <h1 className="font-brand text-5xl font-bold tracking-tight text-gold sm:text-6xl">
-          Raffaello
-        </h1>
-        <p className="mt-2 font-brand-sub text-base uppercase tracking-[0.3em] text-white sm:text-lg">
-          Stekhus &amp; Bar
-        </p>
-        <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-white/65">
-          Grill, pizza, pasta, burgare och dryck — {SITE.addressLine2}.
-        </p>
-        <div className="mx-auto mt-6 h-px w-20 bg-gold/80" />
+      <section className="relative overflow-hidden border-b border-gold/20 px-6 py-16 text-center sm:py-24">
+        <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>
+          <video
+            className="absolute inset-0 h-full w-full scale-110 object-cover object-bottom"
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster="/images/menu-bg.webp"
+          >
+            <source src="/images/menu-grill.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/50 to-black/70" />
+        </div>
+        <div className="relative z-10">
+          <p className="mb-3 text-xs uppercase tracking-[0.35em] text-gold">Meny</p>
+          <h1 className="font-brand text-5xl font-bold tracking-tight text-gold sm:text-6xl">
+            Raffaello
+          </h1>
+          <p className="mt-2 font-brand-sub text-base uppercase tracking-[0.3em] text-white sm:text-lg">
+            Stekhus &amp; Bar
+          </p>
+          <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-white/65">
+            Grill, pizza, pasta, burgare och dryck — {SITE.addressLine2}.
+          </p>
+          <div className="mx-auto mt-6 h-px w-20 bg-gold/80" />
+        </div>
       </section>
 
       {categories.length > 1 && (
