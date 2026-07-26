@@ -251,6 +251,14 @@ export default function Home() {
             >
               Vår Meny
             </Link>
+            <a
+              href={SITE.lunchUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-[44px] items-center justify-center border border-gold px-8 py-3 text-sm uppercase tracking-widest text-gold transition-all duration-300 hover:bg-gold hover:text-dark"
+            >
+              Lunch
+            </a>
             <Link
               to={SITE.bookingUrl}
               className="inline-flex min-h-[44px] items-center justify-center bg-gold px-8 py-3 text-sm uppercase tracking-widest text-dark transition-all duration-300 hover:bg-gold-hover"
