@@ -112,10 +112,14 @@ export default function Menu() {
 
   return (
     <div className="relative min-h-screen bg-black text-white/80">
-      {/* Full-page grill — no heavy tint so the picture stays clear */}
+      {/* Page grill atmosphere */}
       <div
-        className="pointer-events-none fixed inset-0 z-0 bg-black bg-cover bg-center bg-no-repeat"
+        className="pointer-events-none fixed inset-0 z-0 bg-black bg-cover bg-[center_70%] bg-no-repeat"
         style={{ backgroundImage: "url('/images/menu-bg.webp')" }}
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none fixed inset-0 z-0 bg-black/50"
         aria-hidden
       />
 
@@ -149,15 +153,15 @@ export default function Menu() {
         <link rel="canonical" href="https://raffaello.se/meny" />
       </Helmet>
 
-      <section className="relative h-[100svh] min-h-[520px] w-full overflow-hidden border-b border-gold/20 text-center">
-        <div className="pointer-events-none absolute inset-0 z-0 bg-black" aria-hidden>
+      <section className="relative flex h-[42vh] min-h-[260px] max-h-[380px] items-center justify-center overflow-hidden text-center sm:h-[46vh]">
+        <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>
           <img
             src="/images/menu-bg.webp"
             alt=""
-            className="absolute inset-0 h-full w-full object-cover object-center"
+            className="absolute inset-0 h-full w-full scale-105 object-cover object-[center_75%]"
           />
           <video
-            className="absolute inset-0 h-full w-full object-cover object-bottom opacity-35 mix-blend-screen"
+            className="absolute inset-0 h-full w-full object-cover object-bottom opacity-40 mix-blend-screen"
             autoPlay
             muted
             loop
@@ -166,20 +170,17 @@ export default function Menu() {
           >
             <source src="/images/menu-grill.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-transparent to-black/55" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/45 to-black/70" />
         </div>
-        <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 py-16 drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
+        <div className="relative z-10 px-6 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
           <p className="mb-3 text-xs uppercase tracking-[0.35em] text-gold">Meny</p>
-          <h1 className="font-brand text-5xl font-bold tracking-tight text-gold sm:text-6xl md:text-7xl">
+          <h1 className="font-brand text-4xl font-bold tracking-tight text-gold sm:text-5xl md:text-6xl">
             Raffaello
           </h1>
-          <p className="mt-2 font-brand-sub text-base uppercase tracking-[0.3em] text-white sm:text-lg">
+          <p className="mt-2 font-brand-sub text-sm uppercase tracking-[0.3em] text-white sm:text-base">
             Stekhus &amp; Bar
           </p>
-          <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-white/90">
-            Grill, pizza, pasta, burgare och dryck — {SITE.addressLine2}.
-          </p>
-          <div className="mx-auto mt-6 h-px w-20 bg-gold/80" />
+          <div className="mx-auto mt-5 h-px w-16 bg-gold/80" />
         </div>
       </section>
 
