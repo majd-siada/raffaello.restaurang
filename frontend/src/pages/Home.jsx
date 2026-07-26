@@ -254,9 +254,9 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
-          <div className="w-6 h-10 border-2 border-gold/50 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-gold rounded-full mt-2 animate-bounce" />
+        <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2" aria-hidden>
+          <div className="flex h-10 w-6 justify-center rounded-full border-2 border-gold/50">
+            <div className="mt-2 h-3 w-1 rounded-full bg-gold/80" />
           </div>
         </div>
       </section>
@@ -309,7 +309,7 @@ export default function Home() {
           <p className="text-gold uppercase tracking-[0.2em] text-sm mb-3">Smakprov</p>
           <h2 className="font-heading text-4xl md:text-5xl text-white">Vår Meny</h2>
         </div>
-        <div className="max-w-3xl mx-auto space-y-6">
+        <div className="mx-auto min-h-[22rem] max-w-3xl space-y-6 sm:min-h-[24rem]">
           {menuItems.length > 0 ? (
             menuItems.map(item => (
               <div key={item.id} className="flex items-end gap-2">

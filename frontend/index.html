@@ -14,12 +14,14 @@
       fetchpriority="high"
     />
     <style>
-      /* Critical first-paint styles — no wait for JS/CSS bundles */
       html,body{margin:0;background:#0a0908;color:#c8c4bc}
+      /* Fixed overlay — out of document flow so React mount does not cause CLS */
       #boot{
-        min-height:100dvh;display:flex;align-items:center;justify-content:center;
-        text-align:center;position:relative;overflow:hidden;background:#0a0908;
+        position:fixed;inset:0;z-index:9999;display:flex;align-items:center;
+        justify-content:center;text-align:center;overflow:hidden;background:#0a0908;
+        transition:opacity .12s ease;
       }
+      #boot.is-done{opacity:0;pointer-events:none}
       #boot img{
         position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
         filter:brightness(.85);
@@ -35,29 +37,28 @@
         letter-spacing:-.02em;color:#fff}
       #boot .sub{margin:.5rem 0 0;font:italic 1.25rem/1.2 Georgia,serif;color:rgba(255,255,255,.85)}
       #boot .rule{width:4rem;height:1px;background:#d4af37;margin:1.25rem auto 0;opacity:.9}
+      #root{min-height:100dvh}
     </style>
   </head>
   <body>
-    <div id="root">
-      <!-- Static shell paints before React (FCP/LCP) -->
-      <div id="boot" aria-hidden="true">
-        <img
-          src="/images/hero-interior-480.webp"
-          alt=""
-          width="480"
-          height="360"
-          fetchpriority="high"
-          decoding="async"
-        />
-        <div class="veil"></div>
-        <div class="copy">
-          <p>Stekhus &amp; bar · Boden</p>
-          <h1>Raffaello</h1>
-          <p class="sub">Stekhus &amp; Bar</p>
-          <div class="rule"></div>
-        </div>
+    <div id="boot" aria-hidden="true">
+      <img
+        src="/images/hero-interior-480.webp"
+        alt=""
+        width="480"
+        height="360"
+        fetchpriority="high"
+        decoding="async"
+      />
+      <div class="veil"></div>
+      <div class="copy">
+        <p>Stekhus &amp; bar · Boden</p>
+        <h1>Raffaello</h1>
+        <p class="sub">Stekhus &amp; Bar</p>
+        <div class="rule"></div>
       </div>
     </div>
+    <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

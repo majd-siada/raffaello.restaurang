@@ -17,14 +17,16 @@ function deferStylesheets(html) {
 function extractAssets(html) {
   const scripts = html.match(/<script type="module"[^>]*><\/script>/g) || []
   const preloads = html.match(/<link rel="modulepreload"[^>]*>/g) || []
-  const styles = html.match(/<link rel="stylesheet"[^>]*>/g) || []
+  const stylePreloads = html.match(/<link rel="preload" as="style"[^>]*>/g) || []
+  const noscripts = html.match(/<noscript><link rel="stylesheet"[^>]*><\/noscript>/g) || []
+  const styles = html.match(/<link rel="stylesheet" crossorigin href="[^"]+\.css">/g) || []
   const deferred = styles.map((tag) => {
     const href = tag.match(/href="([^"]+)"/)?.[1]
     if (!href) return tag
     return `<link rel="preload" as="style" crossorigin href="${href}" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" crossorigin href="${href}"></noscript>`
   })
-  return [...deferred, ...preloads, ...scripts].join('\n    ')
+  return [...stylePreloads, ...noscripts, ...deferred, ...preloads, ...scripts].join('\n    ')
 }
 
 let html = readFileSync(indexPath, 'utf8')
@@ -49,10 +51,11 @@ const menyShell = `<!doctype html>
     <style>
       html,body{margin:0;background:#0a0908;color:#c8c4bc}
       #boot{
-        min-height:42dvh;min-height:240px;max-height:360px;display:flex;
-        align-items:center;justify-content:center;text-align:center;
-        position:relative;overflow:hidden;background:#000;
+        position:fixed;inset:0;z-index:9999;display:flex;align-items:center;
+        justify-content:center;text-align:center;overflow:hidden;background:#000;
+        transition:opacity .12s ease;
       }
+      #boot.is-done{opacity:0;pointer-events:none}
       #boot img{
         position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
         object-position:center 75%;
@@ -68,28 +71,28 @@ const menyShell = `<!doctype html>
       #boot .sub{margin:.5rem 0 0;font:500 .85rem/1.2 system-ui,sans-serif;
         letter-spacing:.3em;text-transform:uppercase;color:#fff}
       #boot .rule{width:4rem;height:1px;background:#d4af37;margin:1.1rem auto 0;opacity:.9}
+      #root{min-height:100dvh}
     </style>
   </head>
   <body>
-    <div id="root">
-      <div id="boot" aria-hidden="true">
-        <img
-          src="/images/menu-bg-480.webp"
-          alt=""
-          width="480"
-          height="600"
-          fetchpriority="high"
-          decoding="async"
-        />
-        <div class="veil"></div>
-        <div class="copy">
-          <p>Meny</p>
-          <h1>Raffaello</h1>
-          <p class="sub">Stekhus &amp; Bar</p>
-          <div class="rule"></div>
-        </div>
+    <div id="boot" aria-hidden="true">
+      <img
+        src="/images/menu-bg-480.webp"
+        alt=""
+        width="480"
+        height="600"
+        fetchpriority="high"
+        decoding="async"
+      />
+      <div class="veil"></div>
+      <div class="copy">
+        <p>Meny</p>
+        <h1>Raffaello</h1>
+        <p class="sub">Stekhus &amp; Bar</p>
+        <div class="rule"></div>
       </div>
     </div>
+    <div id="root"></div>
 `
 
 const assets = extractAssets(html)
@@ -102,9 +105,11 @@ const menyHtml = `${menyShell}
 mkdirSync(join(dist, 'meny'), { recursive: true })
 writeFileSync(join(dist, 'meny', 'index.html'), menyHtml)
 
-for (const file of ['hero-interior-480.webp', 'menu-bg-480.webp']) {
+for (const file of ['hero-interior-480.webp', 'menu-bg-480.webp', 'llms.txt']) {
   try {
-    copyFileSync(join(root, 'public', 'images', file), join(dist, 'images', file))
+    const from = file === 'llms.txt' ? join(root, 'public', file) : join(root, 'public', 'images', file)
+    const to = file === 'llms.txt' ? join(dist, file) : join(dist, 'images', file)
+    copyFileSync(from, to)
   } catch {
     /* Vite already copied public/ */
   }

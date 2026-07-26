@@ -1,0 +1,22 @@
+# Raffaello Stekhus & Bar
+
+> Restaurang och stekhus i Boden med grill, pizza, pasta, burgare och bar — Drottninggatan 18.
+
+Raffaello Stekhus & Bar är en mötesplats på Drottninggatan i Boden. Här finns meny, bokningsinfo, öppettider och information om privata events.
+
+## Sidor
+
+- [Hem](https://raffaello.se/): Startsida med smakprov, öppettider och vägbeskrivning.
+- [Meny](https://raffaello.se/meny): Fullständig meny med maträtter och priser.
+- [Om oss](https://raffaello.se/om-oss): Berättelsen bakom Raffaello i Boden.
+- [Kontakt](https://raffaello.se/kontakt): Adress, telefon, e-post och karta.
+- [Privata events](https://raffaello.se/privata-events): Fest, möhippa och firmafester i lokalen.
+
+## Kontakt
+
+- [Boka / besök](https://raffaello.se/kontakt#besok-oss): Hitta hit och kontakta restaurangen.
+- [Instagram](https://www.instagram.com/raffaello_restaurang_iboden/): Bilder och uppdateringar från Raffaello.
+
+## Optional
+
+- [Admin](https://raffaello.se/admin/): Intern menyadministration (inte för gäster).

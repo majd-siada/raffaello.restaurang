@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import ScrollToTop from './components/ScrollToTop'
 import Navbar from './components/Navbar'
@@ -14,7 +14,7 @@ const PrivateEvents = lazy(() => import('./pages/PrivateEvents'))
 function PageFallback() {
   return (
     <div
-      className="flex min-h-[50dvh] items-center justify-center"
+      className="flex min-h-[100dvh] items-center justify-center"
       aria-busy="true"
     >
       <p className="text-sm uppercase tracking-widest text-white/50">Laddar…</p>
@@ -22,7 +22,22 @@ function PageFallback() {
   )
 }
 
+function dismissBootShell() {
+  const boot = document.getElementById('boot')
+  if (!boot) return
+  boot.classList.add('is-done')
+  window.setTimeout(() => boot.remove(), 160)
+}
+
 export default function App() {
+  useEffect(() => {
+    // Wait one frame so React content is painted under the fixed shell
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(dismissBootShell)
+    })
+    return () => cancelAnimationFrame(id)
+  }, [])
+
   return (
     <div className="min-h-screen bg-dark text-white/80">
       <ScrollToTop />
