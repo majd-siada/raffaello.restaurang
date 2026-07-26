@@ -7,28 +7,94 @@ import SectionPhoto from '../components/SectionPhoto'
 import LazyMap from '../components/LazyMap'
 
 const API_URL = `${import.meta.env.VITE_API_URL || ''}/api/menu/`
+const PREVIEW_COUNT = 6
+
+function flattenMenuItems(categories) {
+  if (!Array.isArray(categories)) return []
+  return categories.flatMap((cat) => [
+    ...(cat.items || [])
+      .filter((i) => i.is_available !== false)
+      .map((i) => ({ ...i, category: cat.name })),
+    ...(cat.subcategories || []).flatMap((sub) =>
+      (sub.items || [])
+        .filter((i) => i.is_available !== false)
+        .map((i) => ({ ...i, category: sub.name })),
+    ),
+  ])
+}
+
+/** Deterministic shuffle seed from calendar hour so the sample stays stable for everyone this hour. */
+function hourSeed(date = new Date()) {
+  return (
+    date.getFullYear() * 1_000_000 +
+    (date.getMonth() + 1) * 10_000 +
+    date.getDate() * 100 +
+    date.getHours()
+  )
+}
+
+function mulberry32(seed) {
+  let t = seed >>> 0
+  return () => {
+    t += 0x6d2b79f5
+    let r = Math.imul(t ^ (t >>> 15), 1 | t)
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r)
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+function pickHourlySample(items, count = PREVIEW_COUNT, date = new Date()) {
+  if (items.length <= count) return items
+  const rand = mulberry32(hourSeed(date))
+  const copy = [...items]
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(rand() * (i + 1))
+    ;[copy[i], copy[j]] = [copy[j], copy[i]]
+  }
+  return copy.slice(0, count)
+}
+
+function msUntilNextHour(date = new Date()) {
+  const next = new Date(date)
+  next.setMinutes(0, 0, 0)
+  next.setHours(next.getHours() + 1)
+  return Math.max(1000, next.getTime() - date.getTime())
+}
 
 export default function Home() {
+  const [allItems, setAllItems] = useState([])
   const [menuItems, setMenuItems] = useState([])
 
   useEffect(() => {
+    let cancelled = false
     fetch(API_URL)
-      .then(res => {
+      .then((res) => {
         if (!res.ok) throw new Error(String(res.status))
         return res.json()
       })
-      .then(data => {
-        if (!Array.isArray(data)) return
-        const items = data.flatMap(cat => [
-          ...(cat.items || []).filter(i => i.is_available).map(i => ({ ...i, category: cat.name })),
-          ...(cat.subcategories || []).flatMap(sub =>
-            (sub.items || []).filter(i => i.is_available).map(i => ({ ...i, category: sub.name }))
-          ),
-        ])
-        setMenuItems(items.slice(0, 6))
+      .then((data) => {
+        if (cancelled) return
+        const items = flattenMenuItems(data)
+        setAllItems(items)
+        setMenuItems(pickHourlySample(items))
       })
       .catch(() => {})
+    return () => {
+      cancelled = true
+    }
   }, [])
+
+  useEffect(() => {
+    if (allItems.length === 0) return undefined
+
+    let timerId
+    const schedule = () => {
+      setMenuItems(pickHourlySample(allItems))
+      timerId = window.setTimeout(schedule, msUntilNextHour())
+    }
+    timerId = window.setTimeout(schedule, msUntilNextHour())
+    return () => window.clearTimeout(timerId)
+  }, [allItems])
 
   return (
     <div>
