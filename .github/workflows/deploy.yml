@@ -25,5 +25,4 @@ jobs:
             git clean -fd
             docker compose build --no-cache frontend
             docker compose up -d --build
-            docker compose exec -T backend python manage.py seed_menu --replace
             docker image prune -f
