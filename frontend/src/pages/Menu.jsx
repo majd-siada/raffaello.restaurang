@@ -111,12 +111,19 @@ export default function Menu() {
     : categories
 
   return (
-    <div className="relative min-h-screen bg-dark text-white/80">
+    <div className="relative min-h-screen bg-black text-white/80">
+      {/* Canva-style grill + smoke atmosphere */}
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_rgba(212,175,55,0.08),_transparent_55%)]"
+        className="pointer-events-none fixed inset-0 z-0 bg-black bg-cover bg-bottom bg-no-repeat"
+        style={{ backgroundImage: "url('/images/menu-bg.webp')" }}
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none fixed inset-0 z-0 bg-gradient-to-b from-black via-black/75 to-black/25"
         aria-hidden
       />
 
+      <div className="relative z-10">
       <Helmet>
         <title>Meny | Raffaello Restaurang Boden</title>
         <meta
@@ -162,7 +169,7 @@ export default function Menu() {
 
       {categories.length > 1 && (
         <nav
-          className="sticky top-0 z-30 border-b border-white/10 bg-dark/95 backdrop-blur-md"
+          className="sticky top-0 z-30 border-b border-white/10 bg-black/80 backdrop-blur-md"
           aria-label="Menykategorier"
         >
           <div className="mx-auto flex max-w-5xl gap-2 overflow-x-auto px-4 py-3">
@@ -227,6 +234,7 @@ export default function Menu() {
           ))}
         </div>
       </section>
+      </div>
     </div>
   )
 }
