@@ -254,6 +254,12 @@ export default function Home() {
             >
               Vår Meny
             </Link>
+            <Link
+              to="/veckans-erbjudande"
+              className="inline-flex min-h-[44px] items-center justify-center border border-gold px-8 py-3 text-sm uppercase tracking-widest text-gold transition-all duration-300 hover:bg-gold hover:text-dark"
+            >
+              Veckans Erbjudande
+            </Link>
             <a
               href={SITE.lunchUrl}
               target="_blank"

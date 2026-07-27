@@ -6,6 +6,7 @@ import BrandLogo from './BrandLogo'
 const navLinksLeft = [
   { to: '/', label: 'Hem' },
   { to: '/meny', label: 'Meny' },
+  { to: '/veckans-erbjudande', label: 'Erbjudande' },
   { href: SITE.lunchUrl, label: 'Lunch', external: true },
   { to: '/om-oss', label: 'Om oss' },
 ]

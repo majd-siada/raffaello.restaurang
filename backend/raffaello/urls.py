@@ -8,4 +8,5 @@ urlpatterns = [
     path('api/health/', health, name='health'),
     path('api/menu/', include('menu.urls')),
     path('api/bookings/', include('bookings.urls')),
+    path('api/offers/', include('offers.urls')),
 ]
