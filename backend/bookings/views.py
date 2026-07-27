@@ -13,7 +13,7 @@ class BookingAnonThrottle(AnonRateThrottle):
 
 
 class BookingCreateView(APIView):
-    """Public endpoint: create a booking and notify owner on WhatsApp."""
+    """Public endpoint: create a booking and notify restaurant on Telegram."""
 
     authentication_classes = []
     permission_classes = []

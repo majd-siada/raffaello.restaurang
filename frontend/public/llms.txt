@@ -11,7 +11,7 @@ Raffaello Stekhus & Bar är en mötesplats på Drottninggatan i Boden. Här finn
 - [Lunch](https://www.matochmat.se/lunch/boden/raffaello-stekhus-bar/): Dagens lunch via Mat och Mat.
 - [Om oss](https://raffaello.se/om-oss): Berättelsen bakom Raffaello i Boden.
 - [Kontakt](https://raffaello.se/kontakt): Adress, telefon, e-post, karta och bokningsformulär.
-- [Boka bord](https://raffaello.se/kontakt#boka-bord): Skicka bordreservation (notifiering via WhatsApp).
+- [Boka bord](https://raffaello.se/kontakt#boka-bord): Skicka bordreservation (notifiering till restaurangen via Telegram).
 - [Privata events](https://raffaello.se/privata-events): Fest, möhippa och firmafester i lokalen.
 
 ## Kontakt

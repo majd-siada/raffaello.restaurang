@@ -1,6 +1,6 @@
-"""One-way WhatsApp Business Cloud API: notify the restaurant about new bookings.
+"""One-way Telegram notify: restaurant receives booking alerts only.
 
-Guests never receive WhatsApp — only BOOKING_NOTIFY_PHONE gets a message.
+Guests never get Telegram messages — only TELEGRAM_CHAT_ID does.
 """
 
 from __future__ import annotations
@@ -31,109 +31,58 @@ def format_booking_message(booking) -> str:
     return '\n'.join(lines)
 
 
-def _template_parameters(booking) -> list[dict]:
-    date_str = booking.date.strftime('%Y-%m-%d')
-    time_str = booking.time.strftime('%H:%M')
-    msg = (booking.message or '').strip() or '—'
-    values = [
-        f'{booking.first_name} {booking.last_name}',
-        booking.phone,
-        booking.email,
-        f'{date_str} kl {time_str}',
-        str(booking.guests),
-        msg[:500],
-    ]
-    return [{'type': 'text', 'text': v} for v in values]
+def send_booking_telegram(booking) -> bool:
+    """
+    Send booking details to the restaurant Telegram chat via Bot API.
+    Requires TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in settings/env.
+    """
+    token = (getattr(settings, 'TELEGRAM_BOT_TOKEN', None) or '').strip()
+    chat_id = (getattr(settings, 'TELEGRAM_CHAT_ID', None) or '').strip()
 
-
-def _post_graph(payload: dict) -> bool:
-    token = (getattr(settings, 'WHATSAPP_TOKEN', None) or '').strip()
-    phone_id = (getattr(settings, 'WHATSAPP_PHONE_NUMBER_ID', None) or '').strip()
-    version = (getattr(settings, 'WHATSAPP_API_VERSION', None) or 'v21.0').strip()
-
-    if not token or not phone_id:
+    if not token or not chat_id:
         logger.warning(
-            'WhatsApp skipped: set WHATSAPP_TOKEN and WHATSAPP_PHONE_NUMBER_ID'
+            'Telegram booking notify skipped: set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID'
         )
         return False
 
-    url = f'https://graph.facebook.com/{version}/{phone_id}/messages'
+    url = f'https://api.telegram.org/bot{token}/sendMessage'
+    payload = {
+        'chat_id': chat_id,
+        'text': format_booking_message(booking),
+        'disable_web_page_preview': True,
+    }
     data = json.dumps(payload).encode('utf-8')
     req = Request(
         url,
         data=data,
         method='POST',
         headers={
-            'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json',
             'User-Agent': 'raffaello-bookings/1.0',
         },
     )
+
     try:
-        with urlopen(req, timeout=25) as resp:
+        with urlopen(req, timeout=20) as resp:
             body = resp.read().decode('utf-8', errors='replace')
-            if resp.status >= 400:
-                logger.error('WhatsApp Cloud API HTTP %s: %s', resp.status, body[:500])
+            parsed = json.loads(body) if body else {}
+            if resp.status >= 400 or not parsed.get('ok'):
+                logger.error('Telegram sendMessage failed: %s', body[:500])
                 return False
-            logger.info('WhatsApp Cloud API OK: %s', body[:200])
+            logger.info('Telegram booking notify sent for booking %s', booking.pk)
             return True
     except HTTPError as exc:
         err_body = exc.read().decode('utf-8', errors='replace') if exc.fp else ''
-        logger.error('WhatsApp Cloud API HTTPError %s: %s', exc.code, err_body[:500])
+        logger.error('Telegram HTTPError %s: %s', exc.code, err_body[:500])
         return False
-    except (URLError, TimeoutError, OSError) as exc:
-        logger.exception('WhatsApp Cloud API failed: %s', exc)
+    except (URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
+        logger.exception('Telegram notify failed for booking %s: %s', booking.pk, exc)
         return False
 
 
 def send_booking_whatsapp(booking) -> bool:
     """
-    Notify restaurant owner only (no chat with the guest).
-
-    Uses Meta WhatsApp Cloud API:
-    - Prefer an approved template (required for reliable delivery to your phone).
-    - Optional text mode for Meta sandbox / 24h window testing.
+    Backwards-compatible name used by views: notify via Telegram.
+    (WhatsApp Business can be re-enabled later if needed.)
     """
-    to = (getattr(settings, 'BOOKING_NOTIFY_PHONE', None) or '').strip()
-    if not to:
-        logger.warning('WhatsApp skipped: BOOKING_NOTIFY_PHONE is empty')
-        return False
-
-    # Digits only for Graph API "to" field
-    to_digits = ''.join(c for c in to if c.isdigit())
-
-    mode = (getattr(settings, 'WHATSAPP_MESSAGE_MODE', None) or 'template').strip().lower()
-    template_name = (getattr(settings, 'WHATSAPP_TEMPLATE_NAME', None) or '').strip()
-    template_lang = (getattr(settings, 'WHATSAPP_TEMPLATE_LANG', None) or 'sv').strip()
-
-    if mode == 'text':
-        payload = {
-            'messaging_product': 'whatsapp',
-            'to': to_digits,
-            'type': 'text',
-            'text': {'preview_url': False, 'body': format_booking_message(booking)},
-        }
-        return _post_graph(payload)
-
-    if not template_name:
-        logger.warning(
-            'WhatsApp skipped: set WHATSAPP_TEMPLATE_NAME (or WHATSAPP_MESSAGE_MODE=text for tests)'
-        )
-        return False
-
-    payload = {
-        'messaging_product': 'whatsapp',
-        'to': to_digits,
-        'type': 'template',
-        'template': {
-            'name': template_name,
-            'language': {'code': template_lang},
-            'components': [
-                {
-                    'type': 'body',
-                    'parameters': _template_parameters(booking),
-                }
-            ],
-        },
-    }
-    return _post_graph(payload)
+    return send_booking_telegram(booking)

@@ -244,35 +244,26 @@ Then open **http://127.0.0.1:8000/admin/** for Django admin and **http://localho
 
 ---
 
-## Bokningar (WhatsApp Business — endast mottagning)
+## Bokningar (Telegram — endast mottagning)
 
 Gäster fyller i formuläret på **Kontakt → Boka bord** (`/kontakt#boka-bord`).  
-Backend sparar bokningen och skickar **ett WhatsApp-meddelande till dig** (`0727781150`).  
-Kunden får **ingen** WhatsApp och det finns ingen chatt — bara en notifiering till restaurangen.
+Backend sparar bokningen och skickar **ett Telegram-meddelande till dig** via `@BodenRaffaello_bot`.  
+Kunden får **ingen** kontakt via Telegram — ingen chatt, bara en notifiering till restaurangen.
 
-### Setup (Meta WhatsApp Cloud API)
+### Setup
 
-1. Skapa app på [Meta for Developers](https://developers.facebook.com/) → lägg till **WhatsApp → Cloud API**.
-2. Kopiera **Access token** och **Phone number ID** till `backend/.env`:
+1. Öppna [t.me/BodenRaffaello_bot](https://t.me/BodenRaffaello_bot) på din telefon och tryck **Start**.
+2. Hämta ditt **chat id** (efter att du skrivit till boten):
+   `https://api.telegram.org/bot<TOKEN>/getUpdates`  
+   Leta efter `"chat":{"id": ... }`.
+3. Sätt i `backend/.env` (på servern):
    ```
-   BOOKING_NOTIFY_PHONE=46727781150
-   WHATSAPP_TOKEN=...
-   WHATSAPP_PHONE_NUMBER_ID=...
-   WHATSAPP_TEMPLATE_NAME=ny_bokning
-   WHATSAPP_TEMPLATE_LANG=sv
-   WHATSAPP_MESSAGE_MODE=template
+   TELEGRAM_BOT_TOKEN=...
+   TELEGRAM_CHAT_ID=...
    ```
-3. Skapa och godkänn en **meddelandemall** (`ny_bokning`, språk `sv`) med 6 body-variabler:
-   - `{{1}}` namn  
-   - `{{2}}` telefon  
-   - `{{3}}` e-post  
-   - `{{4}}` datum/tid  
-   - `{{5}}` antal gäster  
-   - `{{6}}` meddelande  
-4. Under test: lägg till `46727781150` som mottagare i Meta, eller sätt `WHATSAPP_MESSAGE_MODE=text` i sandbox.
-5. Starta om backend. Bokningar syns under **Admin → Bokningar** även om WhatsApp misslyckas.
+4. Starta om backend. Bokningar syns under **Admin → Bokningar**.
 
-Guide: [Cloud API get started](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started)
+**Säkerhet:** Om token har delats i chatt/e-post, skapa en ny via [@BotFather](https://t.me/BotFather) (`/revoke` eller `/newtoken`) och uppdatera `.env`.
 
 ---
 
@@ -296,7 +287,7 @@ Guide: [Cloud API get started](https://developers.facebook.com/docs/whatsapp/clo
 
 ## What's Done
 
-- [x] Bokningsformulär → WhatsApp Business-notifiering (endast till restaurangen) + adminlista
+- [x] Bokningsformulär → Telegram-notifiering (@BodenRaffaello_bot, endast till restaurangen) + adminlista
 - [x] React frontend (Vite + Tailwind v4): Home, Meny, Om oss, Kontakt, Privata events
 - [x] React Router med svenska URL:er
 - [x] Django + DRF, PostgreSQL, admin med menyredigering

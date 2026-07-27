@@ -14,7 +14,7 @@ class Booking(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(6)],
     )
     message = models.TextField('meddelande', blank=True)
-    whatsapp_sent = models.BooleanField('WhatsApp skickat', default=False)
+    whatsapp_sent = models.BooleanField('notifiering skickad', default=False)
     created_at = models.DateTimeField('skapad', auto_now_add=True)
 
     class Meta:
