@@ -1,0 +1,41 @@
+name: Set Telegram booking env
+
+on:
+  workflow_dispatch:
+
+jobs:
+  set-env:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update backend/.env and recreate backend
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: TELEGRAM_BOT_TOKEN,TELEGRAM_CHAT_ID
+          script: |
+            set -e
+            cd /root/raffaello.restaurang
+            test -f backend/.env
+
+            # Remove old WhatsApp / Telegram keys, then append Telegram config
+            sed -i \
+              -e '/^BOOKING_NOTIFY_PHONE=/d' \
+              -e '/^WHATSAPP_/d' \
+              -e '/^TELEGRAM_BOT_TOKEN=/d' \
+              -e '/^TELEGRAM_CHAT_ID=/d' \
+              backend/.env
+
+            printf '\n# Telegram booking alerts\nTELEGRAM_BOT_TOKEN=%s\nTELEGRAM_CHAT_ID=%s\n' \
+              "$TELEGRAM_BOT_TOKEN" "$TELEGRAM_CHAT_ID" >> backend/.env
+
+            # Confirm keys exist without printing secret values
+            grep -E '^(TELEGRAM_BOT_TOKEN|TELEGRAM_CHAT_ID)=' backend/.env | sed 's/=.*/=***set***/'
+
+            docker compose up -d --force-recreate backend
+            sleep 5
+            docker compose ps backend
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
