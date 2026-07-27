@@ -201,6 +201,12 @@ REST_FRAMEWORK = {
     },
 }
 
-# WhatsApp booking alerts (CallMeBot — free personal notify)
+# WhatsApp Business Cloud API — one-way booking alerts to the restaurant phone
 BOOKING_NOTIFY_PHONE = os.getenv('BOOKING_NOTIFY_PHONE', '46727781150').strip()
-CALLMEBOT_APIKEY = os.getenv('CALLMEBOT_APIKEY', '').strip()
+WHATSAPP_TOKEN = os.getenv('WHATSAPP_TOKEN', '').strip()
+WHATSAPP_PHONE_NUMBER_ID = os.getenv('WHATSAPP_PHONE_NUMBER_ID', '').strip()
+WHATSAPP_API_VERSION = os.getenv('WHATSAPP_API_VERSION', 'v21.0').strip()
+WHATSAPP_TEMPLATE_NAME = os.getenv('WHATSAPP_TEMPLATE_NAME', 'ny_bokning').strip()
+WHATSAPP_TEMPLATE_LANG = os.getenv('WHATSAPP_TEMPLATE_LANG', 'sv').strip()
+# "template" (production) or "text" (Meta sandbox / test numbers only)
+WHATSAPP_MESSAGE_MODE = os.getenv('WHATSAPP_MESSAGE_MODE', 'template').strip()

@@ -1,14 +1,21 @@
+"""One-way WhatsApp Business Cloud API: notify the restaurant about new bookings.
+
+Guests never receive WhatsApp — only BOOKING_NOTIFY_PHONE gets a message.
+"""
+
+from __future__ import annotations
+
+import json
 import logging
-from urllib.parse import quote
-from urllib.request import urlopen, Request
-from urllib.error import URLError, HTTPError
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
 
-def format_booking_message(booking):
+def format_booking_message(booking) -> str:
     date_str = booking.date.strftime('%Y-%m-%d')
     time_str = booking.time.strftime('%H:%M')
     lines = [
@@ -19,43 +26,114 @@ def format_booking_message(booking):
         f'{date_str} kl {time_str}',
         f'{booking.guests} pers',
     ]
-    if booking.message.strip():
+    if (booking.message or '').strip():
         lines.append(f'Meddelande: {booking.message.strip()}')
     return '\n'.join(lines)
 
 
-def send_booking_whatsapp(booking) -> bool:
-    """
-    Notify owner via CallMeBot free WhatsApp API.
-    Returns True if the request appears successful.
-    """
-    api_key = (getattr(settings, 'CALLMEBOT_APIKEY', None) or '').strip()
-    phone = (getattr(settings, 'BOOKING_NOTIFY_PHONE', None) or '').strip()
+def _template_parameters(booking) -> list[dict]:
+    date_str = booking.date.strftime('%Y-%m-%d')
+    time_str = booking.time.strftime('%H:%M')
+    msg = (booking.message or '').strip() or '—'
+    values = [
+        f'{booking.first_name} {booking.last_name}',
+        booking.phone,
+        booking.email,
+        f'{date_str} kl {time_str}',
+        str(booking.guests),
+        msg[:500],
+    ]
+    return [{'type': 'text', 'text': v} for v in values]
 
-    if not api_key or not phone:
+
+def _post_graph(payload: dict) -> bool:
+    token = (getattr(settings, 'WHATSAPP_TOKEN', None) or '').strip()
+    phone_id = (getattr(settings, 'WHATSAPP_PHONE_NUMBER_ID', None) or '').strip()
+    version = (getattr(settings, 'WHATSAPP_API_VERSION', None) or 'v21.0').strip()
+
+    if not token or not phone_id:
         logger.warning(
-            'WhatsApp booking notify skipped: CALLMEBOT_APIKEY or '
-            'BOOKING_NOTIFY_PHONE not configured'
+            'WhatsApp skipped: set WHATSAPP_TOKEN and WHATSAPP_PHONE_NUMBER_ID'
         )
         return False
 
-    text = format_booking_message(booking)
-    url = (
-        'https://api.callmebot.com/whatsapp.php'
-        f'?phone={quote(phone)}'
-        f'&text={quote(text)}'
-        f'&apikey={quote(api_key)}'
+    url = f'https://graph.facebook.com/{version}/{phone_id}/messages'
+    data = json.dumps(payload).encode('utf-8')
+    req = Request(
+        url,
+        data=data,
+        method='POST',
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json',
+            'User-Agent': 'raffaello-bookings/1.0',
+        },
     )
-
     try:
-        req = Request(url, method='GET', headers={'User-Agent': 'raffaello-bookings/1.0'})
-        with urlopen(req, timeout=20) as resp:
+        with urlopen(req, timeout=25) as resp:
             body = resp.read().decode('utf-8', errors='replace')
             if resp.status >= 400:
-                logger.error('CallMeBot HTTP %s: %s', resp.status, body[:300])
+                logger.error('WhatsApp Cloud API HTTP %s: %s', resp.status, body[:500])
                 return False
-            logger.info('CallMeBot WhatsApp sent for booking %s', booking.pk)
+            logger.info('WhatsApp Cloud API OK: %s', body[:200])
             return True
-    except (HTTPError, URLError, TimeoutError, OSError) as exc:
-        logger.exception('CallMeBot WhatsApp failed for booking %s: %s', booking.pk, exc)
+    except HTTPError as exc:
+        err_body = exc.read().decode('utf-8', errors='replace') if exc.fp else ''
+        logger.error('WhatsApp Cloud API HTTPError %s: %s', exc.code, err_body[:500])
         return False
+    except (URLError, TimeoutError, OSError) as exc:
+        logger.exception('WhatsApp Cloud API failed: %s', exc)
+        return False
+
+
+def send_booking_whatsapp(booking) -> bool:
+    """
+    Notify restaurant owner only (no chat with the guest).
+
+    Uses Meta WhatsApp Cloud API:
+    - Prefer an approved template (required for reliable delivery to your phone).
+    - Optional text mode for Meta sandbox / 24h window testing.
+    """
+    to = (getattr(settings, 'BOOKING_NOTIFY_PHONE', None) or '').strip()
+    if not to:
+        logger.warning('WhatsApp skipped: BOOKING_NOTIFY_PHONE is empty')
+        return False
+
+    # Digits only for Graph API "to" field
+    to_digits = ''.join(c for c in to if c.isdigit())
+
+    mode = (getattr(settings, 'WHATSAPP_MESSAGE_MODE', None) or 'template').strip().lower()
+    template_name = (getattr(settings, 'WHATSAPP_TEMPLATE_NAME', None) or '').strip()
+    template_lang = (getattr(settings, 'WHATSAPP_TEMPLATE_LANG', None) or 'sv').strip()
+
+    if mode == 'text':
+        payload = {
+            'messaging_product': 'whatsapp',
+            'to': to_digits,
+            'type': 'text',
+            'text': {'preview_url': False, 'body': format_booking_message(booking)},
+        }
+        return _post_graph(payload)
+
+    if not template_name:
+        logger.warning(
+            'WhatsApp skipped: set WHATSAPP_TEMPLATE_NAME (or WHATSAPP_MESSAGE_MODE=text for tests)'
+        )
+        return False
+
+    payload = {
+        'messaging_product': 'whatsapp',
+        'to': to_digits,
+        'type': 'template',
+        'template': {
+            'name': template_name,
+            'language': {'code': template_lang},
+            'components': [
+                {
+                    'type': 'body',
+                    'parameters': _template_parameters(booking),
+                }
+            ],
+        },
+    }
+    return _post_graph(payload)
