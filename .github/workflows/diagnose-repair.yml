@@ -1,0 +1,36 @@
+name: Diagnose and repair site
+
+on:
+  workflow_dispatch:
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Diagnose and restart via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /root/raffaello.restaurang
+            echo '=== docker compose ps -a ==='
+            docker compose ps -a
+            echo '=== nginx logs (last 80) ==='
+            docker compose logs nginx --tail 80 || true
+            echo '=== listening ports ==='
+            ss -tlnp | grep -E ':80|:443' || true
+            echo '=== nginx config test ==='
+            docker compose exec -T nginx nginx -t 2>&1 || true
+            echo '=== bringing stack up ==='
+            docker compose up -d
+            sleep 5
+            echo '=== docker compose ps -a (after) ==='
+            docker compose ps -a
+            echo '=== nginx logs after up ==='
+            docker compose logs nginx --tail 40 || true
+            echo '=== local curl ==='
+            curl -sI --connect-timeout 5 http://127.0.0.1/ || true
+            curl -skI --connect-timeout 5 https://127.0.0.1/ || true
