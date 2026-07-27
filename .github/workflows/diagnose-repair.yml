@@ -7,7 +7,7 @@ jobs:
   repair:
     runs-on: ubuntu-latest
     steps:
-      - name: Pull latest and restart nginx
+      - name: Diagnose static and restart
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -16,11 +16,16 @@ jobs:
           script: |
             set -e
             cd /root/raffaello.restaurang
-            git fetch origin main
-            git reset --hard origin/main
-            docker compose up -d nginx
-            sleep 4
-            docker compose ps -a nginx
-            docker compose logs nginx --tail 30
-            curl -sI --connect-timeout 5 http://127.0.0.1/ | head -n 5 || true
-            curl -skI --connect-timeout 5 https://127.0.0.1/ | head -n 8 || true
+            echo '=== nginx static location ==='
+            grep -n static nginx/nginx.conf || true
+            echo '=== curl via host ==='
+            curl -sI http://127.0.0.1/static/admin/css/base.css | head -n 15 || true
+            echo '=== curl backend container ==='
+            docker compose exec -T backend python -c "import urllib.request; r=urllib.request.urlopen('http://127.0.0.1:8000/static/admin/css/base.css'); print(r.status, r.headers.get('Content-Type'), len(r.read()))" || true
+            echo '=== staticfiles sample ==='
+            docker compose exec -T backend ls -la /app/staticfiles/admin/css/ 2>&1 | head -n 30 || true
+            echo '=== collectstatic ==='
+            docker compose exec -T backend python manage.py collectstatic --noinput -v 1 2>&1 | tail -n 30
+            echo '=== retry ==='
+            curl -sI http://127.0.0.1/static/admin/css/base.css | head -n 15 || true
+            curl -sI https://127.0.0.1/static/admin/css/base.css -k | head -n 15 || true
