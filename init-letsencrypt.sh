@@ -16,12 +16,9 @@ if [ -d "$DATA_PATH/conf/live/$DOMAIN" ]; then
   exit 0
 fi
 
-echo "### Downloading recommended TLS parameters..."
-mkdir -p "$DATA_PATH/conf"
-curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf \
-  > "$DATA_PATH/conf/options-ssl-nginx.conf"
-curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot/ssl-dhparams.pem \
-  > "$DATA_PATH/conf/ssl-dhparams.pem"
+echo "### Writing recommended TLS parameters into the repo nginx/ mount..."
+# options-ssl-nginx.conf is tracked in nginx/ and mounted by docker-compose.
+# Legacy certbot/conf copies are no longer required for nginx to start.
 
 echo "### Creating dummy certificate for $DOMAIN (so nginx can start)..."
 mkdir -p "$DATA_PATH/conf/live/$DOMAIN"

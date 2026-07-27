@@ -7,7 +7,7 @@ jobs:
   repair:
     runs-on: ubuntu-latest
     steps:
-      - name: Restore TLS params and restart nginx
+      - name: Pull latest and restart nginx
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -16,25 +16,11 @@ jobs:
           script: |
             set -e
             cd /root/raffaello.restaurang
-
-            echo '=== certbot/conf before ==='
-            ls -la certbot/conf/ || true
-            ls -la certbot/conf/live/raffaello.se/ || true
-
-            echo '=== restoring recommended TLS parameters ==='
-            mkdir -p certbot/conf
-            curl -fsSL https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf \
-              -o certbot/conf/options-ssl-nginx.conf
-            curl -fsSL https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot/ssl-dhparams.pem \
-              -o certbot/conf/ssl-dhparams.pem
-            ls -la certbot/conf/options-ssl-nginx.conf certbot/conf/ssl-dhparams.pem
-
-            echo '=== restart nginx ==='
+            git fetch origin main
+            git reset --hard origin/main
             docker compose up -d nginx
-            sleep 3
+            sleep 4
             docker compose ps -a nginx
-            docker compose logs nginx --tail 20
-
-            echo '=== local smoke ==='
+            docker compose logs nginx --tail 30
             curl -sI --connect-timeout 5 http://127.0.0.1/ | head -n 5 || true
             curl -skI --connect-timeout 5 https://127.0.0.1/ | head -n 8 || true
