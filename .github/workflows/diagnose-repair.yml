@@ -7,7 +7,7 @@ jobs:
   repair:
     runs-on: ubuntu-latest
     steps:
-      - name: Diagnose static and restart
+      - name: Reload nginx with latest config
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -16,16 +16,12 @@ jobs:
           script: |
             set -e
             cd /root/raffaello.restaurang
-            echo '=== nginx static location ==='
-            grep -n static nginx/nginx.conf || true
-            echo '=== curl via host ==='
-            curl -sI http://127.0.0.1/static/admin/css/base.css | head -n 15 || true
-            echo '=== curl backend container ==='
-            docker compose exec -T backend python -c "import urllib.request; r=urllib.request.urlopen('http://127.0.0.1:8000/static/admin/css/base.css'); print(r.status, r.headers.get('Content-Type'), len(r.read()))" || true
-            echo '=== staticfiles sample ==='
-            docker compose exec -T backend ls -la /app/staticfiles/admin/css/ 2>&1 | head -n 30 || true
-            echo '=== collectstatic ==='
-            docker compose exec -T backend python manage.py collectstatic --noinput -v 1 2>&1 | tail -n 30
-            echo '=== retry ==='
-            curl -sI http://127.0.0.1/static/admin/css/base.css | head -n 15 || true
-            curl -sI https://127.0.0.1/static/admin/css/base.css -k | head -n 15 || true
+            git fetch origin main
+            git reset --hard origin/main
+            docker compose up -d --force-recreate nginx
+            sleep 3
+            docker compose ps -a nginx
+            docker compose exec -T nginx nginx -t
+            echo '=== static via https ==='
+            curl -skI --resolve raffaello.se:443:127.0.0.1 https://raffaello.se/static/admin/css/base.css | head -n 15
+            curl -skI --resolve raffaello.se:443:127.0.0.1 https://raffaello.se/admin/login/ | head -n 10

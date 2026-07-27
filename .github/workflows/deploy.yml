@@ -25,4 +25,6 @@ jobs:
             git clean -fd
             docker compose build --no-cache frontend
             docker compose up -d --build
+            # Bind-mounted nginx.conf changes need a recreate; up -d alone may keep old config in memory
+            docker compose up -d --force-recreate nginx
             docker image prune -f
