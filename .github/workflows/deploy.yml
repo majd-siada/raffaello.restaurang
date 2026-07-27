@@ -23,6 +23,16 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             git clean -fd
+            # Ensure nginx SSL helper files exist (certs live in ignored certbot/; helpers can go missing)
+            mkdir -p certbot/conf
+            if [ ! -f certbot/conf/options-ssl-nginx.conf ]; then
+              curl -fsSL https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf \
+                -o certbot/conf/options-ssl-nginx.conf
+            fi
+            if [ ! -f certbot/conf/ssl-dhparams.pem ]; then
+              curl -fsSL https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot/ssl-dhparams.pem \
+                -o certbot/conf/ssl-dhparams.pem
+            fi
             docker compose build --no-cache frontend
             docker compose up -d --build
             docker image prune -f
