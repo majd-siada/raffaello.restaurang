@@ -7,7 +7,15 @@ import SectionPhoto from '../components/SectionPhoto'
 import LazyMap from '../components/LazyMap'
 
 const API_URL = `${import.meta.env.VITE_API_URL || ''}/api/menu/`
+const GALLERY_API_URL = `${import.meta.env.VITE_API_URL || ''}/api/gallery/`
 const PREVIEW_COUNT = 6
+const API_ORIGIN = import.meta.env.VITE_API_URL || ''
+
+function resolveMediaSrc(src) {
+  if (!src) return ''
+  if (/^https?:\/\//i.test(src)) return src
+  return `${API_ORIGIN}${src}`
+}
 
 function flattenMenuItems(categories) {
   if (!Array.isArray(categories)) return []
@@ -64,6 +72,7 @@ function msUntilNextHour(date = new Date()) {
 export default function Home() {
   const [allItems, setAllItems] = useState([])
   const [menuItems, setMenuItems] = useState([])
+  const [galleryPhotos, setGalleryPhotos] = useState(SITE.gallery)
 
   useEffect(() => {
     let cancelled = false
@@ -79,6 +88,34 @@ export default function Home() {
         setMenuItems(pickHourlySample(items))
       })
       .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    fetch(GALLERY_API_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error(String(res.status))
+        return res.json()
+      })
+      .then((data) => {
+        if (cancelled) return
+        if (!Array.isArray(data) || data.length === 0) {
+          setGalleryPhotos(SITE.gallery)
+          return
+        }
+        setGalleryPhotos(
+          data.slice(0, 6).map((photo) => ({
+            src: resolveMediaSrc(photo.src),
+            alt: photo.alt || '',
+          })),
+        )
+      })
+      .catch(() => {
+        if (!cancelled) setGalleryPhotos(SITE.gallery)
+      })
     return () => {
       cancelled = true
     }
@@ -365,8 +402,38 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== PRIVATE EVENTS TEASER ===== */}
+      {/* ===== GALLERI ===== */}
       <section className="bg-dark py-24 px-6">
+        <div className="max-w-6xl mx-auto text-center mb-12">
+          <p className="text-gold uppercase tracking-[0.2em] text-sm mb-3">Galleri</p>
+          <h2 className="font-heading text-4xl md:text-5xl text-white mb-4">
+            Från <span className="text-gold font-normal">köket</span> till bordet
+          </h2>
+          <p className="text-white/60 max-w-xl mx-auto leading-relaxed">
+            En glimt av atmosfären hos {SITE.shortName} — mat, bar och gemenskap i Boden.
+          </p>
+        </div>
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+          {galleryPhotos.map((photo, i) => (
+            <div
+              key={`${photo.src}-${i}`}
+              className="gallery-item relative aspect-[4/3] overflow-hidden bg-dark-2"
+              style={{ animationDelay: `${i * 80}ms` }}
+            >
+              <img
+                src={photo.src}
+                alt={photo.alt || ''}
+                className="h-full w-full object-cover transition-transform duration-700 ease-out hover:scale-[1.03]"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ===== PRIVATE EVENTS TEASER ===== */}
+      <section className="bg-dark-2 py-24 px-6">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
           <div className="relative">
             <SectionPhoto
@@ -395,7 +462,7 @@ export default function Home() {
       </section>
 
       {/* ===== LOCATION MAP ===== */}
-      <section className="bg-dark-2 py-24 px-6">
+      <section className="bg-dark py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-gold uppercase tracking-[0.2em] text-sm mb-3">Hitta oss</p>

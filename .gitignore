@@ -10,6 +10,9 @@ db.sqlite3
 .env.db
 backend/.env
 
+# Uploaded gallery / media (local + container volume contents)
+backend/media/
+
 # Certbot / SSL (generated on server)
 certbot/
 
