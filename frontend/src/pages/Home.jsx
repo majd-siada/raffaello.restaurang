@@ -146,6 +146,8 @@ export default function Home() {
           rel="preload"
           as="image"
           href={SITE.images.heroLcp}
+          imageSrcSet={`${SITE.images.heroLcp} 480w, ${SITE.images.heroMobile} 800w, ${SITE.images.hero} 1024w`}
+          imageSizes="100vw"
           type="image/webp"
           fetchPriority="high"
         />
