@@ -9,6 +9,7 @@ const Home = lazy(() => import('./pages/Home'))
 const About = lazy(() => import('./pages/About'))
 const Menu = lazy(() => import('./pages/Menu'))
 const WeeklyOffer = lazy(() => import('./pages/WeeklyOffer'))
+const Lunch = lazy(() => import('./pages/Lunch'))
 const Contact = lazy(() => import('./pages/Contact'))
 const PrivateEvents = lazy(() => import('./pages/PrivateEvents'))
 
@@ -51,6 +52,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/meny" element={<Menu />} />
             <Route path="/veckans-erbjudande" element={<WeeklyOffer />} />
+            <Route path="/lunch" element={<Lunch />} />
             <Route path="/om-oss" element={<About />} />
             <Route path="/kontakt" element={<Contact />} />
             <Route path="/privata-events" element={<PrivateEvents />} />

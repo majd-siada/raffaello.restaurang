@@ -145,10 +145,10 @@ export default function Menu() {
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-black text-white/80">
       <Helmet>
-        <title>Meny | Raffaello Restaurang Boden</title>
+        <title>Meny – Steakhouse, pasta, pizza och hamburgare i Boden | Raffaello</title>
         <meta
           name="description"
-          content="Utforska vår meny med premium steaks, italienska rätter, pizza, pasta, hamburgare och mycket mer på Raffaello Restaurang i Boden."
+          content="Se menyn på Raffaello i Boden: grillat kött, oxfilé, entrecôte, pasta, pizza och hamburgare. Priser och kategorier online."
         />
         <link
           rel="preload"
@@ -216,7 +216,7 @@ export default function Menu() {
             Raffaello
           </h1>
           <p className="mt-2 font-brand-sub text-sm uppercase tracking-[0.3em] text-white sm:text-base">
-            Stekhus &amp; Bar
+            Grill, pasta, pizza och hamburgare
           </p>
           <div className="mx-auto mt-5 h-px w-16 bg-gold/80" />
         </div>

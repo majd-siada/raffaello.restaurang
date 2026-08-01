@@ -8,10 +8,10 @@ export default function About() {
   return (
     <div>
       <Helmet>
-        <title>Om oss | Raffaello Restaurang</title>
+        <title>Om oss | Raffaello Stekhus & Bar i Boden</title>
         <meta
           name="description"
-          content="Lär känna Raffaello Restaurang i Boden. Vår passion är att erbjuda hög kvalitet, italienska smaker och förstklassig service."
+          content="Lär känna Raffaello — mysig restaurang och stekhus på Drottninggatan i Boden. Grill, italienska smaker och en varm matupplevelse."
         />
         <link rel="canonical" href="https://raffaello.se/om-oss" />
         <script type="application/ld+json">
@@ -55,9 +55,9 @@ export default function About() {
               Grill. Värme. <span className="text-gold font-normal">Gemenskap.</span>
             </h2>
             <p className="text-white/60 leading-relaxed mb-5">
-              {SITE.name} är en självklar mötesplats på Drottninggatan i Boden — med fokus på
-              grillade rätter, burgare och vardagsvänliga priser, plus dryck och dessert när du
-              vill stanna lite längre.
+              {SITE.name} är en självklar mötesplats på Drottninggatan i centrala Boden — en mysig
+              restaurang med fokus på grillade rätter, burgare och vardagsvänliga priser, plus dryck
+              och dessert när du vill stanna lite längre.
             </p>
             <p className="text-white/60 leading-relaxed mb-5">
               Menyn blandar svenska grillfavoriter med smårätter och smaker från Medelhavet.

@@ -14,6 +14,18 @@
   </url>
 
   <url>
+    <loc>https://raffaello.se/lunch</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://raffaello.se/veckans-erbjudande</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
     <loc>https://raffaello.se/om-oss</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
