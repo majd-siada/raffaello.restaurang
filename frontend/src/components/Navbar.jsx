@@ -7,7 +7,7 @@ const navLinksLeft = [
   { to: '/', label: 'Hem' },
   { to: '/meny', label: 'Meny' },
   { to: '/veckans-erbjudande', label: 'Erbjudande' },
-  { href: SITE.lunchUrl, label: 'Lunch', external: true },
+  { to: '/lunch', label: 'Lunch' },
   { to: '/om-oss', label: 'Om oss' },
 ]
 

@@ -345,10 +345,10 @@ export default function Contact() {
   return (
     <div>
       <Helmet>
-        <title>Kontakt | Raffaello Restaurang Boden</title>
+        <title>Boka bord i Boden | Kontakt – Raffaello</title>
         <meta
           name="description"
-          content="Kontakta Raffaello Restaurang i Boden. Hitta adress, telefon, öppettider och boka ditt bord enkelt."
+          content="Boka bord online på Raffaello i Boden. Bordsbokning, adress på Drottninggatan 18, telefon och öppettider."
         />
         <link rel="canonical" href="https://raffaello.se/kontakt" />
         <script type="application/ld+json">
@@ -388,10 +388,11 @@ export default function Contact() {
       <section id="boka-bord" className="scroll-mt-24 bg-dark-2 px-6 py-24">
         <div className="mx-auto max-w-6xl">
           <div className="mb-12 text-center">
-            <p className="mb-3 text-sm uppercase tracking-[0.2em] text-gold">Reservation</p>
+            <p className="mb-3 text-sm uppercase tracking-[0.2em] text-gold">Boka bord Boden</p>
             <h2 className="font-heading text-4xl text-white md:text-5xl">Boka bord</h2>
             <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-white/55">
-              Skicka en förfrågan för upp till 6 personer. Är ni fler, ring oss på{' '}
+              Skicka en förfrågan för upp till 6 personer och boka din middag hos oss. Är ni fler,
+              ring oss på{' '}
               <a href={`tel:${SITE.phoneTel}`} className="text-gold hover:underline">
                 {SITE.phoneDisplay}
               </a>

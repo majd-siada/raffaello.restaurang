@@ -117,10 +117,10 @@ export default function WeeklyOffer() {
   return (
     <div>
       <Helmet>
-        <title>Veckans Erbjudande | Raffaello Restaurang</title>
+        <title>Veckans erbjudande | Raffaello Stekhus & Bar i Boden</title>
         <meta
           name="description"
-          content="Se Raffaellos veckans erbjudande — förra veckan, denna vecka och nästa veckas plan."
+          content="Se Raffaellos veckans erbjudande i Boden — förra veckan, denna vecka och nästa veckas plan. Boka bord och njut av en god middag."
         />
         <link rel="canonical" href="https://raffaello.se/veckans-erbjudande" />
         <script type="application/ld+json">

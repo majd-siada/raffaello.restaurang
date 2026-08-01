@@ -7,10 +7,10 @@ export default function PrivateEvents() {
   return (
     <div>
       <Helmet>
-        <title>Privata Event | Raffaello Restaurang</title>
+        <title>Firmafest, födelsedag och gruppbokning i Boden | Raffaello</title>
         <meta
           name="description"
-          content="Boka Raffaello Restaurang för privata event, företagsmiddagar, födelsedagar och andra speciella tillfällen i Boden."
+          content="Boka firmafest, födelsedagsmiddag eller företagsevent på Raffaello i Boden. Gruppbokning för stora sällskap — kontakta oss."
         />
         <link rel="canonical" href="https://raffaello.se/privata-events" />
         <script type="application/ld+json">
@@ -43,7 +43,9 @@ export default function PrivateEvents() {
         />
         <div className="relative z-10 px-6">
           <p className="text-gold uppercase tracking-[0.2em] text-sm mb-4">{SITE.name}</p>
-          <h1 className="font-heading text-5xl md:text-6xl text-white mb-4">Privata Events</h1>
+          <h1 className="font-heading text-5xl md:text-6xl text-white mb-4">
+            Privata event &amp; fest
+          </h1>
           <div className="w-16 h-px bg-gold mx-auto" />
         </div>
       </section>
@@ -54,7 +56,7 @@ export default function PrivateEvents() {
           <div className="text-center mb-12">
             <p className="text-gold uppercase tracking-[0.2em] text-sm mb-3">Större sällskap</p>
             <h2 className="font-heading text-4xl md:text-5xl text-white">
-              Helkväll &amp; mingel hos oss
+              Firmafest, födelsedag och företagsevent
             </h2>
           </div>
 
@@ -79,9 +81,9 @@ export default function PrivateEvents() {
 
           <div className="max-w-2xl mx-auto text-center">
             <p className="text-white/60 text-lg leading-relaxed mb-6">
-              {SITE.name} tar gärna emot firmafest, födelsedag, möhippa eller annat sällskap som
-              vill äta och umgås tillsammans. Vi hjälper er med meny och upplägg utifrån vad som
-              passar er grupp.
+              {SITE.name} tar gärna emot firmafest, födelsedagsmiddag, företagsevent eller annan
+              gruppbokning för stora sällskap som vill äta och umgås tillsammans. Vi hjälper er med
+              meny och upplägg utifrån vad som passar er grupp.
             </p>
             <p className="text-white/60 leading-relaxed mb-12">
               Hör av er i god tid — gärna minst två veckor innan — så hinner vi planera er kväll.

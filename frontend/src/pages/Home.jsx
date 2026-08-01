@@ -136,10 +136,10 @@ export default function Home() {
   return (
     <div>
       <Helmet>
-        <title>Raffaello Restaurang | Steakhouse & Italian Restaurant i Boden</title>
+        <title>Raffaello – Steakhouse, italiensk restaurang och lunch i Boden</title>
         <meta
           name="description"
-          content="Välkommen till Raffaello Restaurang i Boden. Njut av premium steaks, italienska rätter, pizza, pasta och en unik matupplevelse."
+          content="Besök Raffaello i centrala Boden för grillat kött, italienska rätter, pizza, pasta och dagens lunch. Se menyn och boka bord online."
         />
         <link rel="canonical" href="https://raffaello.se/" />
         <link
@@ -155,23 +155,29 @@ export default function Home() {
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="sv_SE" />
         <meta property="og:site_name" content="Raffaello Restaurang" />
-        <meta property="og:title" content="Raffaello Restaurang i Boden" />
+        <meta
+          property="og:title"
+          content="Raffaello – Steakhouse, italiensk restaurang och lunch i Boden"
+        />
         <meta
           property="og:description"
-          content="Upptäck Raffaello Restaurang i Boden – italienska rätter, premium steaks, pizza, pasta och en unik restaurangupplevelse."
+          content="Besök Raffaello i centrala Boden för grillat kött, italienska rätter, pizza, pasta och dagens lunch. Se menyn och boka bord online."
         />
         <meta property="og:url" content="https://raffaello.se/" />
         <meta
           property="og:image"
           content="https://raffaello.se/images/hero-interior.webp"
         />
-        <meta property="og:image:alt" content="Raffaello Restaurang i Boden" />
+        <meta property="og:image:alt" content="Raffaello Stekhus & Bar i centrala Boden" />
 
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Raffaello Restaurang i Boden" />
+        <meta
+          name="twitter:title"
+          content="Raffaello – Steakhouse, italiensk restaurang och lunch i Boden"
+        />
         <meta
           name="twitter:description"
-          content="Italienska rätter, premium steaks, pizza och pasta på Raffaello Restaurang i Boden."
+          content="Grillat kött, italienska rätter, pizza, pasta och dagens lunch på Raffaello i Boden. Se menyn och boka bord online."
         />
         <meta
           name="twitter:image"
@@ -187,7 +193,7 @@ export default function Home() {
             alternateName: 'Raffaello Restaurang',
 
             description:
-              'Raffaello Stekhus & Bar i Boden erbjuder grillat kött, hamburgare, pizza, pasta och en avslappnad restaurangupplevelse med bar.',
+              'Raffaello är ett steakhouse och italiensk restaurang i centrala Boden med grillat kött, pizza, pasta, hamburgare och dagens lunch.',
 
             url: 'https://raffaello.se/',
             logo: 'https://raffaello.se/raffaello-logo.webp',
@@ -283,8 +289,11 @@ export default function Home() {
           <p className="font-heading text-2xl text-white/90 md:text-3xl">
             Välkommen till bordet
           </p>
-          <p className="mb-12 mt-2 text-xs uppercase tracking-[0.3em] text-white/45">
+          <p className="mt-2 text-xs uppercase tracking-[0.3em] text-white/45">
             Drottninggatan
+          </p>
+          <p className="mb-12 mt-4 text-sm text-white/50">
+            Köket stänger 30 minuter innan restaurangen stänger.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -299,14 +308,12 @@ export default function Home() {
             >
               Veckans Erbjudande
             </Link>
-            <a
-              href={SITE.lunchUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to="/lunch"
               className="inline-flex min-h-[44px] items-center justify-center border border-gold px-8 py-3 text-sm uppercase tracking-widest text-gold transition-all duration-300 hover:bg-gold hover:text-dark"
             >
               Lunch
-            </a>
+            </Link>
             <Link
               to={SITE.bookingUrl}
               className="inline-flex min-h-[44px] items-center justify-center bg-gold px-8 py-3 text-sm uppercase tracking-widest text-dark transition-all duration-300 hover:bg-gold-hover"
@@ -332,19 +339,19 @@ export default function Home() {
               Grill. Värme. <span className="text-gold font-normal">Gemenskap.</span>
             </h2>
             <p className="text-white/60 leading-relaxed mb-6">
-              Hos {SITE.shortName} möts grillade varmrätter, saftiga burgare och italienskt
-              inspirerade förrätter med ett brett dryckesutbud — öl, drinkar, vin och mer — i en
-              avslappnad miljö mitt i Boden.
+              Hos {SITE.shortName} möts steakhouse och italienska smaker: grillat kött, saftiga
+              hamburgare, pizza och pasta — plus ett brett dryckesutbud i en avslappnad miljö mitt
+              i centrala Boden.
             </p>
             <p className="text-white/60 leading-relaxed mb-8">
-              Perfekt när du vill äta ordentligt: lunch med kollegorna, familjemiddag eller en
-              kväll med vänner vid baren. Vi ses på Drottninggatan.
+              Perfekt när du vill äta ordentligt: lunch i Boden med kollegorna, familjemiddag eller
+              en kväll med vänner vid baren. Vi ses på Drottninggatan.
             </p>
             <ul className="space-y-3">
               {[
-                'Grill, kött och fisk — generösa portioner från köket',
-                'Hamburgare, tillbehör och dressingar till alla smaker',
-                'Dryck, dessert och familjevänlig stämning',
+                'Grillrätter och premium kött — generösa portioner från köket',
+                'Hamburgare, pizza, pasta och tillbehör till alla smaker',
+                'Dryck, dessert och mysig stämning för hela familjen',
               ].map(item => (
                 <li key={item} className="flex items-center gap-3 text-white/70">
                   <span className="text-gold text-lg">✦</span>
@@ -369,7 +376,12 @@ export default function Home() {
       <section className="bg-dark-2 py-24 px-6">
         <div className="max-w-6xl mx-auto text-center mb-12">
           <p className="text-gold uppercase tracking-[0.2em] text-sm mb-3">Smakprov</p>
-          <h2 className="font-heading text-4xl md:text-5xl text-white">Vår Meny</h2>
+          <h2 className="font-heading text-4xl md:text-5xl text-white">
+            Grill, pasta, pizza och hamburgare
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-white/55 leading-relaxed">
+            Ett urval från menyn — se hela steakhouse- och grillmenyn med priser.
+          </p>
         </div>
         <div className="mx-auto min-h-[22rem] max-w-3xl space-y-6 sm:min-h-[24rem]">
           {menuItems.length > 0 ? (
@@ -450,8 +462,8 @@ export default function Home() {
               Er kväll, <span className="text-gold font-normal">vår scen</span>
             </h2>
             <p className="text-white/60 leading-relaxed mb-6">
-              Planerar du möhippa, födelsedag eller firmafest? Hör av dig så tar vi fram
-              ett upplägg som passar er grupp hos {SITE.shortName}.
+              Planerar du födelsedagsmiddag, firmafest eller företagsevent? Hör av dig så tar vi
+              fram ett upplägg för gruppbokning hos {SITE.shortName} i Boden.
             </p>
             <Link
               to="/privata-events"
@@ -471,6 +483,9 @@ export default function Home() {
             <h2 className="font-heading text-4xl md:text-5xl text-white">
               {SITE.addressLine1}, {SITE.addressLine2}
             </h2>
+            <p className="mx-auto mt-4 max-w-lg text-white/55 leading-relaxed">
+              Restaurang i centrala Boden — välkommen in för lunch, middag eller en kväll vid baren.
+            </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8 items-start">
             <div className="md:col-span-2">
