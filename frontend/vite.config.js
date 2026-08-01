@@ -7,10 +7,15 @@ export default defineConfig({
   build: {
     cssCodeSplit: true,
     modulePreload: { polyfill: false },
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks: {
-          react: ['react', 'react-dom', 'react-router-dom'],
+        codeSplitting: {
+          groups: [
+            {
+              name: 'react',
+              test: /node_modules[\\/](react|react-dom|react-router(?:-dom)?)\b/,
+            },
+          ],
         },
       },
     },

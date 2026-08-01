@@ -8,6 +8,6 @@
     "dev:backend": "venv\\Scripts\\python.exe backend\\manage.py runserver 127.0.0.1:8000"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^10.0.4"
   }
 }

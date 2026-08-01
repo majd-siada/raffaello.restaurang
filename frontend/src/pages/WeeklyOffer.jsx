@@ -91,8 +91,6 @@ export default function WeeklyOffer() {
 
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
-    setError(false)
 
     fetch(API_URL)
       .then((res) => {
