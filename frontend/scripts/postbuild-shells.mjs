@@ -6,34 +6,21 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const dist = join(root, 'dist')
 const indexPath = join(dist, 'index.html')
 
-function deferStylesheets(html) {
-  return html.replace(
-    /<link rel="stylesheet" crossorigin href="([^"]+\.css)">/g,
-    `<link rel="preload" as="style" crossorigin href="$1" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" crossorigin href="$1"></noscript>`,
-  )
-}
-
+/** Collect blocking stylesheets + module assets for the meny shell (no CSS deferral). */
 function extractAssets(html) {
   const scripts = html.match(/<script type="module"[^>]*><\/script>/g) || []
   const preloads = html.match(/<link rel="modulepreload"[^>]*>/g) || []
-  const stylePreloads = html.match(/<link rel="preload" as="style"[^>]*>/g) || []
-  const noscripts = html.match(/<noscript><link rel="stylesheet"[^>]*><\/noscript>/g) || []
-  const styles = html.match(/<link rel="stylesheet" crossorigin href="[^"]+\.css">/g) || []
-  const deferred = styles.map((tag) => {
-    const href = tag.match(/href="([^"]+)"/)?.[1]
-    if (!href) return tag
-    return `<link rel="preload" as="style" crossorigin href="${href}" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" crossorigin href="${href}"></noscript>`
-  })
-  return [...stylePreloads, ...noscripts, ...deferred, ...preloads, ...scripts].join('\n    ')
+  const styles = html.match(/<link rel="stylesheet"[^>]*>/g) || []
+  return {
+    head: [...styles, ...preloads].join('\n    '),
+    body: scripts.join('\n    '),
+  }
 }
 
-let html = readFileSync(indexPath, 'utf8')
-html = deferStylesheets(html)
-writeFileSync(indexPath, html)
+const html = readFileSync(indexPath, 'utf8')
+const assets = extractAssets(html)
 
-const menyShell = `<!doctype html>
+const menyHtml = `<!doctype html>
 <html lang="sv">
   <head>
     <meta charset="UTF-8" />
@@ -73,6 +60,7 @@ const menyShell = `<!doctype html>
       #boot .rule{width:4rem;height:1px;background:#d4af37;margin:1.1rem auto 0;opacity:.9}
       #root{min-height:100dvh}
     </style>
+    ${assets.head}
   </head>
   <body>
     <div id="boot" aria-hidden="true">
@@ -93,11 +81,7 @@ const menyShell = `<!doctype html>
       </div>
     </div>
     <div id="root"></div>
-`
-
-const assets = extractAssets(html)
-const menyHtml = `${menyShell}
-    ${assets}
+    ${assets.body}
   </body>
 </html>
 `
@@ -115,4 +99,4 @@ for (const file of ['hero-interior-480.webp', 'menu-bg-480.webp', 'llms.txt']) {
   }
 }
 
-console.log('Wrote FCP shells: dist/index.html + dist/meny/index.html')
+console.log('Wrote FCP shells: dist/meny/index.html (stylesheets left blocking for CLS)')

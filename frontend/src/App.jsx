@@ -1,11 +1,12 @@
-import { lazy, Suspense, useEffect } from 'react'
+import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import ScrollToTop from './components/ScrollToTop'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import AdminRedirect from './components/AdminRedirect'
+import BootDismiss from './components/BootDismiss'
+import Home from './pages/Home'
 
-const Home = lazy(() => import('./pages/Home'))
 const About = lazy(() => import('./pages/About'))
 const Menu = lazy(() => import('./pages/Menu'))
 const WeeklyOffer = lazy(() => import('./pages/WeeklyOffer'))
@@ -24,22 +25,27 @@ function PageFallback() {
   )
 }
 
-function dismissBootShell() {
-  const boot = document.getElementById('boot')
-  if (!boot) return
-  boot.classList.add('is-done')
-  window.setTimeout(() => boot.remove(), 160)
+function withBoot(Page) {
+  return function RouteWithBoot() {
+    return (
+      <>
+        <BootDismiss />
+        <Page />
+      </>
+    )
+  }
 }
 
-export default function App() {
-  useEffect(() => {
-    // Wait one frame so React content is painted under the fixed shell
-    const id = requestAnimationFrame(() => {
-      requestAnimationFrame(dismissBootShell)
-    })
-    return () => cancelAnimationFrame(id)
-  }, [])
+const MenuPage = withBoot(Menu)
+const WeeklyOfferPage = withBoot(WeeklyOffer)
+const LunchPage = withBoot(Lunch)
+const AboutPage = withBoot(About)
+const ContactPage = withBoot(Contact)
+const PrivateEventsPage = withBoot(PrivateEvents)
+const HomePage = withBoot(Home)
+const AdminPage = withBoot(AdminRedirect)
 
+export default function App() {
   return (
     <div className="min-h-screen bg-dark text-white/80">
       <ScrollToTop />
@@ -47,15 +53,15 @@ export default function App() {
       <main>
         <Suspense fallback={<PageFallback />}>
           <Routes>
-            <Route path="/admin" element={<AdminRedirect />} />
-            <Route path="/admin/*" element={<AdminRedirect />} />
-            <Route path="/" element={<Home />} />
-            <Route path="/meny" element={<Menu />} />
-            <Route path="/veckans-erbjudande" element={<WeeklyOffer />} />
-            <Route path="/lunch" element={<Lunch />} />
-            <Route path="/om-oss" element={<About />} />
-            <Route path="/kontakt" element={<Contact />} />
-            <Route path="/privata-events" element={<PrivateEvents />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/*" element={<AdminPage />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/meny" element={<MenuPage />} />
+            <Route path="/veckans-erbjudande" element={<WeeklyOfferPage />} />
+            <Route path="/lunch" element={<LunchPage />} />
+            <Route path="/om-oss" element={<AboutPage />} />
+            <Route path="/kontakt" element={<ContactPage />} />
+            <Route path="/privata-events" element={<PrivateEventsPage />} />
           </Routes>
         </Suspense>
       </main>

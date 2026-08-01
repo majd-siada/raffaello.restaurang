@@ -34,16 +34,53 @@ export const SITE = {
   },
   /** Rotating gallery (~4s) for heroes and section photos. */
   gallery: [
-    { src: '/images/hero-interior.webp', alt: 'Raffaello Stekhus & Bar — restauranginteriör i centrala Boden' },
-    { src: '/images/interior-dining.webp', alt: 'Matsal på Raffaello restaurang Boden' },
-    { src: '/images/interior-ambiance.webp', alt: 'Mysig atmosfär på Raffaello Stekhus & Bar i Boden' },
-    { src: '/images/interior-bar.webp', alt: 'Bar på Raffaello Stekhus & Bar i Boden' },
-    { src: '/images/dish-steak.webp', alt: 'Grillad steak på Raffaello steakhouse i Boden' },
-    { src: '/images/dish-salad.webp', alt: 'Färsk sallad på Raffaello restaurang i Boden' },
+    {
+      src: '/images/hero-interior.webp',
+      srcSet:
+        '/images/hero-interior-480.webp 480w, /images/hero-interior-800.webp 800w, /images/hero-interior.webp 1024w',
+      sizes: '100vw',
+      alt: 'Raffaello Stekhus & Bar — restauranginteriör i centrala Boden',
+    },
+    {
+      src: '/images/interior-dining.webp',
+      srcSet:
+        '/images/interior-dining-480.webp 480w, /images/interior-dining-800.webp 800w, /images/interior-dining.webp 1024w',
+      sizes: '100vw',
+      alt: 'Matsal på Raffaello restaurang Boden',
+    },
+    {
+      src: '/images/interior-ambiance.webp',
+      srcSet:
+        '/images/interior-ambiance-480.webp 480w, /images/interior-ambiance-800.webp 800w, /images/interior-ambiance.webp 1024w',
+      sizes: '100vw',
+      alt: 'Mysig atmosfär på Raffaello Stekhus & Bar i Boden',
+    },
+    {
+      src: '/images/interior-bar.webp',
+      srcSet:
+        '/images/interior-bar-480.webp 480w, /images/interior-bar-800.webp 800w, /images/interior-bar.webp 1024w',
+      sizes: '100vw',
+      alt: 'Bar på Raffaello Stekhus & Bar i Boden',
+    },
+    {
+      src: '/images/dish-steak.webp',
+      srcSet:
+        '/images/dish-steak-480.webp 480w, /images/dish-steak-800.webp 800w, /images/dish-steak.webp 1024w',
+      sizes: '100vw',
+      alt: 'Grillad steak på Raffaello steakhouse i Boden',
+    },
+    {
+      src: '/images/dish-salad.webp',
+      srcSet:
+        '/images/dish-salad-480.webp 480w, /images/dish-salad-800.webp 800w, /images/dish-salad.webp 1024w',
+      sizes: '100vw',
+      alt: 'Färsk sallad på Raffaello restaurang i Boden',
+    },
   ],
   brandImageAlt: 'Raffaello Stekhus & Bar — restaurang i Boden',
-  /** Original logotyp (från restaurangen). */
-  logoImage: '/raffaello-logo.webp',
+  /** Navbar display size (~40 CSS px); full logo kept for schema/OG. */
+  logoImage: '/raffaello-logo-80.webp',
+  logoImageFull: '/raffaello-logo.webp',
   /** Dagens lunch på Mat och Mat. */
   lunchUrl: 'https://www.matochmat.se/lunch/boden/raffaello-stekhus-bar/',
   addressLine1: 'Drottninggatan 18',

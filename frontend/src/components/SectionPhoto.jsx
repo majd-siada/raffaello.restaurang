@@ -10,6 +10,7 @@ export default function SectionPhoto({
   alt = '',
   images,
   borderOffset = 'right',
+  sizes = '(min-width: 768px) 50vw, 100vw',
 }) {
   const slides = images?.length > 0 ? images : src ? [{ src, alt }] : []
   const [index, ref] = useRotatingIndex(slides.length, ROTATE_MS)
@@ -30,10 +31,12 @@ export default function SectionPhoto({
               key={slide.src}
               src={slide.src}
               alt={visible ? active.alt || alt : ''}
+              srcSet={slide.srcSet}
+              sizes={slide.sizes || sizes}
               className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-1000 ease-in-out ${
                 visible ? 'opacity-100' : 'opacity-0'
               }`}
-              loading={i === 0 ? 'lazy' : 'lazy'}
+              loading="lazy"
               decoding="async"
             />
           )

@@ -1,5 +1,42 @@
 @import "tailwindcss";
 
+/* Metric-adjusted fallbacks so late webfonts (or optional miss) don't reflow hero text */
+@font-face {
+  font-family: "Outfit Fallback";
+  src: local("Segoe UI"), local("Helvetica Neue"), local(Arial);
+  size-adjust: 104%;
+  ascent-override: 92%;
+  descent-override: 24%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Playfair Fallback";
+  src: local(Georgia), local("Times New Roman"), local(serif);
+  size-adjust: 98%;
+  ascent-override: 90%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Cormorant Fallback";
+  src: local(Georgia), local("Times New Roman"), local(serif);
+  size-adjust: 108%;
+  ascent-override: 88%;
+  descent-override: 24%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Poppins Fallback";
+  src: local("Segoe UI"), local("Helvetica Neue"), local(Arial);
+  size-adjust: 100%;
+  ascent-override: 95%;
+  descent-override: 25%;
+  line-gap-override: 0%;
+}
+
 @theme {
   --color-dark: #0a0908;
   --color-dark-2: #161311;
@@ -8,10 +45,10 @@
   --color-gold: #d4af37;
   --color-gold-hover: #e0bc4a;
   --color-gold-dim: rgba(212, 175, 55, 0.14);
-  --font-heading: system-ui, "Playfair Display", serif;
-  --font-body: system-ui, "Poppins", sans-serif;
-  --font-brand: system-ui, "Outfit", sans-serif;
-  --font-brand-sub: Georgia, "Cormorant Garamond", "Playfair Display", serif;
+  --font-heading: "Playfair Fallback", "Playfair Display", Georgia, serif;
+  --font-body: "Poppins Fallback", "Poppins", system-ui, sans-serif;
+  --font-brand: "Outfit Fallback", "Outfit", system-ui, sans-serif;
+  --font-brand-sub: "Cormorant Fallback", "Cormorant Garamond", Georgia, serif;
 }
 
 html {

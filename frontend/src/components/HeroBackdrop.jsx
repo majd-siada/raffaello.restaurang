@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useRotatingIndex } from '../hooks/useRotatingIndex'
 
 const OVERLAY_MAIN = 'from-black/60 via-black/75 to-dark'
@@ -7,6 +8,7 @@ const ROTATE_MS = 4000
 /**
  * Full-bleed backdrop. Pass `images` to crossfade through a gallery every 4s.
  * Falls back to a single `src` when no gallery is provided.
+ * Extra slides mount after idle so LCP is not competing with gallery downloads.
  */
 export default function HeroBackdrop({
   src,
@@ -25,8 +27,22 @@ export default function HeroBackdrop({
         ? [{ src, alt, srcSet, sizes }]
         : []
 
-  const [index, ref] = useRotatingIndex(slides.length, ROTATE_MS)
-  const activeAlt = slides[index]?.alt || alt
+  const [extrasReady, setExtrasReady] = useState(slides.length < 2)
+  const activeSlides = extrasReady ? slides : slides.slice(0, 1)
+
+  useEffect(() => {
+    if (slides.length < 2) return undefined
+    const unlock = () => setExtrasReady(true)
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(unlock, { timeout: 2800 })
+      return () => window.cancelIdleCallback(id)
+    }
+    const t = window.setTimeout(unlock, 2000)
+    return () => window.clearTimeout(t)
+  }, [slides.length])
+
+  const [index, ref] = useRotatingIndex(activeSlides.length, ROTATE_MS)
+  const activeAlt = activeSlides[index]?.alt || alt
 
   return (
     <div
@@ -34,7 +50,7 @@ export default function HeroBackdrop({
       className="absolute inset-0 overflow-hidden bg-dark"
       aria-hidden={!activeAlt}
     >
-      {slides.map((slide, i) => {
+      {activeSlides.map((slide, i) => {
         const isFirst = i === 0
         const visible = i === index
         return (

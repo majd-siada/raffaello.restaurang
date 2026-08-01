@@ -436,6 +436,8 @@ export default function Home() {
             >
               <img
                 src={photo.src}
+                srcSet={photo.srcSet}
+                sizes="(min-width: 768px) 33vw, 50vw"
                 alt={photo.alt || ''}
                 className="h-full w-full object-cover transition-transform duration-700 ease-out hover:scale-[1.03]"
                 loading="lazy"
