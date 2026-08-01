@@ -6,7 +6,8 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
     cssCodeSplit: true,
-    modulePreload: { polyfill: false },
+    // Avoid modulepreload of the large React vendor — frees bandwidth for LCP image on mobile.
+    modulePreload: false,
     rolldownOptions: {
       output: {
         codeSplitting: {

@@ -2,11 +2,11 @@ import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import ScrollToTop from './components/ScrollToTop'
 import Navbar from './components/Navbar'
-import Footer from './components/Footer'
 import AdminRedirect from './components/AdminRedirect'
 import BootDismiss from './components/BootDismiss'
 import Home from './pages/Home'
 
+const Footer = lazy(() => import('./components/Footer'))
 const About = lazy(() => import('./pages/About'))
 const Menu = lazy(() => import('./pages/Menu'))
 const WeeklyOffer = lazy(() => import('./pages/WeeklyOffer'))
@@ -65,7 +65,9 @@ export default function App() {
           </Routes>
         </Suspense>
       </main>
-      <Footer />
+      <Suspense fallback={null}>
+        <Footer />
+      </Suspense>
     </div>
   )
 }

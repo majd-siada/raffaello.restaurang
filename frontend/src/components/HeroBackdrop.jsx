@@ -5,10 +5,17 @@ const OVERLAY_MAIN = 'from-black/60 via-black/75 to-dark'
 const OVERLAY_TOP = 'from-dark via-transparent to-black/20'
 const ROTATE_MS = 4000
 
+function isMobileViewport() {
+  return (
+    typeof window !== 'undefined' &&
+    window.matchMedia('(max-width: 767px)').matches
+  )
+}
+
 /**
  * Full-bleed backdrop. Pass `images` to crossfade through a gallery every 4s.
  * Falls back to a single `src` when no gallery is provided.
- * Extra slides mount after idle so LCP is not competing with gallery downloads.
+ * On mobile, only the first slide loads (no carousel bandwidth).
  */
 export default function HeroBackdrop({
   src,
@@ -32,12 +39,14 @@ export default function HeroBackdrop({
 
   useEffect(() => {
     if (slides.length < 2) return undefined
+    // Phones: keep a single LCP image — carousel is desktop-only.
+    if (isMobileViewport()) return undefined
     const unlock = () => setExtrasReady(true)
     if ('requestIdleCallback' in window) {
-      const id = window.requestIdleCallback(unlock, { timeout: 2800 })
+      const id = window.requestIdleCallback(unlock, { timeout: 3500 })
       return () => window.cancelIdleCallback(id)
     }
-    const t = window.setTimeout(unlock, 2000)
+    const t = window.setTimeout(unlock, 2500)
     return () => window.clearTimeout(t)
   }, [slides.length])
 
@@ -60,6 +69,8 @@ export default function HeroBackdrop({
             alt={visible ? activeAlt : ''}
             srcSet={slide.srcSet}
             sizes={slide.sizes || sizes}
+            width={480}
+            height={360}
             className={`absolute inset-0 h-full w-full object-cover brightness-[0.85] transition-opacity duration-1000 ease-in-out ${
               visible ? 'opacity-100' : 'opacity-0'
             }`}

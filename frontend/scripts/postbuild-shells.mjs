@@ -6,7 +6,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const dist = join(root, 'dist')
 const indexPath = join(dist, 'index.html')
 
-/** Collect blocking stylesheets + module assets for the meny shell (no CSS deferral). */
+/** Collect blocking stylesheets + module assets (no CSS deferral). */
 function extractAssets(html) {
   const scripts = html.match(/<script type="module"[^>]*><\/script>/g) || []
   const preloads = html.match(/<link rel="modulepreload"[^>]*>/g) || []
@@ -17,7 +17,28 @@ function extractAssets(html) {
   }
 }
 
-const html = readFileSync(indexPath, 'utf8')
+/** Put CSS in <head> and modules at end of <body> so LCP image/CSS win the network. */
+function prioritizeCriticalPath(html) {
+  const scripts = html.match(/<script type="module"[^>]*><\/script>/g) || []
+  const styles = html.match(/<link rel="stylesheet"[^>]*>/g) || []
+  let next = html
+  for (const tag of [...scripts, ...styles]) {
+    next = next.replace(tag, '')
+  }
+  // Drop Vite modulepreloads (large React vendor steals bandwidth from LCP).
+  next = next.replace(/<link rel="modulepreload"[^>]*>\s*/g, '')
+  const headInject = styles.join('\n    ')
+  const bodyInject = scripts.join('\n    ')
+  next = next.replace('</head>', `    ${headInject}\n  </head>`)
+  next = next.replace('</body>', `    ${bodyInject}\n  </body>`)
+  // Collapse leftover blank lines from removals
+  return next.replace(/\n{3,}/g, '\n\n')
+}
+
+let html = readFileSync(indexPath, 'utf8')
+html = prioritizeCriticalPath(html)
+writeFileSync(indexPath, html)
+
 const assets = extractAssets(html)
 
 const menyHtml = `<!doctype html>
@@ -27,7 +48,7 @@ const menyHtml = `<!doctype html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0a0908" />
     <title>Meny | Raffaello Restaurang Boden</title>
-    <link rel="icon" href="/raffaello-logo.webp" type="image/webp" />
+    <link rel="icon" href="/raffaello-logo-80.webp" type="image/webp" />
     <link
       rel="preload"
       as="image"
@@ -99,4 +120,4 @@ for (const file of ['hero-interior-480.webp', 'menu-bg-480.webp', 'llms.txt']) {
   }
 }
 
-console.log('Wrote FCP shells: dist/meny/index.html (stylesheets left blocking for CLS)')
+console.log('Wrote FCP shells: dist/index.html + dist/meny/index.html (CSS first, JS last)')
