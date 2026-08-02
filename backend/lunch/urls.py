@@ -1,7 +1,7 @@
 from django.urls import path
 
-from .views import LunchWindowView
+from .views import LunchCurrentView
 
 urlpatterns = [
-    path('', LunchWindowView.as_view(), name='lunch-window'),
+    path('', LunchCurrentView.as_view(), name='lunch-current'),
 ]

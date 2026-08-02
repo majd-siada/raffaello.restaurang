@@ -34,6 +34,10 @@ class LunchWeek(models.Model):
         help_text='T.ex. vad som ingår (sallad, bröd, kaffe) eller öppettider för lunch.',
     )
     is_published = models.BooleanField(default=True)
+    skip_auto_sync = models.BooleanField(
+        default=False,
+        help_text='Om ikryssad uppdateras inte denna vecka av den dagliga Mat och Mat-synken.',
+    )
 
     class Meta:
         ordering = ['-year', '-week_number']
@@ -72,7 +76,7 @@ class LunchDish(models.Model):
     )
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    price = models.DecimalField(max_digits=8, decimal_places=2)
+    price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     is_available = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=0)
 

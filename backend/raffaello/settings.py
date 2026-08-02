@@ -217,3 +217,13 @@ REST_FRAMEWORK = {
 # 3) Put token + chat id in env (never commit the real token)
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '').strip()
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '').strip()
+
+# Daily lunch sync from Mat och Mat (management command: sync_matochmat_lunch)
+MATOCHMAT_LUNCH_URL = os.getenv(
+    'MATOCHMAT_LUNCH_URL',
+    'https://www.matochmat.se/lunch/boden/raffaello-stekhus-bar/',
+).strip()
+MATOCHMAT_RESTAURANT_SLUG = os.getenv(
+    'MATOCHMAT_RESTAURANT_SLUG',
+    'raffaello-stekhus-bar',
+).strip()

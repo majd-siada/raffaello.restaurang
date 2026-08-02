@@ -10,10 +10,11 @@ echo "PostgreSQL is up."
 python manage.py migrate --noinput
 python manage.py collectstatic --noinput
 
-# Delete bookings older than ~1 month, then repeat once per day.
+# Delete bookings older than ~1 month, and sync lunch from Mat och Mat, once per day.
 (
   while true; do
     python manage.py cleanup_old_bookings || true
+    python manage.py sync_matochmat_lunch || true
     sleep 86400
   done
 ) &

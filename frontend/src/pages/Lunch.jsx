@@ -17,15 +17,18 @@ function formatPrice(price) {
 }
 
 function DishRow({ dish }) {
+  const priceLabel = formatPrice(dish.price)
   return (
     <div className="mb-5 last:mb-0">
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="font-heading text-base font-semibold leading-snug text-gold sm:text-lg">
           {dish.name}
         </h3>
-        <span className="shrink-0 font-heading text-base font-semibold text-gold sm:text-lg">
-          {formatPrice(dish.price)}
-        </span>
+        {priceLabel && (
+          <span className="shrink-0 font-heading text-base font-semibold text-gold sm:text-lg">
+            {priceLabel}
+          </span>
+        )}
       </div>
       {dish.description && (
         <p className="mt-1 whitespace-pre-line text-sm italic leading-relaxed text-white/80">
@@ -59,7 +62,7 @@ function groupDishes(dishes) {
   return { days, other }
 }
 
-function WeekSection({ slot, lunch, primary }) {
+function WeekSection({ lunch }) {
   const dishes = lunch?.dishes || []
   const hasDishes = dishes.length > 0
   const intro = (lunch?.intro_text || '').trim() || DEFAULT_INTRO
@@ -68,28 +71,12 @@ function WeekSection({ slot, lunch, primary }) {
   const { days, other } = groupDishes(dishes)
 
   return (
-    <section
-      className={`scroll-mt-28 rounded-sm border px-6 py-10 sm:px-10 ${
-        primary
-          ? 'border-gold/40 bg-dark-2'
-          : 'border-white/10 bg-dark opacity-90'
-      }`}
-    >
-      <p
-        className={`mb-2 text-xs uppercase tracking-[0.2em] ${
-          primary ? 'text-gold' : 'text-white/45'
-        }`}
-      >
-        {slot}
-      </p>
-      <h2
-        className={`font-heading font-bold tracking-wide ${
-          primary ? 'text-2xl text-white sm:text-3xl' : 'text-xl text-white/85 sm:text-2xl'
-        }`}
-      >
+    <section className="scroll-mt-28 rounded-sm border border-gold/40 bg-dark-2 px-6 py-10 sm:px-10">
+      <p className="mb-2 text-xs uppercase tracking-[0.2em] text-gold">Denna vecka</p>
+      <h2 className="font-heading text-2xl font-bold tracking-wide text-white sm:text-3xl">
         {weekLabel || '—'}
       </h2>
-      <div className={`mt-3 h-px w-16 ${primary ? 'bg-gold' : 'bg-white/25'}`} />
+      <div className="mt-3 h-px w-16 bg-gold" />
 
       {hasDishes ? (
         <>
@@ -125,9 +112,14 @@ function WeekSection({ slot, lunch, primary }) {
           </div>
         </>
       ) : (
-        <p className="mt-6 text-sm italic text-white/45">
-          Ingen lunchmeny publicerad ännu
-        </p>
+        <>
+          {notes && (
+            <p className="mt-6 max-w-2xl text-sm italic leading-relaxed text-white/50">{notes}</p>
+          )}
+          <p className="mt-6 text-sm italic text-white/45">
+            Ingen lunchmeny publicerad ännu
+          </p>
+        </>
       )}
     </section>
   )
@@ -232,13 +224,7 @@ export default function Lunch() {
             </p>
           )}
 
-          {!loading && !error && data && (
-            <>
-              <WeekSection slot="Förra veckan" lunch={data.previous} primary={false} />
-              <WeekSection slot="Denna vecka" lunch={data.current} primary />
-              <WeekSection slot="Nästa vecka" lunch={data.next} primary={false} />
-            </>
-          )}
+          {!loading && !error && data && <WeekSection lunch={data} />}
         </div>
       </section>
 

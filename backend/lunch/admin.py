@@ -11,9 +11,16 @@ class LunchDishInline(admin.TabularInline):
 
 @admin.register(LunchWeek)
 class LunchWeekAdmin(admin.ModelAdmin):
-    list_display = ['week_number', 'year', 'week_start', 'is_published', 'dish_count']
-    list_editable = ['is_published']
-    list_filter = ['is_published', 'year']
+    list_display = [
+        'week_number',
+        'year',
+        'week_start',
+        'is_published',
+        'skip_auto_sync',
+        'dish_count',
+    ]
+    list_editable = ['is_published', 'skip_auto_sync']
+    list_filter = ['is_published', 'skip_auto_sync', 'year']
     ordering = ['-year', '-week_number']
     readonly_fields = ['year', 'week_number']
     inlines = [LunchDishInline]
@@ -28,10 +35,12 @@ class LunchWeekAdmin(admin.ModelAdmin):
                     'intro_text',
                     'notes',
                     'is_published',
+                    'skip_auto_sync',
                 ),
                 'description': (
                     'Välj valfri dag i veckan — veckonummer och år fylls i automatiskt '
-                    '(ISO-vecka). Lägg till en rätt per vardag under Lunchrätter.'
+                    '(ISO-vecka). Lunch synkas dagligen från Mat och Mat om '
+                    '“Hoppa över autosynk” inte är ikryssad.'
                 ),
             },
         ),
