@@ -1,0 +1,39 @@
+name: Set Resend booking email env
+
+on:
+  workflow_dispatch:
+
+jobs:
+  set-env:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update backend/.env and recreate backend
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: RESEND_API_KEY,BOOKING_NOTIFY_EMAIL,EMAIL_FROM
+          script: |
+            set -e
+            cd /root/raffaello.restaurang
+            test -f backend/.env
+
+            sed -i \
+              -e '/^RESEND_API_KEY=/d' \
+              -e '/^BOOKING_NOTIFY_EMAIL=/d' \
+              -e '/^EMAIL_FROM=/d' \
+              backend/.env
+
+            printf '\n# Resend booking email alerts\nRESEND_API_KEY=%s\nBOOKING_NOTIFY_EMAIL=%s\nEMAIL_FROM=%s\n' \
+              "$RESEND_API_KEY" "$BOOKING_NOTIFY_EMAIL" "$EMAIL_FROM" >> backend/.env
+
+            grep -E '^(RESEND_API_KEY|BOOKING_NOTIFY_EMAIL|EMAIL_FROM)=' backend/.env | sed 's/=.*/=***set***/'
+
+            docker compose up -d --force-recreate backend
+            sleep 5
+            docker compose ps backend
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          BOOKING_NOTIFY_EMAIL: ${{ secrets.BOOKING_NOTIFY_EMAIL }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
