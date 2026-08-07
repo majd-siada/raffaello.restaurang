@@ -218,6 +218,18 @@ REST_FRAMEWORK = {
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '').strip()
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '').strip()
 
+# Booking alerts via Resend email (restaurant inbox — guests are not messaged)
+# RESEND_API_KEY from https://resend.com — never commit real secrets
+# BOOKING_NOTIFY_EMAIL = inbox that receives new booking alerts
+# EMAIL_FROM = verified Resend sender, e.g. "Raffaello <bokningar@your-domain.com>"
+RESEND_API_KEY = os.getenv('RESEND_API_KEY', '').strip()
+BOOKING_NOTIFY_EMAIL = os.getenv('BOOKING_NOTIFY_EMAIL', '').strip()
+EMAIL_FROM = os.getenv('EMAIL_FROM', '').strip()
+BOOKING_RESTAURANT_NAME = os.getenv(
+    'BOOKING_RESTAURANT_NAME',
+    'Raffaello Restaurang, Drottninggatan 18, 961 35 Boden',
+).strip()
+
 # Daily lunch sync from Mat och Mat (management command: sync_matochmat_lunch)
 MATOCHMAT_LUNCH_URL = os.getenv(
     'MATOCHMAT_LUNCH_URL',
