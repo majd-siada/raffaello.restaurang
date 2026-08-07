@@ -5,6 +5,10 @@ from django.urls import path, include
 
 from .health import health
 
+admin.site.site_header = 'Raffaello'
+admin.site.site_title = 'Raffaello Admin'
+admin.site.index_title = 'Stekhus & Bar'
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/health/', health, name='health'),

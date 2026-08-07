@@ -1,0 +1,648 @@
+/* Raffaello admin — dark steakhouse theme with subtle 3D motion */
+
+:root {
+  --ra-dark: #0a0908;
+  --ra-dark-2: #161311;
+  --ra-dark-3: #211e1a;
+  --ra-stone: #2c2824;
+  --ra-gold: #d4af37;
+  --ra-gold-hover: #e0bc4a;
+  --ra-gold-dim: rgba(212, 175, 55, 0.14);
+  --ra-gold-glow: rgba(212, 175, 55, 0.35);
+  --ra-text: #e8e4dc;
+  --ra-muted: #a8a298;
+  --ra-danger: #c45c4a;
+  --ra-success: #6a9b6a;
+  --ra-radius: 12px;
+  --ra-font-brand: "Outfit", system-ui, sans-serif;
+  --ra-font-sub: "Cormorant Garamond", Georgia, serif;
+  --ra-font-heading: "Playfair Display", Georgia, serif;
+  --ra-font-body: "Poppins", system-ui, sans-serif;
+  --primary: var(--ra-gold);
+  --primary-fg: var(--ra-dark);
+  --body-fg: var(--ra-text);
+  --body-bg: var(--ra-dark);
+  --body-quiet-color: var(--ra-muted);
+  --body-loud-color: #fff;
+  --header-bg: transparent;
+  --header-color: var(--ra-text);
+  --header-link-color: var(--ra-gold);
+  --breadcrumbs-bg: transparent;
+  --breadcrumbs-fg: var(--ra-muted);
+  --link-fg: var(--ra-gold);
+  --link-hover-color: var(--ra-gold-hover);
+  --link-selected-fg: var(--ra-gold-hover);
+  --hairline-color: rgba(212, 175, 55, 0.18);
+  --border-color: rgba(212, 175, 55, 0.22);
+  --darkened-bg: var(--ra-dark-2);
+  --selected-bg: var(--ra-gold-dim);
+  --selected-row: rgba(212, 175, 55, 0.1);
+  --button-bg: var(--ra-gold);
+  --button-hover-bg: var(--ra-gold-hover);
+  --button-fg: var(--ra-dark);
+  --default-button-bg: var(--ra-stone);
+  --default-button-hover-bg: #3a3530;
+  --close-button-bg: var(--ra-stone);
+  --close-button-hover-bg: #3a3530;
+  --delete-button-bg: var(--ra-danger);
+  --delete-button-hover-bg: #d46a58;
+  --object-tools-bg: var(--ra-stone);
+  --object-tools-hover-bg: var(--ra-gold);
+  --object-tools-fg: var(--ra-text);
+  --message-success-bg: rgba(106, 155, 106, 0.2);
+  --message-warning-bg: rgba(212, 175, 55, 0.18);
+  --message-error-bg: rgba(196, 92, 74, 0.22);
+  --dark-theme: 1;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}
+
+/* Keep the steakhouse palette even if Django theme.js picks "light" */
+html[data-theme="light"],
+html[data-theme="dark"],
+:root {
+  --body-bg: var(--ra-dark);
+  --body-fg: var(--ra-text);
+  --body-quiet-color: var(--ra-muted);
+  --body-loud-color: #fff;
+  --darkened-bg: var(--ra-dark-2);
+  --hairline-color: rgba(212, 175, 55, 0.18);
+  --border-color: rgba(212, 175, 55, 0.22);
+  --primary: var(--ra-gold);
+  --primary-fg: var(--ra-dark);
+  --link-fg: var(--ra-gold);
+  --header-link-color: var(--ra-gold);
+}
+
+body,
+body.login,
+.login {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--ra-font-body);
+  color: var(--ra-text) !important;
+  background:
+    radial-gradient(ellipse 80% 50% at 10% -10%, rgba(212, 175, 55, 0.12), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 0%, rgba(212, 175, 55, 0.08), transparent 50%),
+    linear-gradient(165deg, var(--ra-dark) 0%, var(--ra-dark-2) 45%, #120f0d 100%) !important;
+  background-attachment: fixed;
+  perspective: 1200px;
+}
+
+/* Ambient floating gold orbs */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(60px);
+  opacity: 0.45;
+  animation: ra-float 18s ease-in-out infinite;
+}
+
+body::before {
+  width: 280px;
+  height: 280px;
+  top: 12%;
+  left: -4%;
+  background: rgba(212, 175, 55, 0.22);
+}
+
+body::after {
+  width: 360px;
+  height: 360px;
+  bottom: 8%;
+  right: -6%;
+  background: rgba(212, 175, 55, 0.14);
+  animation-delay: -7s;
+  animation-duration: 22s;
+}
+
+@keyframes ra-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(24px, -30px, 40px) scale(1.08);
+  }
+}
+
+#container {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+/* —— Header / brand —— */
+#header {
+  padding: 1rem 1.5rem;
+  background: linear-gradient(
+    180deg,
+    rgba(22, 19, 17, 0.92) 0%,
+    rgba(10, 9, 8, 0.75) 100%
+  );
+  border-bottom: 1px solid var(--hairline-color);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  transform-style: preserve-3d;
+}
+
+.raffaello-brand a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  text-decoration: none !important;
+  transform-style: preserve-3d;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.raffaello-brand a:hover {
+  transform: translateZ(12px) rotateX(4deg);
+}
+
+.raffaello-brand__name {
+  font-family: var(--ra-font-brand);
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+  background: linear-gradient(120deg, #fff 20%, var(--ra-gold) 50%, #fff 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ra-shimmer 6s linear infinite;
+}
+
+.raffaello-brand__sub {
+  font-family: var(--ra-font-sub);
+  font-size: 0.85rem;
+  font-style: italic;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(232, 228, 220, 0.65);
+  -webkit-text-fill-color: rgba(232, 228, 220, 0.65);
+}
+
+@keyframes ra-shimmer {
+  to {
+    background-position: 200% center;
+  }
+}
+
+#user-tools {
+  font-size: 0.85rem;
+}
+
+#user-tools a {
+  color: var(--ra-gold) !important;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+#user-tools a:hover {
+  color: var(--ra-gold-hover) !important;
+  text-shadow: 0 0 18px var(--ra-gold-glow);
+}
+
+/* —— Breadcrumbs —— */
+div.breadcrumbs {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  color: var(--ra-muted);
+  font-size: 0.85rem;
+}
+
+div.breadcrumbs a {
+  color: var(--ra-gold);
+}
+
+/* —— Content shell —— */
+#content {
+  padding: 1.5rem;
+}
+
+#content h1 {
+  font-family: var(--ra-font-heading);
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+/* —— Dashboard modules (3D cards) —— */
+#content-main {
+  transform-style: preserve-3d;
+}
+
+.module,
+#content-related .module,
+.dashboard #content-related .module {
+  background: linear-gradient(
+    145deg,
+    rgba(33, 30, 26, 0.95) 0%,
+    rgba(22, 19, 17, 0.92) 100%
+  );
+  border: 1px solid var(--border-color);
+  border-radius: var(--ra-radius);
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  opacity: 1;
+  transform: translateZ(0) rotateX(0deg);
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s ease,
+    border-color 0.3s ease;
+  animation: ra-card-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.dashboard .module {
+  margin-bottom: 1.25rem;
+}
+
+.module:hover {
+  transform: translateY(-6px) translateZ(24px) rotateX(2deg);
+  border-color: rgba(212, 175, 55, 0.45);
+  box-shadow:
+    0 28px 50px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(212, 175, 55, 0.15),
+    0 0 40px rgba(212, 175, 55, 0.08);
+}
+
+@keyframes ra-card-in {
+  from {
+    transform: translateY(28px) rotateX(12deg) scale(0.96);
+  }
+  to {
+    transform: translateY(0) rotateX(0) scale(1);
+  }
+}
+
+.module caption,
+.module h2,
+.inline-group h2,
+#content-related h2,
+.dashboard .module caption {
+  font-family: var(--ra-font-brand);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.2), transparent 70%);
+  color: var(--ra-gold) !important;
+  border-bottom: 1px solid var(--hairline-color);
+  padding: 0.85rem 1rem;
+}
+
+.module table {
+  width: 100%;
+}
+
+.module th,
+.module td {
+  border-bottom: 1px solid rgba(212, 175, 55, 0.08);
+  padding: 0.65rem 1rem;
+}
+
+.module a {
+  color: var(--ra-text);
+  transition: color 0.2s ease;
+}
+
+.module a:hover {
+  color: var(--ra-gold);
+}
+
+.module tr:hover td {
+  background: var(--selected-row);
+}
+
+/* Stagger entrance for dashboard app cards */
+.dashboard .module:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.dashboard .module:nth-child(2) {
+  animation-delay: 0.12s;
+}
+.dashboard .module:nth-child(3) {
+  animation-delay: 0.19s;
+}
+.dashboard .module:nth-child(4) {
+  animation-delay: 0.26s;
+}
+.dashboard .module:nth-child(5) {
+  animation-delay: 0.33s;
+}
+.dashboard .module:nth-child(6) {
+  animation-delay: 0.4s;
+}
+
+/* —— Forms & change list —— */
+#changelist,
+.change-form #content-main > form,
+#changelist-filter {
+  background: rgba(22, 19, 17, 0.85);
+  border: 1px solid var(--border-color);
+  border-radius: var(--ra-radius);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+}
+
+#changelist {
+  padding: 0.5rem;
+}
+
+#changelist-filter {
+  padding: 0;
+  overflow: hidden;
+}
+
+#changelist-filter h2 {
+  background: var(--ra-gold-dim);
+  color: var(--ra-gold);
+  font-family: var(--ra-font-brand);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#changelist table thead th {
+  background: rgba(10, 9, 8, 0.6);
+  color: var(--ra-gold);
+  font-family: var(--ra-font-brand);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--hairline-color);
+}
+
+#changelist tbody tr {
+  transition: background 0.2s ease, transform 0.25s ease;
+}
+
+#changelist tbody tr:hover {
+  background: var(--selected-row);
+}
+
+fieldset.module {
+  margin-bottom: 1.25rem;
+}
+
+.form-row {
+  border-bottom: 1px solid rgba(212, 175, 55, 0.08);
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="url"],
+input[type="number"],
+input[type="tel"],
+textarea,
+select,
+.vTextField,
+.vLargeTextField,
+.vURLField {
+  background: var(--ra-dark) !important;
+  color: var(--ra-text) !important;
+  border: 1px solid rgba(212, 175, 55, 0.28) !important;
+  border-radius: 8px !important;
+  padding: 0.55rem 0.75rem !important;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  border-color: var(--ra-gold) !important;
+  box-shadow: 0 0 0 3px var(--ra-gold-dim), 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+  transform: translateY(-1px);
+}
+
+/* —— Buttons —— */
+.button,
+input[type="submit"],
+submit,
+a.button,
+.object-tools a {
+  font-family: var(--ra-font-brand) !important;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  border-radius: 999px !important;
+  border: none !important;
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s ease,
+    background 0.25s ease !important;
+  transform-style: preserve-3d;
+}
+
+.button.default,
+input[type="submit"].default,
+.submit-row input.default {
+  background: linear-gradient(135deg, var(--ra-gold), #b8942a) !important;
+  color: var(--ra-dark) !important;
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.25);
+}
+
+.button.default:hover,
+input[type="submit"].default:hover,
+.submit-row input.default:hover,
+.button:hover,
+input[type="submit"]:hover,
+a.button:hover,
+.object-tools a:hover {
+  transform: translateY(-3px) translateZ(8px) scale(1.02);
+  box-shadow: 0 14px 28px rgba(212, 175, 55, 0.35) !important;
+}
+
+.object-tools a {
+  background: var(--ra-stone) !important;
+  color: var(--ra-text) !important;
+}
+
+.object-tools a:hover {
+  background: var(--ra-gold) !important;
+  color: var(--ra-dark) !important;
+}
+
+.deletelink,
+a.deletelink {
+  background: var(--ra-danger) !important;
+}
+
+/* —— Messages —— */
+ul.messagelist li {
+  border-radius: var(--ra-radius);
+  border: 1px solid var(--hairline-color);
+  backdrop-filter: blur(8px);
+  animation: ra-card-in 0.5s ease both;
+}
+
+/* —— Login (3D panel) —— */
+body.login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body.login #container,
+.login #container {
+  width: min(420px, 94vw) !important;
+  margin: 2rem auto !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+body.login #header {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  text-align: center;
+  padding-bottom: 0.25rem;
+}
+
+body.login .raffaello-brand a {
+  align-items: center;
+}
+
+body.login #content {
+  padding: 0;
+}
+
+body.login #login-form,
+body.login #content-main {
+  background: linear-gradient(
+    160deg,
+    rgba(33, 30, 26, 0.96),
+    rgba(16, 14, 12, 0.94)
+  ) !important;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 18px;
+  padding: 1.75rem 1.5rem 1.5rem;
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.55),
+    0 0 50px rgba(212, 175, 55, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  opacity: 1;
+  transform: rotateX(6deg) translateZ(0);
+  transform-origin: center top;
+  animation: ra-login-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: transform 0.45s ease, box-shadow 0.45s ease;
+}
+
+body.login #login-form:hover,
+body.login #content-main:hover {
+  transform: rotateX(0deg) translateY(-4px) translateZ(20px);
+  box-shadow:
+    0 40px 70px rgba(0, 0, 0, 0.6),
+    0 0 60px rgba(212, 175, 55, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+@keyframes ra-login-in {
+  from {
+    transform: rotateX(18deg) translateY(40px) scale(0.94);
+  }
+  to {
+    transform: rotateX(6deg) translateY(0) scale(1);
+  }
+}
+
+body.login .form-row {
+  border: none;
+  padding: 0.5rem 0;
+}
+
+body.login label {
+  color: var(--ra-muted);
+  font-family: var(--ra-font-brand);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+body.login .submit-row {
+  background: transparent !important;
+  border: none !important;
+  padding: 1rem 0 0 !important;
+}
+
+body.login .submit-row input {
+  width: 100%;
+  padding: 0.75rem 1rem !important;
+}
+
+/* —— Related sidebar —— */
+#content-related {
+  background: transparent;
+}
+
+#content-related .module {
+  animation-delay: 0.2s;
+}
+
+/* —— Pagination / actions —— */
+.paginator a:link,
+.paginator a:visited,
+.paginator .this-page {
+  border-radius: 8px;
+}
+
+.actions select {
+  border-radius: 8px !important;
+}
+
+/* —— Footer quiet —— */
+#footer {
+  color: var(--ra-muted);
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 0.8rem;
+}
+
+/* —— Reduced motion —— */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  body::before,
+  body::after {
+    animation: none;
+  }
+}
+
+/* —— Small screens —— */
+@media (max-width: 767px) {
+  .module:hover,
+  body.login #login-form:hover {
+    transform: none;
+  }
+
+  body.login #login-form {
+    transform: none;
+  }
+}
