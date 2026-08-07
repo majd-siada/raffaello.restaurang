@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework.views import APIView
 
-from .email_notify import send_booking_email
 from .models import Booking
 from .serializers import BookingSerializer
 from .whatsapp import send_booking_whatsapp
@@ -14,7 +13,7 @@ class BookingAnonThrottle(AnonRateThrottle):
 
 
 class BookingCreateView(APIView):
-    """Public endpoint: create a booking and notify restaurant (Telegram + email)."""
+    """Public endpoint: create a booking and notify restaurant via Telegram."""
 
     authentication_classes = []
     permission_classes = []
@@ -28,8 +27,6 @@ class BookingCreateView(APIView):
         if sent:
             booking.whatsapp_sent = True
             booking.save(update_fields=['whatsapp_sent'])
-        # Additional channel; must not fail the booking if email delivery fails.
-        send_booking_email(booking)
         return Response(
             {
                 'ok': True,
