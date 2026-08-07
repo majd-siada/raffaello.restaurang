@@ -36,7 +36,7 @@ jobs:
             }
             sleep 8
             docker compose ps backend
-            docker compose exec -T backend python -c "from django.conf import settings; print('notify=', bool(settings.BOOKING_NOTIFY_EMAIL)); print('from=', bool(settings.EMAIL_FROM)); print('resend=', bool(settings.RESEND_API_KEY))"
+            docker compose exec -T backend python -c "import os; os.environ.setdefault('DJANGO_SETTINGS_MODULE','raffaello.settings'); import django; django.setup(); from django.conf import settings; print('notify=', bool((settings.BOOKING_NOTIFY_EMAIL or '').strip())); print('from=', bool((settings.EMAIL_FROM or '').strip())); print('resend=', bool((settings.RESEND_API_KEY or '').strip()))"
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           BOOKING_NOTIFY_EMAIL: ${{ secrets.BOOKING_NOTIFY_EMAIL }}
