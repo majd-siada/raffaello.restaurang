@@ -30,9 +30,13 @@ jobs:
 
             grep -E '^(RESEND_API_KEY|BOOKING_NOTIFY_EMAIL|EMAIL_FROM)=' backend/.env | sed 's/=.*/=***set***/'
 
-            docker compose up -d --force-recreate backend
-            sleep 5
+            docker compose up -d --force-recreate backend || {
+              sleep 10
+              docker compose up -d --force-recreate backend
+            }
+            sleep 8
             docker compose ps backend
+            docker compose exec -T backend python -c "from django.conf import settings; print('notify=', bool(settings.BOOKING_NOTIFY_EMAIL)); print('from=', bool(settings.EMAIL_FROM)); print('resend=', bool(settings.RESEND_API_KEY))"
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           BOOKING_NOTIFY_EMAIL: ${{ secrets.BOOKING_NOTIFY_EMAIL }}
