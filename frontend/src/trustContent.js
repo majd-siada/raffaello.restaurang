@@ -46,9 +46,26 @@ export const LEGAL_PAGES = {
   integritet: {
     title: 'Integritetspolicy',
     description:
-      'Information om hur Raffaello hanterar personuppgifter. Text publiceras när den är godkänd.',
+      'Hur Raffaello Stekhus & Bar i Boden hanterar personuppgifter vid bokning och kontakt.',
     canonical: 'https://raffaello.se/integritet',
-    paragraphs: [],
+    paragraphs: [
+      '## Personuppgifter hos Raffaello',
+      'Raffaello Stekhus & Bar (Drottninggatan 18, 961 35 Boden) ansvarar för personuppgifter som du lämnar via vår webbplats. Kontakta oss på 0921-214 010 eller info@raffaello.se om du har frågor om hur vi hanterar dina uppgifter.',
+      '## Vilka uppgifter samlar vi in?',
+      'När du skickar en bordsförfrågan eller en förfrågan om privata events samlar vi in de uppgifter du själv fyller i: namn, telefonnummer, e-postadress samt uppgifter om datum, tid, antal gäster och eventuellt meddelande. Vi skapar inte gästkonton på webbplatsen.',
+      '## Varför behandlar vi uppgifterna?',
+      'Uppgifterna används för att ta emot och hantera din förfrågan, kontakta dig om bokningen eller eventet, och för att restaurangen ska kunna planera besöket. Behandlingen sker för att kunna fullgöra steg inför ett avtal (bordsbokning/event) och för vårt berättigade intresse att driva verksamheten.',
+      '## Vem får ta del av uppgifterna?',
+      'Uppgifterna lagras i vårt bokningssystem och kan visas för behörig personal. När en bokningsförfrågan kommer in skickas en intern notifiering till restaurangen via Telegram — endast till restaurangens mottagare. Gäster får inga Telegram-meddelanden från oss. Vi säljer inte dina personuppgifter.',
+      '## Cookies och teknik',
+      'Den publika webbplatsen använder nödvändiga tekniska cookies för säkerhet (till exempel CSRF-skydd) när det behövs. Inloggning för personal använder sessionscookies. Vi använder inte marknadsföringscookies eller tredjepartsanalys på den publika sajten i nuvarande version.',
+      '## Hur länge sparas uppgifterna?',
+      'Boknings- och eventuppgifter sparas så länge det behövs för att hantera förfrågan, genomföra besöket och eventuell uppföljning eller bokförings-/verksamhetsbehov. Därefter raderas eller avidentifieras uppgifterna när de inte längre behövs.',
+      '## Dina rättigheter',
+      'Du har rätt att begära tillgång till, rättelse av eller radering av dina personuppgifter, samt att invända mot behandling i den utsträckning lagen medger. Kontakta oss på info@raffaello.se eller 0921-214 010. Du kan också lämna klagomål till Integritetsskyddsmyndigheten (IMY).',
+      '## Ändringar',
+      'Denna information kan uppdateras om hur vi samlar in eller använder uppgifter förändras. Senaste versionen publiceras på denna sida.',
+    ],
   },
 }
 

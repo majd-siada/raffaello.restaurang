@@ -67,4 +67,10 @@
     <priority>0.4</priority>
   </url>
 
+  <url>
+    <loc>https://raffaello.se/integritet</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
 </urlset>
