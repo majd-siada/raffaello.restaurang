@@ -24,11 +24,14 @@ describe('P1-D trust content contracts', () => {
     assert.equal(legalPageReady('integritet'), true)
     assert.match(LEGAL_PAGES.bokningsvillkor.paragraphs.join('\n'), /upp till 6 gäster/)
     assert.match(LEGAL_PAGES.bokningsvillkor.paragraphs.join('\n'), /Raffaello/)
-    assert.doesNotMatch(LEGAL_PAGES.bokningsvillkor.paragraphs.join('\n'), /Riva/)
+    assert.doesNotMatch(LEGAL_PAGES.bokningsvillkor.paragraphs.join('\n'), /\bRiva\b/)
     assert.match(LEGAL_PAGES.integritet.paragraphs.join('\n'), /personuppgifter/)
     assert.match(LEGAL_PAGES.integritet.paragraphs.join('\n'), /Telegram/)
     assert.match(LEGAL_PAGES.integritet.paragraphs.join('\n'), /IMY/)
-    assert.doesNotMatch(LEGAL_PAGES.integritet.paragraphs.join('\n'), /Riva|Google Analytics|Meta Pixel/i)
+    assert.doesNotMatch(
+      LEGAL_PAGES.integritet.paragraphs.join('\n'),
+      /\bRiva\b|Google Analytics|Meta Pixel/i,
+    )
   })
 
   it('keeps positioning as CONTENT REQUIRED until approved', () => {
