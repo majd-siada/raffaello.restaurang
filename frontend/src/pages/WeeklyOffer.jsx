@@ -131,7 +131,6 @@ export default function WeeklyOffer() {
   const [data, setData] = useState(null)
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [activeSlot, setActiveSlot] = useState('current')
 
   useEffect(() => {
     let cancelled = false
@@ -170,22 +169,6 @@ export default function WeeklyOffer() {
     })
     return () => window.cancelAnimationFrame(id)
   }, [loading, error, data])
-
-  const selectSlot = (key, id) => {
-    setActiveSlot(key)
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    window.requestAnimationFrame(() => {
-      document.getElementById(id)?.scrollIntoView({
-        behavior: reduceMotion ? 'auto' : 'smooth',
-        block: 'start',
-      })
-    })
-  }
-
-  const visibleSlots =
-    activeSlot == null
-      ? WEEK_SLOTS
-      : WEEK_SLOTS.filter((s) => s.key === activeSlot)
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-black pb-24 text-white/80 md:pb-0">
@@ -263,51 +246,7 @@ export default function WeeklyOffer() {
 
           {!loading && !error && data && (
             <>
-              <nav
-                className="sticky top-16 z-30 mb-10 min-h-[56px] border-b border-white/10 bg-black/85 backdrop-blur-sm md:top-[4.5rem]"
-                aria-label="Erbjudandeveckor"
-              >
-                <div className="mx-auto flex max-w-4xl gap-2.5 overflow-x-auto overscroll-x-contain px-0 py-3.5 sm:gap-3 [-webkit-overflow-scrolling:touch]">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveSlot(null)
-                      const reduceMotion = window.matchMedia(
-                        '(prefers-reduced-motion: reduce)',
-                      ).matches
-                      document.getElementById('forra-veckan')?.scrollIntoView({
-                        behavior: reduceMotion ? 'auto' : 'smooth',
-                        block: 'start',
-                      })
-                    }}
-                    aria-pressed={activeSlot === null}
-                    className={`min-h-11 shrink-0 cursor-pointer border px-3.5 py-2 text-[0.65rem] uppercase tracking-widest transition-colors sm:px-4 sm:text-xs ${
-                      activeSlot === null
-                        ? 'border-gold bg-gold text-dark'
-                        : 'border-gold/40 text-gold hover:border-gold hover:bg-gold/10'
-                    }`}
-                  >
-                    Alla
-                  </button>
-                  {WEEK_SLOTS.map((s) => (
-                    <button
-                      key={s.key}
-                      type="button"
-                      onClick={() => selectSlot(s.key, s.id)}
-                      aria-pressed={activeSlot === s.key}
-                      className={`min-h-11 shrink-0 cursor-pointer border px-3.5 py-2 text-[0.65rem] uppercase tracking-widest transition-colors sm:px-4 sm:text-xs ${
-                        activeSlot === s.key
-                          ? 'border-gold bg-gold text-dark'
-                          : 'border-gold/40 text-gold hover:border-gold hover:bg-gold/10'
-                      }`}
-                    >
-                      {s.slot}
-                    </button>
-                  ))}
-                </div>
-              </nav>
-
-              {visibleSlots.map((s) => (
+              {WEEK_SLOTS.map((s) => (
                 <WeekBlock
                   key={s.key}
                   id={s.id}
