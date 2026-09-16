@@ -63,7 +63,10 @@ export default function About() {
 
       <Section tone="bg">
         <div className="mx-auto max-w-6xl">
-          <div className="grid items-center gap-16 md:grid-cols-2">
+          <div
+            id="om-oss-valkommen"
+            className="scroll-mt-28 grid items-center gap-16 md:grid-cols-2"
+          >
             <div>
               <SectionHeading
                 eyebrow="Välkommen"
