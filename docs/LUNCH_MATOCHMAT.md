@@ -78,4 +78,4 @@ Lunch weeks show source type, import status, hash, fetched time, source URL, par
 
 ## Frontend
 
-`/lunch` consumes Raffaello API only. Shows “Källa: Mat och Mat” when `source_type=EXTERNAL_MATOCHMAT`. Honest empty state unchanged.
+`/lunch` consumes Raffaello API only. Source attribution is not shown on the public page. Honest empty state unchanged.

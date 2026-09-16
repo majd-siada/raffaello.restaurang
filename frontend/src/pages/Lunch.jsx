@@ -67,33 +67,6 @@ function groupDishes(dishes) {
   return { days, other }
 }
 
-function SourceAttribution({ lunch }) {
-  const attribution = lunch?.source_attribution
-  const href = attribution?.url || lunch?.source_url || SITE.lunchUrl
-  if (!attribution && lunch?.source_type !== 'EXTERNAL_MATOCHMAT') return null
-  return (
-    <p className="mt-6 max-w-2xl text-xs leading-relaxed text-white/40">
-      Källa:{' '}
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="underline decoration-white/25 underline-offset-2 transition-colors hover:text-white/60 hover:decoration-white/50"
-      >
-        Mat och Mat
-      </a>
-      {lunch?.fetched_at ? (
-        <span className="block mt-1 text-white/30">
-          Senast hämtad:{' '}
-          {new Date(lunch.fetched_at).toLocaleString('sv-SE', {
-            timeZone: 'Europe/Stockholm',
-          })}
-        </span>
-      ) : null}
-    </p>
-  )
-}
-
 function WeekSection({ lunch }) {
   const dishes = lunch?.dishes || []
   const hasDishes = dishes.length > 0
@@ -177,7 +150,6 @@ function WeekSection({ lunch }) {
               </div>
             )}
           </div>
-          <SourceAttribution lunch={lunch} />
         </>
       ) : (
         <>
