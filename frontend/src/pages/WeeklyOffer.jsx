@@ -15,12 +15,12 @@ const DEFAULT_INTRO =
 function DishRow({ dish }) {
   const description = formatDishDescription(dish.description)
   return (
-    <div className="mb-5 last:mb-0">
-      <div className="flex items-baseline justify-between gap-3">
+    <article className="mb-7 last:mb-0" aria-label={dish.name}>
+      <div className="flex items-baseline justify-between gap-4">
         <h3 className="font-heading text-base font-semibold leading-snug text-gold sm:text-lg">
           {dish.name}
         </h3>
-        <span className="shrink-0 font-heading text-base font-semibold tabular-nums text-gold sm:text-lg">
+        <span className="shrink-0 font-heading text-base font-semibold tabular-nums tracking-wide text-gold sm:text-lg">
           {formatPrice(dish.price)}
         </span>
       </div>
@@ -29,7 +29,7 @@ function DishRow({ dish }) {
           {description}
         </p>
       )}
-    </div>
+    </article>
   )
 }
 

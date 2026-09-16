@@ -11,16 +11,17 @@ const API_URL = `${import.meta.env.VITE_API_URL || ''}/api/lunch/`
 const DEFAULT_INTRO =
   'Varje vardag serverar vi dagens lunch — se veckans rätter och priser här.'
 
+/** Same writing style as Meny MenuItemRow. */
 function DishRow({ dish }) {
   const priceLabel = formatPrice(dish.price)
   return (
-    <div className="mb-5 last:mb-0">
-      <div className="flex items-baseline justify-between gap-3">
+    <article className="mb-7 last:mb-0" aria-label={dish.name}>
+      <div className="flex items-baseline justify-between gap-4">
         <h3 className="font-heading text-base font-semibold leading-snug text-gold sm:text-lg">
           {dish.name}
         </h3>
         {priceLabel && (
-          <span className="shrink-0 font-heading text-base font-semibold tabular-nums text-gold sm:text-lg">
+          <span className="shrink-0 font-heading text-base font-semibold tabular-nums tracking-wide text-gold sm:text-lg">
             {priceLabel}
           </span>
         )}
@@ -30,7 +31,7 @@ function DishRow({ dish }) {
           {dish.description}
         </p>
       )}
-    </div>
+    </article>
   )
 }
 
@@ -67,7 +68,37 @@ function groupDishes(dishes) {
   return { days, other }
 }
 
-function WeekSection({ lunch }) {
+function DayBlock({ group, isToday }) {
+  return (
+    <section
+      id={`lunch-day-${group.weekday}`}
+      className="scroll-mt-32 mb-16 sm:mb-20"
+      aria-labelledby={`lunch-day-title-${group.weekday}`}
+    >
+      <div className="mb-5">
+        <h2
+          id={`lunch-day-title-${group.weekday}`}
+          className="font-heading text-2xl font-bold tracking-wide text-cream sm:text-3xl"
+        >
+          {group.label}
+          {isToday ? (
+            <span className="ml-3 text-sm font-normal uppercase tracking-[0.2em] text-gold">
+              Idag
+            </span>
+          ) : null}
+        </h2>
+        <div className="mt-3 h-px w-full bg-white/25" />
+      </div>
+      <div className="max-w-3xl space-y-1">
+        {group.dishes.map((dish) => (
+          <DishRow key={dish.id} dish={dish} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function WeekMenu({ lunch, activeDay, onSelectDay }) {
   const dishes = lunch?.dishes || []
   const hasDishes = dishes.length > 0
   const intro = (lunch?.intro_text || '').trim() || DEFAULT_INTRO
@@ -79,104 +110,119 @@ function WeekSection({ lunch }) {
   const todayEmpty =
     hasDishes && lunch?.today_has_dishes === false && lunch?.today_weekday != null
 
+  const visibleDays =
+    activeDay == null ? days : days.filter((g) => g.weekday === activeDay)
+
+  if (!hasDishes) {
+    return (
+      <div id="lunch-vecka" className="scroll-mt-28 max-w-3xl">
+        {notes && (
+          <p className="mb-4 text-sm italic leading-relaxed text-white/80">{notes}</p>
+        )}
+        <p className="text-sm italic text-white/70">Ingen lunchmeny publicerad ännu</p>
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/60">
+          Lunch är en fast del av vår verksamhet. Veckans rätter publiceras här när de är klara.
+          Boka bord eller ring oss så hjälper vi dig.
+        </p>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <ButtonLink to={SITE.bookingUrl} variant="primary">
+            Boka bord
+          </ButtonLink>
+          <a
+            href={`tel:${SITE.phoneTel}`}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-gold/50 bg-transparent px-6 py-2.5 text-sm font-medium uppercase tracking-widest text-gold transition-colors duration-300 hover:border-gold hover:bg-gold/10"
+          >
+            Ring {SITE.phoneDisplay}
+          </a>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <section
-      id="lunch-vecka"
-      className="scroll-mt-28 rounded-sm border border-gold/40 bg-elevated px-6 py-10 sm:px-10"
-    >
-      <p className="mb-2 text-xs uppercase tracking-[0.24em] text-gold">Denna vecka</p>
-      <h2 className="font-heading text-2xl font-bold tracking-wide text-cream sm:text-3xl">
-        {weekLabel || '—'}
-      </h2>
-      <div className="mt-3 h-px w-16 bg-gold" />
-
-      {hasDishes ? (
-        <>
-          <p className="mt-6 max-w-2xl text-sm leading-relaxed text-muted">{intro}</p>
-          {notes && (
-            <p className="mt-3 max-w-2xl text-sm italic leading-relaxed text-muted">{notes}</p>
-          )}
-          {hours && (
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted/90">{hours}</p>
-          )}
-          {todayEmpty && (
-            <p className="mt-4 max-w-2xl text-sm italic text-muted">
-              Ingen lunch publicerad för idag i källan — övriga dagar denna vecka visas nedan.
-            </p>
-          )}
-
-          <div className="mt-8 max-w-3xl space-y-8">
-            {days.map((group) => {
-              const isToday = group.weekday === today
-              return (
-                <div
-                  key={group.weekday}
-                  id={`lunch-day-${group.weekday}`}
-                  className={`scroll-mt-28 ${
-                    isToday
-                      ? 'border-l-2 border-gold bg-gold/[0.06] py-4 pl-4 pr-2 sm:pl-5'
-                      : ''
-                  }`}
-                >
-                  <h3
-                    className={`mb-4 font-heading text-sm uppercase tracking-[0.15em] ${
-                      isToday ? 'text-gold' : 'text-cream/70'
-                    }`}
-                  >
-                    {group.label}
-                    {isToday ? (
-                      <span className="ml-2 text-[0.65rem] font-normal tracking-[0.2em] text-gold/80">
-                        · Idag
-                      </span>
-                    ) : null}
-                  </h3>
-                  {group.dishes.map((dish) => (
-                    <DishRow key={dish.id} dish={dish} />
-                  ))}
-                </div>
-              )
-            })}
-
-            {other.length > 0 && (
-              <div>
-                {days.length > 0 && (
-                  <h3 className="mb-4 font-heading text-sm uppercase tracking-[0.15em] text-cream/70">
-                    Övrigt
-                  </h3>
-                )}
-                {other.map((dish) => (
-                  <DishRow key={dish.id} dish={dish} />
-                ))}
-              </div>
-            )}
-          </div>
-        </>
-      ) : (
-        <>
-          {notes && (
-            <p className="mt-6 max-w-2xl text-sm italic leading-relaxed text-muted">{notes}</p>
-          )}
-          <p className="mt-6 text-sm italic text-muted">
-            Ingen lunchmeny publicerad ännu
+    <div id="lunch-vecka" className="scroll-mt-28">
+      <div className="mb-10 max-w-3xl">
+        <p className="mb-2 text-xs uppercase tracking-[0.24em] text-gold">
+          Denna vecka{weekLabel ? ` · ${weekLabel}` : ''}
+        </p>
+        <p className="text-sm leading-relaxed text-white/70">{intro}</p>
+        {notes && (
+          <p className="mt-3 text-sm italic leading-relaxed text-gold/90">{notes}</p>
+        )}
+        {hours && (
+          <p className="mt-2 text-sm leading-relaxed text-white/55">{hours}</p>
+        )}
+        {todayEmpty && (
+          <p className="mt-4 text-sm italic text-white/60">
+            Ingen lunch publicerad för idag i källan — övriga dagar denna vecka visas nedan.
           </p>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted">
-            Lunch är en fast del av vår verksamhet. Veckans rätter publiceras här när de är klara.
-            Boka bord eller ring oss så hjälper vi dig.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <ButtonLink to={SITE.bookingUrl} variant="primary">
-              Boka bord
-            </ButtonLink>
-            <a
-              href={`tel:${SITE.phoneTel}`}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-gold/50 bg-transparent px-6 py-2.5 text-sm font-medium uppercase tracking-widest text-gold transition-colors duration-300 hover:border-gold hover:bg-gold/10"
+        )}
+      </div>
+
+      {days.length > 0 && (
+        <nav
+          className="sticky top-16 z-30 mb-10 min-h-[56px] border-b border-white/10 bg-black/85 backdrop-blur-sm md:top-[4.5rem]"
+          aria-label="Lunchdagar"
+        >
+          <div className="mx-auto flex max-w-4xl gap-2.5 overflow-x-auto overscroll-x-contain px-0 py-3.5 sm:gap-3 [-webkit-overflow-scrolling:touch]">
+            <button
+              type="button"
+              onClick={() => onSelectDay(null)}
+              aria-pressed={activeDay === null}
+              className={`min-h-11 shrink-0 cursor-pointer border px-3.5 py-2 text-[0.65rem] uppercase tracking-widest transition-colors sm:px-4 sm:text-xs ${
+                activeDay === null
+                  ? 'border-gold bg-gold text-dark'
+                  : 'border-gold/40 text-gold hover:border-gold hover:bg-gold/10'
+              }`}
             >
-              Ring {SITE.phoneDisplay}
-            </a>
+              Alla
+            </button>
+            {days.map((group) => (
+              <button
+                key={group.weekday}
+                type="button"
+                onClick={() => onSelectDay(group.weekday)}
+                aria-pressed={activeDay === group.weekday}
+                className={`min-h-11 shrink-0 cursor-pointer border px-3.5 py-2 text-[0.65rem] uppercase tracking-widest transition-colors sm:px-4 sm:text-xs ${
+                  activeDay === group.weekday
+                    ? 'border-gold bg-gold text-dark'
+                    : 'border-gold/40 text-gold hover:border-gold hover:bg-gold/10'
+                }`}
+              >
+                {group.label}
+                {group.weekday === today ? ' · Idag' : ''}
+              </button>
+            ))}
           </div>
-        </>
+        </nav>
       )}
-    </section>
+
+      <div className="mx-auto max-w-4xl">
+        {visibleDays.map((group) => (
+          <DayBlock
+            key={group.weekday}
+            group={group}
+            isToday={group.weekday === today}
+          />
+        ))}
+
+        {other.length > 0 && activeDay == null && (
+          <section className="mb-16 scroll-mt-32 sm:mb-20">
+            <div className="mb-5">
+              <h2 className="font-heading text-2xl font-bold tracking-wide text-cream sm:text-3xl">
+                Övrigt
+              </h2>
+              <div className="mt-3 h-px w-full bg-white/25" />
+            </div>
+            <div className="max-w-3xl space-y-1">
+              {other.map((dish) => (
+                <DishRow key={dish.id} dish={dish} />
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -184,6 +230,7 @@ export default function Lunch() {
   const [data, setData] = useState(null)
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [activeDay, setActiveDay] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -210,23 +257,42 @@ export default function Lunch() {
 
   useEffect(() => {
     if (loading || error || !data) return undefined
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     const scrollToToday = () => {
       const dayEl = document.getElementById(`lunch-day-${todayWeekday()}`)
       const target = dayEl || document.getElementById('lunch-vecka')
       if (!target) return false
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      target.scrollIntoView({
+        behavior: reduceMotion ? 'auto' : 'smooth',
+        block: 'start',
+      })
       return true
     }
 
-    if (scrollToToday()) return undefined
-    const timer = window.setTimeout(scrollToToday, 100)
-    return () => window.clearTimeout(timer)
+    const id = window.requestAnimationFrame(() => {
+      if (!scrollToToday()) window.setTimeout(scrollToToday, 100)
+    })
+    return () => window.cancelAnimationFrame(id)
   }, [loading, error, data])
 
+  const selectDay = (weekday) => {
+    setActiveDay(weekday)
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    window.requestAnimationFrame(() => {
+      const target =
+        weekday == null
+          ? document.getElementById('lunch-vecka')
+          : document.getElementById(`lunch-day-${weekday}`)
+      target?.scrollIntoView({
+        behavior: reduceMotion ? 'auto' : 'smooth',
+        block: 'start',
+      })
+    })
+  }
+
   return (
-    <div className="pb-24 md:pb-0">
+    <div className="relative min-h-screen overflow-x-hidden bg-black pb-24 text-white/80 md:pb-0">
       <Helmet>
         <title>Dagens lunch i Boden | Lunchmeny – Raffaello</title>
         <meta
@@ -281,23 +347,25 @@ export default function Lunch() {
         </div>
       </Section>
 
-      <Section tone="dark-2" className="pb-24 pt-4 md:pb-28">
-        <div className="mx-auto max-w-3xl space-y-8">
+      <section className="relative bg-gradient-to-b from-black/85 via-black/90 to-black px-4 py-12 sm:px-8 sm:py-20">
+        <div className="mx-auto max-w-4xl">
           {loading && (
-            <p className="py-12 text-center text-sm uppercase tracking-widest text-muted">
+            <p className="py-12 text-center text-sm uppercase tracking-widest text-white/50">
               Laddar…
             </p>
           )}
 
           {error && !loading && (
-            <p className="py-12 text-center text-sm text-muted">
+            <p className="py-12 text-center text-sm text-white/60">
               Lunchmenyn kunde inte laddas just nu. Försök igen om en stund.
             </p>
           )}
 
-          {!loading && !error && data && <WeekSection lunch={data} />}
+          {!loading && !error && data && (
+            <WeekMenu lunch={data} activeDay={activeDay} onSelectDay={selectDay} />
+          )}
         </div>
-      </Section>
+      </section>
 
       <Section tone="bg" className="text-center">
         <div className="mx-auto max-w-xl">
@@ -314,9 +382,6 @@ export default function Lunch() {
             </ButtonLink>
             <ButtonLink to="/meny" variant="outline">
               Se hela menyn
-            </ButtonLink>
-            <ButtonLink href={SITE.lunchUrl} external variant="ghost">
-              Även på Mat och Mat
             </ButtonLink>
           </div>
         </div>
