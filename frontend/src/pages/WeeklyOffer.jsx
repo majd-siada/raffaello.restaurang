@@ -12,17 +12,27 @@ const API_URL = `${import.meta.env.VITE_API_URL || ''}/api/offers/`
 const DEFAULT_INTRO =
   'Till veckans erbjudande får ni välja en valfri förrätt från menyn där det ingår dryck, öl, stark öl och vin.'
 
+const WEEK_SLOTS = [
+  { key: 'previous', slot: 'Förra veckan', id: 'forra-veckan' },
+  { key: 'current', slot: 'Denna vecka', id: 'denna-vecka', primary: true },
+  { key: 'next', slot: 'Nästa vecka', id: 'nasta-vecka' },
+]
+
+/** Same writing style as Meny MenuItemRow. */
 function DishRow({ dish }) {
   const description = formatDishDescription(dish.description)
+  const priceLabel = formatPrice(dish.price)
   return (
     <article className="mb-7 last:mb-0" aria-label={dish.name}>
       <div className="flex items-baseline justify-between gap-4">
         <h3 className="font-heading text-base font-semibold leading-snug text-gold sm:text-lg">
           {dish.name}
         </h3>
-        <span className="shrink-0 font-heading text-base font-semibold tabular-nums tracking-wide text-gold sm:text-lg">
-          {formatPrice(dish.price)}
-        </span>
+        {priceLabel && (
+          <span className="shrink-0 font-heading text-base font-semibold tabular-nums tracking-wide text-gold sm:text-lg">
+            {priceLabel}
+          </span>
+        )}
       </div>
       {description && (
         <p className="mt-1 whitespace-pre-line text-sm italic leading-relaxed text-white/80">
@@ -33,42 +43,58 @@ function DishRow({ dish }) {
   )
 }
 
-function WeekSection({ slot, offer, primary, id }) {
+function WeekBlock({ slot, offer, primary, id }) {
   const dishes = offer?.dishes || []
   const hasDishes = dishes.length > 0
   const rawIntro = (offer?.intro_text || '').trim()
   const intro = formatOfferIntroText(rawIntro) || (hasDishes ? DEFAULT_INTRO : '')
   const weekLabel = offer?.week_number != null ? `v ${offer.week_number}` : ''
+  const titleId = `${id}-title`
 
   return (
     <section
       id={id}
-      className={`scroll-mt-28 rounded-sm border px-6 py-10 sm:px-10 ${
-        primary
-          ? 'border-gold/50 bg-elevated shadow-[0_0_0_1px_rgba(212,175,55,0.12)] sm:py-12'
-          : 'border-white/10 bg-bg/80'
-      }`}
+      className="mb-16 scroll-mt-32 sm:mb-20"
+      aria-labelledby={titleId}
     >
-      <p
-        className={`mb-2 text-xs uppercase tracking-[0.24em] ${
-          primary ? 'text-gold' : 'text-muted'
-        }`}
-      >
-        {slot}
-      </p>
-      <h2
-        className={`font-heading font-bold tracking-wide ${
-          primary ? 'text-2xl text-cream sm:text-3xl' : 'text-xl text-cream/80 sm:text-2xl'
-        }`}
-      >
-        {weekLabel || '—'}
-      </h2>
-      <div className={`mt-3 h-px w-16 ${primary ? 'bg-gold' : 'bg-white/20'}`} />
+      <div className="mb-5">
+        <p
+          className={`mb-2 text-xs uppercase tracking-[0.24em] ${
+            primary ? 'text-gold' : 'text-white/45'
+          }`}
+        >
+          {slot}
+        </p>
+        <h2
+          id={titleId}
+          className={`font-heading font-bold tracking-wide ${
+            primary
+              ? 'text-2xl text-cream sm:text-3xl'
+              : 'text-2xl text-cream/85 sm:text-3xl'
+          }`}
+        >
+          {weekLabel || '—'}
+          {primary ? (
+            <span className="ml-3 text-sm font-normal uppercase tracking-[0.2em] text-gold">
+              Nu
+            </span>
+          ) : null}
+        </h2>
+        <div className="mt-3 h-px w-full bg-white/25" />
+      </div>
 
       {hasDishes ? (
         <>
-          <p className="mt-6 max-w-2xl text-sm leading-relaxed text-muted">{intro}</p>
-          <div className="mt-8 max-w-3xl">
+          {intro && (
+            <p
+              className={`mb-6 max-w-3xl text-sm italic leading-relaxed ${
+                primary ? 'text-gold/90' : 'text-white/70'
+              }`}
+            >
+              {intro}
+            </p>
+          )}
+          <div className="max-w-3xl space-y-1">
             {dishes.map((dish) => (
               <DishRow key={dish.id} dish={dish} />
             ))}
@@ -76,14 +102,14 @@ function WeekSection({ slot, offer, primary, id }) {
         </>
       ) : (
         <>
-          <p className="mt-6 text-sm leading-relaxed text-muted">
+          <p className="text-sm italic leading-relaxed text-white/70">
             Inget erbjudande publicerat ännu
           </p>
           {primary && (
             <>
-              <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted/90">
-                Veckans Erbjudande är en fast del av vår verksamhet. När veckans rätt är publicerad
-                syns den här.
+              <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/60">
+                Veckans Erbjudande är en fast del av vår verksamhet. När veckans rätt är
+                publicerad syns den här.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <ButtonLink to={SITE.bookingUrl} variant="primary">
@@ -105,6 +131,7 @@ export default function WeeklyOffer() {
   const [data, setData] = useState(null)
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [activeSlot, setActiveSlot] = useState('current')
 
   useEffect(() => {
     let cancelled = false
@@ -129,14 +156,12 @@ export default function WeeklyOffer() {
     }
   }, [])
 
-  // Always land on this week's offer card (below the hero).
+  // Always land on this week's offer (below the hero).
   useEffect(() => {
     if (loading || error || !data) return undefined
     const el = document.getElementById('denna-vecka')
     if (!el) return undefined
-    const reduceMotion =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const id = window.requestAnimationFrame(() => {
       el.scrollIntoView({
         behavior: reduceMotion ? 'auto' : 'smooth',
@@ -146,8 +171,24 @@ export default function WeeklyOffer() {
     return () => window.cancelAnimationFrame(id)
   }, [loading, error, data])
 
+  const selectSlot = (key, id) => {
+    setActiveSlot(key)
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    window.requestAnimationFrame(() => {
+      document.getElementById(id)?.scrollIntoView({
+        behavior: reduceMotion ? 'auto' : 'smooth',
+        block: 'start',
+      })
+    })
+  }
+
+  const visibleSlots =
+    activeSlot == null
+      ? WEEK_SLOTS
+      : WEEK_SLOTS.filter((s) => s.key === activeSlot)
+
   return (
-    <div className="pb-24 md:pb-0">
+    <div className="relative min-h-screen overflow-x-hidden bg-black pb-24 text-white/80 md:pb-0">
       <Helmet>
         <title>Veckans erbjudande | Raffaello Stekhus & Bar i Boden</title>
         <meta
@@ -206,34 +247,79 @@ export default function WeeklyOffer() {
         </div>
       </Section>
 
-      <Section tone="dark-2" className="pb-24 pt-4 md:pb-28">
-        <div className="mx-auto max-w-3xl space-y-8">
+      <section className="relative bg-gradient-to-b from-black/85 via-black/90 to-black px-4 py-12 sm:px-8 sm:py-20">
+        <div className="mx-auto max-w-4xl">
           {loading && (
-            <p className="py-12 text-center text-sm uppercase tracking-widest text-muted">
+            <p className="py-12 text-center text-sm uppercase tracking-widest text-white/50">
               Laddar…
             </p>
           )}
 
           {error && !loading && (
-            <p className="py-12 text-center text-sm text-muted">
+            <p className="py-12 text-center text-sm text-white/60">
               Erbjudandet kunde inte laddas just nu. Försök igen om en stund.
             </p>
           )}
 
           {!loading && !error && data && (
             <>
-              <WeekSection slot="Förra veckan" offer={data.previous} primary={false} />
-              <WeekSection
-                id="denna-vecka"
-                slot="Denna vecka"
-                offer={data.current}
-                primary
-              />
-              <WeekSection slot="Nästa vecka" offer={data.next} primary={false} />
+              <nav
+                className="sticky top-16 z-30 mb-10 min-h-[56px] border-b border-white/10 bg-black/85 backdrop-blur-sm md:top-[4.5rem]"
+                aria-label="Erbjudandeveckor"
+              >
+                <div className="mx-auto flex max-w-4xl gap-2.5 overflow-x-auto overscroll-x-contain px-0 py-3.5 sm:gap-3 [-webkit-overflow-scrolling:touch]">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveSlot(null)
+                      const reduceMotion = window.matchMedia(
+                        '(prefers-reduced-motion: reduce)',
+                      ).matches
+                      document.getElementById('forra-veckan')?.scrollIntoView({
+                        behavior: reduceMotion ? 'auto' : 'smooth',
+                        block: 'start',
+                      })
+                    }}
+                    aria-pressed={activeSlot === null}
+                    className={`min-h-11 shrink-0 cursor-pointer border px-3.5 py-2 text-[0.65rem] uppercase tracking-widest transition-colors sm:px-4 sm:text-xs ${
+                      activeSlot === null
+                        ? 'border-gold bg-gold text-dark'
+                        : 'border-gold/40 text-gold hover:border-gold hover:bg-gold/10'
+                    }`}
+                  >
+                    Alla
+                  </button>
+                  {WEEK_SLOTS.map((s) => (
+                    <button
+                      key={s.key}
+                      type="button"
+                      onClick={() => selectSlot(s.key, s.id)}
+                      aria-pressed={activeSlot === s.key}
+                      className={`min-h-11 shrink-0 cursor-pointer border px-3.5 py-2 text-[0.65rem] uppercase tracking-widest transition-colors sm:px-4 sm:text-xs ${
+                        activeSlot === s.key
+                          ? 'border-gold bg-gold text-dark'
+                          : 'border-gold/40 text-gold hover:border-gold hover:bg-gold/10'
+                      }`}
+                    >
+                      {s.slot}
+                    </button>
+                  ))}
+                </div>
+              </nav>
+
+              {visibleSlots.map((s) => (
+                <WeekBlock
+                  key={s.key}
+                  id={s.id}
+                  slot={s.slot}
+                  offer={data[s.key]}
+                  primary={!!s.primary}
+                />
+              ))}
             </>
           )}
         </div>
-      </Section>
+      </section>
 
       <Section tone="bg" className="text-center">
         <div className="mx-auto max-w-xl">
