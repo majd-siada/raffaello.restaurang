@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0908" />
+    <title>Raffaello Stekhus &amp; Bar — restaurang i Boden</title>
+    <meta
+      name="description"
+      content="Raffaello Stekhus &amp; Bar i centrala Boden — grill, pasta, pizza, lunch och middag. Se menyn och boka bord på raffaello.se."
+    />
+    <link rel="icon" href="/raffaello-logo-80.webp" type="image/webp" />
+    <style>
+      html,body{margin:0;background:#0a0908;color:#c8c4bc}
+      /* Fixed overlay — out of document flow so React mount does not cause CLS */
+      #boot{
+        position:fixed;inset:0;z-index:9999;display:flex;align-items:center;
+        justify-content:center;text-align:center;overflow:hidden;background:#0a0908;
+        transition:opacity .12s ease;
+      }
+      #boot.is-done{opacity:0;pointer-events:none;visibility:hidden}
+      #boot img{
+        position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+        filter:brightness(.85);
+      }
+      #boot .veil{
+        position:absolute;inset:0;
+        background:linear-gradient(to bottom,rgba(0,0,0,.55),rgba(10,9,8,.85));
+      }
+      #boot .copy{position:relative;z-index:1;padding:1.5rem}
+      #boot p{margin:0 0 .75rem;font:500 .7rem/1.2 system-ui,sans-serif;
+        letter-spacing:.35em;text-transform:uppercase;color:#d4af37}
+      #boot h1{margin:0;font:700 clamp(2.5rem,8vw,4.5rem)/.95 system-ui,sans-serif;
+        letter-spacing:-.02em;color:#fff}
+      #boot .sub{margin:.5rem 0 0;font:italic 1.25rem/1.2 Georgia,serif;color:rgba(255,255,255,.85)}
+      #boot .rule{width:4rem;height:1px;background:#d4af37;margin:1.25rem auto 0;opacity:.9}
+      #root{min-height:100dvh}
+    </style>
+  </head>
+  <body>
+    <div id="boot" aria-hidden="true">
+      <img
+        src="/images/hero-interior-480.webp"
+        srcset="/images/hero-interior-480.webp 480w, /images/hero-interior-800.webp 800w, /images/hero-interior.webp 1024w"
+        sizes="100vw"
+        alt=""
+        width="480"
+        height="360"
+        fetchpriority="high"
+        decoding="async"
+      />
+      <div class="veil"></div>
+      <div class="copy">
+        <p>Stekhus &amp; bar · Boden</p>
+        <h1>Raffaello</h1>
+        <p class="sub">Stekhus &amp; Bar</p>
+        <div class="rule"></div>
+        <p class="sub" style="font-style:normal;margin-top:1.5rem;font:500 1.1rem/1.3 system-ui,sans-serif;color:rgba(255,255,255,.9)">Grill, pasta, pizza och bar — mitt i Boden</p>
+        <p style="margin:.5rem 0 0;font:500 .7rem/1.2 system-ui,sans-serif;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.45)">Drottninggatan 18</p>
+      </div>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "timezone": "Europe/Stockholm",
+  "max_guests_online": 6,
+  "slot_interval_minutes": 30,
+  "schedule": [
+    {
+      "label": "Mån–tors",
+      "days_js": [1, 2, 3, 4],
+      "weekday_python": [0, 1, 2, 3],
+      "opens": "10:45",
+      "closes": "21:00"
+    },
+    {
+      "label": "Fredag",
+      "days_js": [5],
+      "weekday_python": [4],
+      "opens": "10:45",
+      "closes": "22:00"
+    },
+    {
+      "label": "Lördag",
+      "days_js": [6],
+      "weekday_python": [5],
+      "opens": "12:00",
+      "closes": "22:00"
+    },
+    {
+      "label": "Söndag",
+      "days_js": [0],
+      "weekday_python": [6],
+      "opens": "12:00",
+      "closes": "21:00"
+    }
+  ]
+}

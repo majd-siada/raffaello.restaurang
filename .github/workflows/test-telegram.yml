@@ -1,0 +1,39 @@
+name: Test Telegram notify
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send test Telegram message and show API result
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /root/raffaello.restaurang
+            docker compose exec -T backend python manage.py shell -c "
+            import json, urllib.request
+            from urllib.error import HTTPError
+            from django.conf import settings
+            token = settings.TELEGRAM_BOT_TOKEN
+            chat = settings.TELEGRAM_CHAT_ID
+            print('token_len', len(token or ''))
+            print('chat_id_len', len(chat or ''))
+            print('chat_id_suffix', (chat or '')[-4:])
+            url = f'https://api.telegram.org/bot{token}/sendMessage'
+            data = json.dumps({'chat_id': chat, 'text': 'Raffaello test: ny bot @Raffaello1_bot'}).encode()
+            req = urllib.request.Request(url, data=data, method='POST', headers={'Content-Type': 'application/json'})
+            try:
+                with urllib.request.urlopen(req, timeout=20) as resp:
+                    body = resp.read().decode()
+                    print('status', resp.status)
+                    print(body[:400])
+            except HTTPError as e:
+                print('http', e.code)
+                print(e.read().decode(errors='replace')[:500])
+            "

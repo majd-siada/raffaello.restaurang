@@ -1,0 +1,62 @@
+/* Scoped to .admin-app — does not restyle public site or /ops */
+
+.admin-app {
+  color: var(--color-cream, #f2efe8);
+  background-color: var(--color-bg, #0a0908);
+}
+
+.admin-app a:focus-visible,
+.admin-app button:focus-visible,
+.admin-app input:focus-visible,
+.admin-app select:focus-visible,
+.admin-app textarea:focus-visible {
+  outline: 2px solid var(--color-gold, #d4af37);
+  outline-offset: 2px;
+}
+
+.admin-card {
+  border: 1px solid color-mix(in srgb, var(--color-cream, #f2efe8) 10%, transparent);
+  background: var(--color-elevated, #211e1a);
+  border-radius: 2px;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+  border: 1px solid color-mix(in srgb, var(--color-cream, #f2efe8) 10%, transparent);
+  border-radius: 2px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.admin-table th {
+  background: var(--color-surface, #161311);
+  color: var(--color-muted, #a8a39a);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-cream, #f2efe8) 10%, transparent);
+}
+
+.admin-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-cream, #f2efe8) 8%, transparent);
+  color: color-mix(in srgb, var(--color-cream, #f2efe8) 88%, transparent);
+  vertical-align: top;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-app * {
+    transition-duration: 0.01ms !important;
+  }
+}

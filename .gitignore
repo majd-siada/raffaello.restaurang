@@ -1,0 +1,36 @@
+# Python
+venv/
+.venv*/
+__pycache__/
+*.pyc
+*.pyo
+db.sqlite3
+
+# Environment
+.env
+.env.db
+backend/.env
+
+# Local / accidental dumps — production dumps live only on the server
+*.sql
+*.sql.gz
+raffaello-backups/
+
+# Uploaded gallery / media (local + container volume contents)
+backend/media/
+
+# Certbot / SSL (generated on server)
+certbot/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

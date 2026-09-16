@@ -1,0 +1,173 @@
+@import "tailwindcss";
+
+/* Metric-adjusted fallbacks so late webfonts (or optional miss) don't reflow hero text */
+@font-face {
+  font-family: "Outfit Fallback";
+  src: local("Segoe UI"), local("Helvetica Neue"), local(Arial);
+  size-adjust: 104%;
+  ascent-override: 92%;
+  descent-override: 24%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Playfair Fallback";
+  src: local(Georgia), local("Times New Roman"), local(serif);
+  size-adjust: 98%;
+  ascent-override: 90%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Cormorant Fallback";
+  src: local(Georgia), local("Times New Roman"), local(serif);
+  size-adjust: 108%;
+  ascent-override: 88%;
+  descent-override: 24%;
+  line-gap-override: 0%;
+}
+
+@theme {
+  --color-dark: #0a0908;
+  --color-dark-2: #161311;
+  --color-dark-3: #211e1a;
+  --color-stone: #2c2824;
+  --color-gold: #d4af37;
+  --color-gold-hover: #e0bc4a;
+  --color-gold-dim: rgba(212, 175, 55, 0.14);
+  /* Semantic aliases (Raffaello hex — not Riva palette) */
+  --color-bg: #0a0908;
+  --color-surface: #161311;
+  --color-elevated: #211e1a;
+  --color-cream: #f2efe8;
+  --color-muted: #a8a39a;
+  --color-border: rgba(242, 239, 232, 0.12);
+  --color-success: #5e8b6e;
+  --color-error: #c45c5c;
+  --font-heading: "Playfair Fallback", "Playfair Display", Georgia, serif;
+  --font-body: "Outfit Fallback", "Outfit", system-ui, sans-serif;
+  --font-brand: "Outfit Fallback", "Outfit", system-ui, sans-serif;
+  --font-brand-sub: "Cormorant Fallback", "Cormorant Garamond", Georgia, serif;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --max-width-content: 72rem;
+  --shadow-card: 0 12px 40px -16px rgba(0, 0, 0, 0.65);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-dark);
+  color: #c8c4bc;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* Visible keyboard focus for interactive controls */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -100px;
+  z-index: 10000;
+  background: var(--color-gold);
+  color: var(--color-dark);
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+::selection {
+  background-color: var(--color-gold);
+  color: var(--color-dark);
+}
+
+input, textarea, select {
+  font-family: var(--font-heading);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gold);
+  border-radius: 4px;
+}
+
+@keyframes gallery-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gallery-item {
+  animation: gallery-fade-up 0.7s ease both;
+}
+
+.home-section {
+  animation: gallery-fade-up 0.6s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery-item,
+  .home-section {
+    animation: none;
+  }
+
+  .motion-safe\:hover\:scale-\[1\.03\]:hover {
+    transform: none;
+  }
+
+  .public-reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Public-site only utilities (Admin/Ops unaffected) */
+.public-site .public-reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 500ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.public-site .public-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.public-site .public-eyebrow {
+  letter-spacing: 0.24em;
+}

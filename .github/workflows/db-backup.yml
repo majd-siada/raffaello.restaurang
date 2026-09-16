@@ -1,0 +1,171 @@
+name: DB backup and restore drill
+
+# Production-safe: dumps Postgres to host path outside web root.
+# Restore drill uses a temporary Postgres container — never overwrites production.
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'backup | restore-drill | audit'
+        required: true
+        default: 'audit'
+        type: choice
+        options:
+          - audit
+          - backup
+          - restore-drill
+  schedule:
+    # Daily 02:15 UTC ≈ 03:15/04:15 Europe/Stockholm
+    - cron: '15 2 * * *'
+
+jobs:
+  ops:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Backup / restore drill via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 30m
+          script: |
+            set -euo pipefail
+            MODE='${{ github.event.inputs.mode }}'
+            if [ -z "$MODE" ] || [ "$MODE" = 'null' ]; then
+              MODE='backup'
+            fi
+            # Scheduled runs always take a backup
+            if [ '${{ github.event_name }}' = 'schedule' ]; then
+              MODE='backup'
+            fi
+
+            APP_DIR=/root/raffaello.restaurang
+            BACKUP_ROOT=/root/raffaello-backups
+            RETAIN_DAYS=14
+            TS=$(date -u +%Y%m%dT%H%M%SZ)
+            cd "$APP_DIR"
+
+            echo "=== MODE=$MODE commit=$(git rev-parse --short HEAD) ==="
+
+            # Load DB name/user from compose env file without printing secrets
+            set -a
+            # shellcheck disable=SC1091
+            . ./.env.db
+            set +a
+            : "${POSTGRES_DB:?missing POSTGRES_DB}"
+            : "${POSTGRES_USER:?missing POSTGRES_USER}"
+            # Password used only inside docker exec env — never echo
+
+            mkdir -p "$BACKUP_ROOT"
+            chmod 700 "$BACKUP_ROOT"
+
+            case "$MODE" in
+              audit)
+                echo "=== DOCKER ==="
+                docker compose ps --format 'table {{.Name}}\t{{.Status}}\t{{.Image}}'
+                echo "=== DB ENGINE ==="
+                docker compose exec -T db psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c 'SHOW server_version;'
+                echo "=== EXISTING BACKUPS (names+sizes only) ==="
+                ls -lah "$BACKUP_ROOT" 2>/dev/null || echo 'no_backup_dir_yet'
+                echo "=== CRON (root) ==="
+                crontab -l 2>/dev/null || echo 'no_root_crontab'
+                echo "=== HSTS / SECURITY HEADERS (live) ==="
+                curl -sI https://raffaello.se/ | tr -d '\r' | grep -iE '^(HTTP/|strict-transport|location:|content-security|x-frame|x-content)' || true
+                curl -sI http://raffaello.se/ | tr -d '\r' | grep -iE '^(HTTP/|location:)' || true
+                echo "=== DJANGO HSTS SETTING (no secrets) ==="
+                docker compose exec -T backend python manage.py shell -c "from django.conf import settings; print('SECURE_HSTS_SECONDS', getattr(settings,'SECURE_HSTS_SECONDS',0)); print('SECURE_HSTS_INCLUDE_SUBDOMAINS', getattr(settings,'SECURE_HSTS_INCLUDE_SUBDOMAINS',None)); print('SECURE_HSTS_PRELOAD', getattr(settings,'SECURE_HSTS_PRELOAD',None))"
+                echo "AUDIT_OK"
+                ;;
+
+              backup)
+                OUT="$BACKUP_ROOT/raffaello_${POSTGRES_DB}_${TS}.sql.gz"
+                echo "Creating backup (path redacted to basename)…"
+                docker compose exec -T db \
+                  pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --no-acl \
+                  | gzip -c > "$OUT"
+                chmod 600 "$OUT"
+                BYTES=$(wc -c < "$OUT" | tr -d ' ')
+                echo "backup_file=$(basename "$OUT")"
+                echo "backup_bytes=$BYTES"
+                test "$BYTES" -gt 1000
+                # Quick integrity: gzip valid + SQL dump header (avoid SIGPIPE / missing python3)
+                gzip -t "$OUT"
+                set +e
+                HEADER=$(gzip -dc "$OUT" | head -c 400)
+                set -e
+                echo "$HEADER" | grep -qi 'PostgreSQL database dump'
+                echo "header_ok"
+                # Retention: delete dumps older than RETAIN_DAYS (never delete today's)
+                find "$BACKUP_ROOT" -type f -name 'raffaello_*.sql.gz' -mtime +"$RETAIN_DAYS" -print -delete || true
+                echo "BACKUP_OK bytes=$BYTES retain_days=$RETAIN_DAYS"
+                ;;
+
+              restore-drill)
+                LATEST=$(ls -1t "$BACKUP_ROOT"/raffaello_*.sql.gz 2>/dev/null | head -n 1 || true)
+                if [ -z "$LATEST" ]; then
+                  echo "No backup found — creating one first"
+                  OUT="$BACKUP_ROOT/raffaello_${POSTGRES_DB}_${TS}.sql.gz"
+                  docker compose exec -T db \
+                    pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --no-acl \
+                    | gzip -c > "$OUT"
+                  chmod 600 "$OUT"
+                  LATEST="$OUT"
+                fi
+                echo "restore_drill_source=$(basename "$LATEST")"
+                BYTES=$(wc -c < "$LATEST" | tr -d ' ')
+                echo "backup_bytes=$BYTES"
+                test "$BYTES" -gt 1000
+                gzip -t "$LATEST"
+
+                DRILL_NAME="raffaello_restore_drill_$$"
+                DRILL_PORT=55432
+                # Use same major Postgres image as production
+                docker rm -f "$DRILL_NAME" >/dev/null 2>&1 || true
+                docker run -d --name "$DRILL_NAME" \
+                  -e POSTGRES_PASSWORD=drill_only_not_prod \
+                  -e POSTGRES_USER=drill \
+                  -e POSTGRES_DB=drill_restore \
+                  -p 127.0.0.1:${DRILL_PORT}:5432 \
+                  postgres:17-alpine >/dev/null
+
+                cleanup() {
+                  docker rm -f "$DRILL_NAME" >/dev/null 2>&1 || true
+                }
+                trap cleanup EXIT
+
+                echo "Waiting for drill Postgres…"
+                for i in $(seq 1 40); do
+                  if docker exec "$DRILL_NAME" pg_isready -U drill -d drill_restore >/dev/null 2>&1; then
+                    break
+                  fi
+                  sleep 1
+                done
+                docker exec "$DRILL_NAME" pg_isready -U drill -d drill_restore
+
+                echo "Restoring into isolated container (not production)…"
+                zcat "$LATEST" | docker exec -i "$DRILL_NAME" \
+                  psql -U drill -d drill_restore -v ON_ERROR_STOP=1 >/tmp/restore_drill.log 2>&1 \
+                  || { echo "RESTORE_FAILED"; tail -n 40 /tmp/restore_drill.log; exit 1; }
+
+                echo "=== TABLE PRESENCE ==="
+                docker exec "$DRILL_NAME" psql -U drill -d drill_restore -v ON_ERROR_STOP=1 -c "SELECT 'menu_menuitem' AS t, COUNT(*) FROM menu_menuitem UNION ALL SELECT 'lunch_lunchweek', COUNT(*) FROM lunch_lunchweek UNION ALL SELECT 'offers_weeklyoffer', COUNT(*) FROM offers_weeklyoffer UNION ALL SELECT 'restaurant_openinghoursday', COUNT(*) FROM restaurant_openinghoursday UNION ALL SELECT 'bookings_booking', COUNT(*) FROM bookings_booking UNION ALL SELECT 'events_eventinquiry', COUNT(*) FROM events_eventinquiry UNION ALL SELECT 'gallery_galleryphoto', COUNT(*) FROM gallery_galleryphoto UNION ALL SELECT 'reviews_curatedreview', COUNT(*) FROM reviews_curatedreview UNION ALL SELECT 'content_faqitem', COUNT(*) FROM content_faqitem UNION ALL SELECT 'django_migrations', COUNT(*) FROM django_migrations;"
+
+                # Critical: menu + hours + migrations must be non-zero
+                MENU=$(docker exec "$DRILL_NAME" psql -U drill -d drill_restore -tAc 'SELECT COUNT(*) FROM menu_menuitem')
+                HOURS=$(docker exec "$DRILL_NAME" psql -U drill -d drill_restore -tAc 'SELECT COUNT(*) FROM restaurant_openinghoursday')
+                MIG=$(docker exec "$DRILL_NAME" psql -U drill -d drill_restore -tAc 'SELECT COUNT(*) FROM django_migrations')
+                FAQ=$(docker exec "$DRILL_NAME" psql -U drill -d drill_restore -tAc 'SELECT COUNT(*) FROM content_faqitem')
+                echo "counts menu=$MENU hours=$HOURS migrations=$MIG faq=$FAQ"
+                test "$MENU" -gt 0
+                test "$HOURS" -ge 7
+                test "$MIG" -gt 0
+                echo "RESTORE_DRILL_OK"
+                ;;
+
+              *)
+                echo "Unknown mode: $MODE"
+                exit 1
+                ;;
+            esac

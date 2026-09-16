@@ -1,0 +1,57 @@
+name: Deploy to Hetzner
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /root/raffaello.restaurang
+            git fetch origin main
+            git reset --hard origin/main
+            git clean -fd
+
+            # Production cutover flags (additive; never wipe .env)
+            test -f backend/.env
+            sed -i \
+              -e '/^OPENING_HOURS_SOURCE=/d' \
+              -e '/^TRUST_CONTENT_SOURCE=/d' \
+              -e '/^SECURE_HSTS_SECONDS=/d' \
+              -e '/^SECURE_HSTS_INCLUDE_SUBDOMAINS=/d' \
+              -e '/^SECURE_HSTS_PRELOAD=/d' \
+              backend/.env
+            printf '\n# Admin production cutover\nOPENING_HOURS_SOURCE=db\nTRUST_CONTENT_SOURCE=frontend\n' >> backend/.env
+            printf '\n# HSTS (HTTPS verified apex+www; preload OFF)\nSECURE_HSTS_SECONDS=31536000\nSECURE_HSTS_INCLUDE_SUBDOMAINS=True\nSECURE_HSTS_PRELOAD=False\n' >> backend/.env
+            grep -E '^(OPENING_HOURS_SOURCE|TRUST_CONTENT_SOURCE|MATOCHMAT_SYNC_ENABLED|SECURE_HSTS_SECONDS|SECURE_HSTS_INCLUDE_SUBDOMAINS|SECURE_HSTS_PRELOAD)=' backend/.env || true
+
+            docker compose build --no-cache frontend
+            docker compose up -d --build
+            # Bind-mounted nginx.conf changes need a recreate; up -d alone may keep old config in memory
+            docker compose up -d --force-recreate nginx
+            docker image prune -f
+
+            # Ensure backend picked up cutover env (recreate after .env edit)
+            docker compose up -d --force-recreate backend
+            sleep 8
+
+            # FAQ CMS seed (idempotent; authorized everyday Swedish FAQ)
+            docker compose exec -T backend python manage.py seed_raffaello_faq
+
+            # Post-deploy smoke anchors
+            docker compose exec -T backend python manage.py showmigrations --plan | tail -n 20
+            docker compose exec -T backend python manage.py shell -c "from django.conf import settings; from raffaello.restaurant_data import detect_hours_drift, opening_hours_source; from content.models import FaqItem; d=detect_hours_drift(); print('hours_source', opening_hours_source()); print('hours_drift', d.get('status'), 'match', d.get('match')); print('trust_source', settings.TRUST_CONTENT_SOURCE); print('faq_published', FaqItem.objects.filter(is_published=True).count()); assert opening_hours_source()=='db'; assert d.get('match') is True, d; assert settings.TRUST_CONTENT_SOURCE=='frontend'; assert FaqItem.objects.filter(is_published=True).count()>=8; print('cutover_post_checks OK')"
+            docker compose exec -T backend python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/api/health/').read().decode())"
+            docker compose exec -T backend python -c "import urllib.request; r=urllib.request.urlopen('http://127.0.0.1:8000/django-admin/login/'); b=r.read().decode(); assert 'csrfmiddlewaretoken' in b; assert '/django-admin/login/' in b; print('django_admin_login_ok')"

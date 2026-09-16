@@ -1,0 +1,27 @@
+name: Diagnose and repair site
+
+on:
+  workflow_dispatch:
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reload nginx with latest config
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /root/raffaello.restaurang
+            git fetch origin main
+            git reset --hard origin/main
+            docker compose up -d --force-recreate nginx
+            sleep 3
+            docker compose ps -a nginx
+            docker compose exec -T nginx nginx -t
+            echo '=== static via https ==='
+            curl -skI --resolve raffaello.se:443:127.0.0.1 https://raffaello.se/static/admin/css/base.css | head -n 15
+            curl -skI --resolve raffaello.se:443:127.0.0.1 https://raffaello.se/admin/login/ | head -n 10

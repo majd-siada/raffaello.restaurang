@@ -1,0 +1,65 @@
+name: Debug backend logs
+
+on:
+  workflow_dispatch:
+
+jobs:
+  logs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch backend logs and telegram env
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /root/raffaello.restaurang
+            echo "=== telegram env / BOM check ==="
+            python3 - <<'PY'
+            import re
+            from pathlib import Path
+            text = Path('backend/.env').read_text(encoding='utf-8-sig')
+            raw = Path('backend/.env').read_bytes()
+            print('env_starts_with_bom', raw.startswith(b'\xef\xbb\xbf'))
+            m = re.search(rb'^TELEGRAM_BOT_TOKEN=(.*)$', raw, re.M)
+            tok = m.group(1) if m else b''
+            print('token_has_bom', tok.startswith(b'\xef\xbb\xbf') or tok.startswith(b'\xff\xfe') or tok[:1] == b'\xef')
+            print('token_first_ord', list(tok[:3]))
+            print('token_len', len(tok.strip()))
+            m2 = re.search(r'^TELEGRAM_CHAT_ID=(.*)$', text, re.M)
+            print('chat_id_set', bool(m2 and m2.group(1).strip()))
+            PY
+            echo "=== POST booking from inside compose network ==="
+            docker compose exec -T backend python - <<'PY'
+            import json, urllib.request
+            payload = {
+              "first_name": "HealthCheck",
+              "last_name": "Agent",
+              "phone": "+46700000000",
+              "email": "healthcheck@raffaello.se",
+              "date": "2026-08-14",
+              "time": "18:00",
+              "guests": 2,
+              "message": "TEST booking telegram verify",
+            }
+            req = urllib.request.Request(
+              "http://127.0.0.1:8000/api/bookings/",
+              data=json.dumps(payload).encode(),
+              headers={"Content-Type": "application/json"},
+              method="POST",
+            )
+            try:
+              with urllib.request.urlopen(req, timeout=30) as resp:
+                print("status", resp.status)
+                print(resp.read().decode())
+            except Exception as e:
+              print("error", type(e).__name__, e)
+              if hasattr(e, "read"):
+                print(e.read().decode(errors="replace"))
+            PY
+            echo "=== django check booking create ==="
+            docker compose exec -T backend python manage.py shell -c "from bookings.serializers import BookingSerializer; s=BookingSerializer(data={'first_name':'HealthCheck','last_name':'Agent','phone':'+46700000000','email':'healthcheck@raffaello.se','date':'2026-08-14','time':'18:00','guests':2,'message':'x'}); print(s.is_valid(), s.errors)"
+            echo "=== backend logs ==="
+            docker compose logs backend --tail 80

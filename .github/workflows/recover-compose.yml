@@ -1,0 +1,30 @@
+name: Recover compose stack
+
+on:
+  workflow_dispatch:
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove conflicting backend containers and bring stack up
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /root/raffaello.restaurang
+            echo "=== before ==="
+            docker ps -a --format 'table {{.Names}}\t{{.Status}}' | head -40 || true
+            # Clean stuck/conflicting backend containers
+            docker rm -f raffaellorestaurang-backend-1 2>/dev/null || true
+            docker ps -aq --filter name=raffaellorestaurang-backend | xargs -r docker rm -f
+            docker compose up -d --remove-orphans
+            sleep 8
+            echo "=== after ==="
+            docker compose ps
+            curl -sS -m 10 http://127.0.0.1:8000/api/health/ || curl -sS -m 10 https://127.0.0.1/api/health/ -k || true
+            docker compose exec -T backend python -c "from django.conf import settings; import django; django.setup(); print('token_ok', bool(settings.TELEGRAM_BOT_TOKEN)); print('chat_ok', bool(settings.TELEGRAM_CHAT_ID))" 2>/dev/null || \
+              docker compose exec -T backend python manage.py shell -c "from django.conf import settings; print('token_ok', bool(settings.TELEGRAM_BOT_TOKEN)); print('chat_ok', bool(settings.TELEGRAM_CHAT_ID))"

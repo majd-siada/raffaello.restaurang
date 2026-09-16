@@ -1,0 +1,24 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+<div id="site-name" class="raffaello-brand">
+  <a href="{% url 'admin:index' %}">
+    <span class="raffaello-brand__name">{{ site_header|default:_('Django administration') }}</span>
+    <span class="raffaello-brand__sub">Administration</span>
+  </a>
+</div>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'admin/css/raffaello_admin.css' %}">
+<script>
+  document.documentElement.dataset.theme = "dark";
+  try { localStorage.setItem("theme", "dark"); } catch (e) {}
+</script>
+{% endblock %}

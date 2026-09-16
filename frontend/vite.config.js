@@ -1,0 +1,50 @@
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  build: {
+    cssCodeSplit: true,
+    // Avoid modulepreload of the large React vendor — frees bandwidth for LCP image on mobile.
+    modulePreload: false,
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              name: 'react',
+              test: /node_modules[\\/](react|react-dom|react-router(?:-dom)?)\b/,
+            },
+          ],
+        },
+      },
+    },
+  },
+  server: {
+    // Dev: browser calls /api/* on :5173 → forward to Django on :8000 (same as `npm run dev` backend).
+    // changeOrigin: false keeps the browser Host (e.g. localhost:5173) so Django
+    // redirects and ALLOWED_HOSTS match dev; true would send 127.0.0.1:8000 and break both.
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: false,
+      },
+      // Classic Django Admin at prepared path (React Admin uses /admin in the SPA).
+      '/django-admin': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: false,
+      },
+      // Keep legacy /admin → Django only when explicitly needed; React Admin owns /admin in SPA.
+      // Static/media for Django Admin assets:
+      '/static': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: false,
+      },
+      '/media': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: false,
+      },
+    },
+  },
+})

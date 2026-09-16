@@ -1,0 +1,326 @@
+name: Ops production smoke
+
+# Ephemeral staff smoke against production. Reports PASS/FAIL only.
+# Never prints passwords or session tokens.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ops production smoke via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 20m
+          script: |
+            set -euo pipefail
+            cd /root/raffaello.restaurang
+
+            echo "=== DEPLOY STATE ==="
+            echo "commit=$(git rev-parse HEAD)"
+            docker compose ps --format 'table {{.Name}}\t{{.Status}}'
+
+            echo "=== MIGRATIONS ==="
+            PENDING=$(docker compose exec -T backend python manage.py showmigrations --plan | grep -c '\[ \]' || true)
+            echo "pending_migrations=$PENDING"
+            docker compose exec -T backend python manage.py showmigrations --plan | grep '\[ \]' || echo 'no_pending_rows'
+
+            echo "=== PUBLIC HEALTH ==="
+            curl -sS -m 15 -o /tmp/health.txt -w 'health_http=%{http_code}\n' https://raffaello.se/api/health/ || true
+            cat /tmp/health.txt; echo
+            for path in / /meny /lunch /boka /privata-events /ops/login /galleri /kontakt /faq /veckans-erbjudande /om-oss; do
+              code=$(curl -sS -m 20 -o /dev/null -w '%{http_code}' "https://raffaello.se$path" || echo ERR)
+              echo "public $code $path"
+            done
+
+            echo "=== ANON OPS DENIAL ==="
+            for path in /api/ops/overview/ /api/ops/menu/items/ /api/ops/bookings/ /api/ops/system/ /api/ops/lunch/current/; do
+              code=$(curl -sS -m 15 -o /dev/null -w '%{http_code}' "https://raffaello.se$path" || echo ERR)
+              echo "anon $code $path"
+            done
+            echo "anon_me=$(curl -sS -m 15 https://raffaello.se/api/ops/auth/me/)"
+
+            SMOKE_USER="ops_smoke_$(date +%s)"
+            SMOKE_PASS=$(python3 -c 'import secrets; print(secrets.token_urlsafe(24))')
+            NONSTAFF_USER="ops_nonstaff_$(date +%s)"
+            NONSTAFF_PASS=$(python3 -c 'import secrets; print(secrets.token_urlsafe(24))')
+
+            cleanup() {
+              docker compose exec -T backend python manage.py shell -c "from django.contrib.auth import get_user_model; User=get_user_model(); n,_=User.objects.filter(username__in=['$SMOKE_USER','$NONSTAFF_USER']).delete(); print('cleanup_done', n)" || true
+            }
+            trap cleanup EXIT
+
+            docker compose exec -T backend python manage.py shell -c "from django.contrib.auth import get_user_model; U=get_user_model(); s,_=U.objects.get_or_create(username='$SMOKE_USER'); s.set_password('$SMOKE_PASS'); s.is_staff=True; s.is_superuser=True; s.is_active=True; s.save(); n,_=U.objects.get_or_create(username='$NONSTAFF_USER'); n.set_password('$NONSTAFF_PASS'); n.is_staff=False; n.is_superuser=False; n.is_active=True; n.save(); print('users_ready')"
+
+            # Write smoke script into backend container (avoids nested-heredoc quoting issues)
+            docker compose exec -T backend sh -c "cat > /tmp/ops_prod_smoke.py" <<'PY'
+            import json, ssl, urllib.request, urllib.parse, http.cookiejar
+            from urllib.error import HTTPError
+
+            BASE = 'https://raffaello.se'
+            SMOKE_USER = '__SMOKE_USER__'
+            SMOKE_PASS = '__SMOKE_PASS__'
+            NONSTAFF_USER = '__NONSTAFF_USER__'
+            NONSTAFF_PASS = '__NONSTAFF_PASS__'
+            results = []
+
+            def record(name, ok, detail=''):
+                status = 'PASS' if ok else 'FAIL'
+                results.append((status, name, detail))
+                print(f'{status} {name}' + (f' :: {detail}' if detail else ''))
+
+            class Ctx:
+                def __init__(self):
+                    self.cj = http.cookiejar.CookieJar()
+                    self.opener = urllib.request.build_opener(
+                        urllib.request.HTTPCookieProcessor(self.cj),
+                        urllib.request.HTTPSHandler(context=ssl.create_default_context()),
+                    )
+
+                def csrf(self):
+                    req = urllib.request.Request(BASE + '/api/ops/auth/csrf/', method='GET')
+                    self.opener.open(req, timeout=30).read()
+                    for c in self.cj:
+                        if c.name == 'csrftoken':
+                            return c.value
+                    raise RuntimeError('no csrf cookie')
+
+                def req(self, method, path, data=None, csrf=None):
+                    headers = {'Origin': BASE, 'Referer': BASE + '/ops/login'}
+                    body = None
+                    if data is not None:
+                        body = json.dumps(data).encode()
+                        headers['Content-Type'] = 'application/json'
+                    if csrf:
+                        headers['X-CSRFToken'] = csrf
+                    req = urllib.request.Request(BASE + path, data=body, headers=headers, method=method)
+                    try:
+                        resp = self.opener.open(req, timeout=90)
+                        raw = resp.read().decode('utf-8', errors='replace')
+                        try:
+                            parsed = json.loads(raw) if raw else None
+                        except Exception:
+                            parsed = raw
+                        return resp.status, parsed, raw
+                    except HTTPError as e:
+                        raw = e.read().decode('utf-8', errors='replace')
+                        try:
+                            parsed = json.loads(raw) if raw else None
+                        except Exception:
+                            parsed = raw
+                        return e.code, parsed, raw
+
+            # CSRF required on login
+            ctx = Ctx()
+            code, _, _ = ctx.req('POST', '/api/ops/auth/login/', {'username': 'x', 'password': 'y'})
+            record('login_without_csrf_denied', code in (403, 401), f'status={code}')
+
+            # Non-staff denied
+            ctx = Ctx()
+            token = ctx.csrf()
+            code, body, _ = ctx.req('POST', '/api/ops/auth/login/', {'username': NONSTAFF_USER, 'password': NONSTAFF_PASS}, csrf=token)
+            record('nonstaff_login_denied', code == 403, f'status={code}')
+
+            # Staff login
+            ctx = Ctx()
+            token = ctx.csrf()
+            code, body, _ = ctx.req('POST', '/api/ops/auth/login/', {'username': SMOKE_USER, 'password': SMOKE_PASS}, csrf=token)
+            record('staff_login', code == 200 and isinstance(body, dict) and body.get('authenticated') is True, f'status={code}')
+
+            code, me, _ = ctx.req('GET', '/api/ops/auth/me/')
+            record('me_authenticated', code == 200 and me.get('authenticated') is True, f'status={code}')
+
+            for path, name in [
+                ('/api/ops/overview/', 'overview'),
+                ('/api/ops/system/', 'system'),
+                ('/api/ops/restaurant/', 'restaurant'),
+                ('/api/ops/lunch/current/', 'lunch_current'),
+                ('/api/ops/lunch/import-runs/', 'lunch_import_runs'),
+                ('/api/ops/menu/items/', 'menu_items'),
+                ('/api/ops/bookings/', 'bookings'),
+                ('/api/ops/events/', 'events'),
+                ('/api/ops/gallery/', 'gallery'),
+                ('/api/ops/reviews/', 'reviews'),
+                ('/api/ops/offers/', 'offers'),
+            ]:
+                code, body, _ = ctx.req('GET', path)
+                record(f'get_{name}', code == 200, f'status={code}')
+
+            code, sysbody, _ = ctx.req('GET', '/api/ops/system/')
+            leak = False
+            if isinstance(sysbody, dict):
+                blob = json.dumps(sysbody).lower()
+                leak = any(k in blob for k in ['bot_token', 'secret_key', 'password=', 'api_key', 'private_key'])
+            record('system_no_secrets', code == 200 and not leak)
+
+            code, restaurant, _ = ctx.req('GET', '/api/ops/restaurant/')
+            drift = (restaurant or {}).get('drift') if isinstance(restaurant, dict) else None
+            record(
+                'restaurant_hours_db_writable_match',
+                code == 200
+                and isinstance(restaurant, dict)
+                and restaurant.get('source') == 'db'
+                and restaurant.get('writable') is True
+                and isinstance(drift, dict)
+                and drift.get('match') is True,
+                f'status={code} source={restaurant.get("source") if isinstance(restaurant, dict) else None}',
+            )
+
+            # Dual-mount: /api/admin mirrors /api/ops for staff session
+            code_a, overview_a, _ = ctx.req('GET', '/api/admin/overview/')
+            code_o, overview_o, _ = ctx.req('GET', '/api/ops/overview/')
+            record(
+                'admin_ops_dual_mount',
+                code_a == 200 and code_o == 200 and isinstance(overview_a, dict) and overview_a.keys() == overview_o.keys(),
+                f'admin={code_a} ops={code_o}',
+            )
+            code, faq, _ = ctx.req('GET', '/api/admin/faq/')
+            record('admin_faq_list', code == 200, f'status={code}')
+            code, hours, _ = ctx.req('GET', '/api/admin/restaurant/hours/')
+            record(
+                'admin_hours_match',
+                code == 200
+                and isinstance(hours, dict)
+                and hours.get('active_public_source') == 'db'
+                and (hours.get('drift') or {}).get('match') is True,
+                f'status={code}',
+            )
+            # React Admin login shell (edge), Django emergency login
+            import urllib.request as _ur
+            admin_html = _ur.urlopen(BASE + '/admin/login', timeout=30).read().decode('utf-8', errors='replace')
+            record('react_admin_login_shell', 'root' in admin_html and 'doctype' in admin_html.lower())
+            dj_html = _ur.urlopen(BASE + '/django-admin/login/', timeout=30).read().decode('utf-8', errors='replace')
+            record('django_admin_login_form', 'csrfmiddlewaretoken' in dj_html and '/django-admin/login/' in dj_html)
+
+            # Menu persistence round-trip on first existing item
+            code, items, _ = ctx.req('GET', '/api/ops/menu/items/')
+            results_list = items.get('results') if isinstance(items, dict) else items
+            if code == 200 and results_list:
+                item = results_list[0]
+                item_id = item['id']
+                original = item.get('description') or ''
+                marker = ' OPS_SMOKE_TMP'
+                new_desc = (original + marker)[:500]
+                token = ctx.csrf()
+                code, patched, _ = ctx.req('PATCH', f'/api/ops/menu/items/{item_id}/', {'description': new_desc}, csrf=token)
+                record('menu_patch', code == 200 and (patched or {}).get('description') == new_desc, f'status={code}')
+                pub = json.loads(urllib.request.urlopen(BASE + '/api/menu/', timeout=30).read().decode())
+                found = {'ok': False}
+
+                def walk(node):
+                    if isinstance(node, dict):
+                        if node.get('id') == item_id and marker.strip() in (node.get('description') or ''):
+                            found['ok'] = True
+                        for v in node.values():
+                            walk(v)
+                    elif isinstance(node, list):
+                        for v in node:
+                            walk(v)
+
+                walk(pub)
+                record('menu_public_reflects_patch', found['ok'])
+                token = ctx.csrf()
+                code, restored, _ = ctx.req('PATCH', f'/api/ops/menu/items/{item_id}/', {'description': original}, csrf=token)
+                record('menu_restore', code == 200 and (restored or {}).get('description') == original, f'status={code}')
+            else:
+                record('menu_patch', False, 'no_items')
+                record('menu_public_reflects_patch', False, 'skipped')
+                record('menu_restore', False, 'skipped')
+
+            # Lunch sync + metadata
+            token = ctx.csrf()
+            code, sync_body, _ = ctx.req('POST', '/api/ops/lunch/sync/', {}, csrf=token)
+            ok_sync = code == 200 and isinstance(sync_body, dict) and sync_body.get('ok') is True and isinstance(sync_body.get('result'), dict)
+            sync_status = (sync_body.get('result') or {}).get('status') if isinstance(sync_body, dict) else None
+            record('lunch_sync', ok_sync and sync_status is not None, f'status={code} sync_status={sync_status}')
+
+            code, lunch, _ = ctx.req('GET', '/api/ops/lunch/current/')
+            code2, overview, _ = ctx.req('GET', '/api/ops/overview/')
+            code3, runs, _ = ctx.req('GET', '/api/ops/lunch/import-runs/')
+            blob = json.dumps({'lunch': lunch, 'overview': overview, 'runs': runs}).lower()
+            has_meta = any(k in blob for k in ['source', 'hash', 'parser', 'matochmat', 'import'])
+            record('lunch_metadata_present', code == 200 and code2 == 200 and code3 == 200 and has_meta, f'lunch={code} overview={code2} runs={code3}')
+
+            # Bookings
+            code, bookings, _ = ctx.req('GET', '/api/ops/bookings/')
+            b_list = bookings.get('results') if isinstance(bookings, dict) else bookings
+            if code == 200 and b_list:
+                b = b_list[0]
+                record('booking_has_id', 'id' in b)
+                invented = any(k in b for k in ('status', 'booking_status', 'state'))
+                # is_test is real; do not treat as invented status
+                record('booking_no_invented_status', not invented, f'keys={sorted(b.keys())}')
+                code, detail, _ = ctx.req('GET', f'/api/ops/bookings/{b["id"]}/')
+                record('booking_detail', code == 200 and detail.get('id') == b['id'], f'status={code}')
+            else:
+                record('booking_has_id', code == 200, 'empty_ok')
+                record('booking_no_invented_status', code == 200, 'empty_ok')
+                record('booking_detail', code == 200, 'empty_ok')
+
+            # Events
+            code, events, _ = ctx.req('GET', '/api/ops/events/')
+            e_list = events.get('results') if isinstance(events, dict) else events
+            if code == 200 and e_list:
+                e = e_list[0]
+                code, detail, _ = ctx.req('GET', f'/api/ops/events/{e["id"]}/')
+                record('event_detail', code == 200, f'status={code}')
+            else:
+                record('event_detail', code == 200, 'empty_ok')
+
+            # Reviews unpublished not public
+            code, reviews, _ = ctx.req('GET', '/api/ops/reviews/')
+            r_list = reviews.get('results') if isinstance(reviews, dict) else reviews
+            pub_reviews = json.loads(urllib.request.urlopen(BASE + '/api/reviews/', timeout=30).read().decode())
+            if isinstance(pub_reviews, list):
+                pub_ids = {x.get('id') for x in pub_reviews if isinstance(x, dict)}
+            elif isinstance(pub_reviews, dict):
+                pub_ids = {x.get('id') for x in pub_reviews.get('results', []) if isinstance(x, dict)}
+            else:
+                pub_ids = set()
+            leak_unpub = False
+            if isinstance(r_list, list):
+                for r in r_list:
+                    if r.get('is_published') is False and r.get('id') in pub_ids:
+                        leak_unpub = True
+            record('reviews_unpublished_not_public', code == 200 and not leak_unpub)
+
+            # Logout clears session
+            token = ctx.csrf()
+            code, body, _ = ctx.req('POST', '/api/ops/auth/logout/', {}, csrf=token)
+            record('logout', code == 200, f'status={code}')
+            code, me, _ = ctx.req('GET', '/api/ops/auth/me/')
+            record('logout_clears_session', code == 200 and me.get('authenticated') is False, f'status={code}')
+            code, _, _ = ctx.req('GET', '/api/ops/overview/')
+            record('protected_after_logout', code in (401, 403), f'status={code}')
+
+            failed = [r for r in results if r[0] == 'FAIL']
+            print('=== SUMMARY ===')
+            print(f'total={len(results)} pass={len(results)-len(failed)} fail={len(failed)}')
+            if failed:
+                for f in failed:
+                    print('FAILED_ITEM', f[1], f[2])
+                raise SystemExit(1)
+            print('OPS_SMOKE_ALL_PASS')
+            PY
+
+            # Inject credentials without printing them
+            docker compose exec -T backend python - <<PY
+            from pathlib import Path
+            p = Path('/tmp/ops_prod_smoke.py')
+            text = p.read_text()
+            text = text.replace('__SMOKE_USER__', '''$SMOKE_USER''')
+            text = text.replace('__SMOKE_PASS__', '''$SMOKE_PASS''')
+            text = text.replace('__NONSTAFF_USER__', '''$NONSTAFF_USER''')
+            text = text.replace('__NONSTAFF_PASS__', '''$NONSTAFF_PASS''')
+            p.write_text(text)
+            print('smoke_script_ready')
+            PY
+
+            docker compose exec -T backend python /tmp/ops_prod_smoke.py
+            docker compose exec -T backend rm -f /tmp/ops_prod_smoke.py || true
+            echo "=== DONE ==="

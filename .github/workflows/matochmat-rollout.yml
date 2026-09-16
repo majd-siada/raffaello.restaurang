@@ -1,0 +1,144 @@
+name: Mat och Mat lunch rollout
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: verify or enable
+        required: true
+        default: verify
+        type: choice
+        options:
+          - verify
+          - enable
+
+jobs:
+  rollout:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Controlled Mat och Mat rollout
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 20m
+          script: |
+            set -e
+            cd /root/raffaello.restaurang
+            PHASE="${{ github.event.inputs.phase }}"
+            echo "PHASE=$PHASE"
+            echo "HEAD=$(git rev-parse HEAD)"
+
+            if [ "$PHASE" = "enable" ]; then
+              test -f backend/.env
+              sed -i -e '/^MATOCHMAT_SYNC_ENABLED=/d' backend/.env
+              printf '\nMATOCHMAT_SYNC_ENABLED=true\n' >> backend/.env
+              grep -E '^MATOCHMAT_SYNC_ENABLED=' backend/.env
+              docker compose up -d --force-recreate backend
+              sleep 8
+              docker compose logs backend --tail 100 | grep -E 'Mat och Mat lunch sync|MATOCHMAT' || true
+              docker compose exec -T backend python manage.py shell -c 'from django.conf import settings; print(settings.MATOCHMAT_SYNC_ENABLED); print(settings.MATOCHMAT_LUNCH_URL)'
+              exit 0
+            fi
+
+            echo '=== env gate ==='
+            if [ -f backend/.env ]; then
+              grep -E '^MATOCHMAT_SYNC_ENABLED=' backend/.env || echo 'MATOCHMAT_SYNC_ENABLED=(unset default false)'
+            fi
+            docker compose exec -T backend python manage.py shell -c 'from django.conf import settings; print(settings.MATOCHMAT_SYNC_ENABLED); print(settings.MATOCHMAT_LUNCH_URL); assert settings.MATOCHMAT_SYNC_ENABLED is False'
+
+            echo '=== migrations ==='
+            docker compose exec -T backend python manage.py showmigrations lunch
+            docker compose exec -T backend python manage.py migrate lunch --noinput
+            docker compose exec -T backend python manage.py showmigrations lunch | tee /tmp/lunch_migs.txt
+            grep -q '\[X\] 0004_matochmat_import_metadata' /tmp/lunch_migs.txt
+
+            echo '=== history before sync ==='
+            docker compose exec -T backend python manage.py shell -c 'from lunch.models import LunchWeek; print("weeks", LunchWeek.objects.count()); print([(w.year, w.week_number, w.is_published, w.skip_auto_sync, w.dishes.count(), w.source_type) for w in LunchWeek.objects.order_by("-year","-week_number")[:5]])'
+
+            echo '=== MANUAL SYNC 1 ==='
+            docker compose exec -T backend python manage.py sync_matochmat_lunch --no-notify
+
+            echo '=== write verify scripts ==='
+            cat > /tmp/mom_verify.py << 'EOF'
+            from lunch.models import LunchWeek, LunchImportRun
+            from lunch.matochmat import stockholm_today, PARSER_VERSION
+            today = stockholm_today()
+            iso = today.isocalendar()
+            w = LunchWeek.objects.filter(year=iso.year, week_number=iso.week).first()
+            assert w is not None, "No LunchWeek for current ISO week"
+            print("service_date", today.isoformat())
+            print("week", w.year, w.week_number, "published", w.is_published)
+            print("source_type", w.source_type)
+            print("source_url", w.source_url)
+            print("source_hash", w.source_hash)
+            print("fetched_at", w.fetched_at)
+            print("published_at", w.published_at)
+            print("parser_version", w.parser_version)
+            print("last_import_status", w.last_import_status)
+            print("skip_auto_sync", w.skip_auto_sync)
+            print("notes", (w.notes or "")[:200])
+            print("lunch_hours_text", (w.lunch_hours_text or "")[:200])
+            print("dish_count", w.dishes.count())
+            for d in w.dishes.order_by("weekday", "order", "id"):
+                print("DISH|%s|%s|%s|%s" % (d.weekday, d.name, d.description, d.price))
+            assert w.source_type == "EXTERNAL_MATOCHMAT"
+            assert w.parser_version == PARSER_VERSION == "2"
+            assert w.source_hash
+            assert w.fetched_at
+            assert w.skip_auto_sync is False
+            run = LunchImportRun.objects.order_by("-started_at").first()
+            assert run is not None
+            print("import_run", run.status, (run.message or "")[:160], "changed", run.changed)
+            print("import_run_fields", sorted(f.name for f in LunchImportRun._meta.fields))
+            EOF
+            sed -i 's/^            //' /tmp/mom_verify.py
+
+            cat > /tmp/mom_fail.py << 'EOF'
+            from lunch.models import LunchDish, LunchWeek
+            from lunch.services import sync_from_matochmat
+            from lunch.matochmat import stockholm_today
+            today = stockholm_today()
+            iso = today.isocalendar()
+            before_dishes = list(LunchDish.objects.filter(lunch_week__year=iso.year, lunch_week__week_number=iso.week).order_by("id").values_list("id", "name", "price"))
+            before_hash = LunchWeek.objects.get(year=iso.year, week_number=iso.week).source_hash
+            result = sync_from_matochmat(html="<html><body>broken</body></html>", notify=False)
+            assert result.status == "PARSE_FAILED", result
+            after_dishes = list(LunchDish.objects.filter(lunch_week__year=iso.year, lunch_week__week_number=iso.week).order_by("id").values_list("id", "name", "price"))
+            after_hash = LunchWeek.objects.get(year=iso.year, week_number=iso.week).source_hash
+            assert before_dishes == after_dishes
+            assert before_hash == after_hash
+            print("PARSE_FAILED preserved", len(before_dishes), "dishes hash", before_hash[:16])
+            EOF
+            sed -i 's/^            //' /tmp/mom_fail.py
+
+            cat > /tmp/mom_idem.py << 'EOF'
+            from lunch.models import LunchImportRun, LunchWeek, LunchDish
+            from lunch.matochmat import stockholm_today
+            today = stockholm_today()
+            iso = today.isocalendar()
+            run = LunchImportRun.objects.order_by("-started_at").first()
+            print("second_run", run.status, "changed", run.changed)
+            assert run.status == "UNCHANGED", run.status
+            assert run.changed is False
+            print("weeks_for_current", LunchWeek.objects.filter(year=iso.year, week_number=iso.week).count())
+            print("dishes_for_current", LunchDish.objects.filter(lunch_week__year=iso.year, lunch_week__week_number=iso.week).count())
+            EOF
+            sed -i 's/^            //' /tmp/mom_idem.py
+
+            echo '=== admin / DB verification ==='
+            docker compose cp /tmp/mom_verify.py backend:/tmp/mom_verify.py
+            docker compose exec -T backend python manage.py shell < /tmp/mom_verify.py
+
+            echo '=== FAILURE SAFETY ==='
+            docker compose cp /tmp/mom_fail.py backend:/tmp/mom_fail.py
+            docker compose exec -T backend python manage.py shell < /tmp/mom_fail.py
+
+            echo '=== IDEMPOTENCY SYNC 2 ==='
+            docker compose exec -T backend python manage.py sync_matochmat_lunch --no-notify
+            docker compose cp /tmp/mom_idem.py backend:/tmp/mom_idem.py
+            docker compose exec -T backend python manage.py shell < /tmp/mom_idem.py
+
+            echo '=== VERIFY PHASE COMPLETE ==='
+            docker compose exec -T backend python manage.py shell -c 'from django.conf import settings; assert settings.MATOCHMAT_SYNC_ENABLED is False; print("scheduler_still_off OK")'

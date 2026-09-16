@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Allow: /llms.txt
+Disallow: /admin
+Disallow: /ops
+Disallow: /api
+Disallow: /django-admin
+
+Sitemap: https://raffaello.se/sitemap.xml

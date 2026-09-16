@@ -1,0 +1,434 @@
+/* Raffaello admin — light dark-gold theme (performance-first) */
+
+:root {
+  --ra-dark: #0a0908;
+  --ra-dark-2: #161311;
+  --ra-dark-3: #211e1a;
+  --ra-stone: #2c2824;
+  --ra-gold: #d4af37;
+  --ra-gold-hover: #e0bc4a;
+  --ra-gold-dim: rgba(212, 175, 55, 0.14);
+  --ra-text: #e8e4dc;
+  --ra-muted: #a8a298;
+  --ra-danger: #c45c4a;
+  --ra-radius: 10px;
+  --ra-font-brand: "Segoe UI", system-ui, sans-serif;
+  --ra-font-sub: Georgia, "Times New Roman", serif;
+  --ra-font-heading: Georgia, "Times New Roman", serif;
+  --ra-font-body: "Segoe UI", system-ui, sans-serif;
+  --primary: var(--ra-gold);
+  --primary-fg: var(--ra-dark);
+  --body-fg: var(--ra-text);
+  --body-bg: var(--ra-dark);
+  --body-quiet-color: var(--ra-muted);
+  --body-loud-color: #fff;
+  --header-bg: var(--ra-dark-2);
+  --header-color: var(--ra-text);
+  --header-link-color: var(--ra-gold);
+  --breadcrumbs-bg: transparent;
+  --breadcrumbs-fg: var(--ra-muted);
+  --link-fg: var(--ra-gold);
+  --link-hover-color: var(--ra-gold-hover);
+  --link-selected-fg: var(--ra-gold-hover);
+  --hairline-color: rgba(212, 175, 55, 0.18);
+  --border-color: rgba(212, 175, 55, 0.22);
+  --darkened-bg: var(--ra-dark-2);
+  --selected-bg: var(--ra-gold-dim);
+  --selected-row: rgba(212, 175, 55, 0.1);
+  --button-bg: var(--ra-gold);
+  --button-hover-bg: var(--ra-gold-hover);
+  --button-fg: var(--ra-dark);
+  --default-button-bg: var(--ra-stone);
+  --default-button-hover-bg: #3a3530;
+  --close-button-bg: var(--ra-stone);
+  --close-button-hover-bg: #3a3530;
+  --delete-button-bg: var(--ra-danger);
+  --delete-button-hover-bg: #d46a58;
+  --object-tools-bg: var(--ra-stone);
+  --object-tools-hover-bg: var(--ra-gold);
+  --object-tools-fg: var(--ra-text);
+  --message-success-bg: rgba(106, 155, 106, 0.2);
+  --message-warning-bg: rgba(212, 175, 55, 0.18);
+  --message-error-bg: rgba(196, 92, 74, 0.22);
+  --dark-theme: 1;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}
+
+html[data-theme="light"],
+html[data-theme="dark"],
+:root {
+  --body-bg: var(--ra-dark);
+  --body-fg: var(--ra-text);
+  --body-quiet-color: var(--ra-muted);
+  --body-loud-color: #fff;
+  --darkened-bg: var(--ra-dark-2);
+  --hairline-color: rgba(212, 175, 55, 0.18);
+  --border-color: rgba(212, 175, 55, 0.22);
+  --primary: var(--ra-gold);
+  --primary-fg: var(--ra-dark);
+  --link-fg: var(--ra-gold);
+  --header-link-color: var(--ra-gold);
+}
+
+body,
+body.login,
+.login {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--ra-font-body);
+  color: var(--ra-text) !important;
+  background: var(--ra-dark) !important;
+}
+
+#container {
+  min-height: 100vh;
+}
+
+/* —— Header / brand —— */
+#header {
+  padding: 0.85rem 1.25rem;
+  background: var(--ra-dark-2);
+  border-bottom: 1px solid var(--hairline-color);
+}
+
+.raffaello-brand a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  text-decoration: none !important;
+}
+
+.raffaello-brand__name {
+  font-family: var(--ra-font-brand);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ra-gold);
+}
+
+.raffaello-brand__sub {
+  font-family: var(--ra-font-sub);
+  font-size: 0.8rem;
+  font-style: italic;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ra-muted);
+}
+
+#user-tools {
+  font-size: 0.85rem;
+}
+
+#user-tools a {
+  color: var(--ra-gold) !important;
+}
+
+#user-tools a:hover {
+  color: var(--ra-gold-hover) !important;
+}
+
+/* —— Breadcrumbs —— */
+div.breadcrumbs {
+  padding: 0.65rem 1.25rem;
+  background: transparent;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  color: var(--ra-muted);
+  font-size: 0.85rem;
+}
+
+div.breadcrumbs a {
+  color: var(--ra-gold);
+}
+
+/* —— Content —— */
+#content {
+  padding: 1.25rem;
+}
+
+#content h1 {
+  font-family: var(--ra-font-heading);
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+/* —— Modules —— */
+.module,
+#content-related .module,
+.dashboard #content-related .module {
+  background: var(--ra-dark-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--ra-radius);
+  overflow: hidden;
+}
+
+.dashboard .module {
+  margin-bottom: 1rem;
+}
+
+.module:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+}
+
+.module caption,
+.module h2,
+.inline-group h2,
+#content-related h2,
+.dashboard .module caption {
+  font-family: var(--ra-font-brand);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  background: var(--ra-gold-dim);
+  color: var(--ra-gold) !important;
+  border-bottom: 1px solid var(--hairline-color);
+  padding: 0.75rem 1rem;
+}
+
+.module table {
+  width: 100%;
+}
+
+.module th,
+.module td {
+  border-bottom: 1px solid rgba(212, 175, 55, 0.08);
+  padding: 0.6rem 1rem;
+}
+
+.module a {
+  color: var(--ra-text);
+}
+
+.module a:hover {
+  color: var(--ra-gold);
+}
+
+.module tr:hover td {
+  background: var(--selected-row);
+}
+
+/* —— Forms & change list —— */
+#changelist,
+.change-form #content-main > form,
+#changelist-filter {
+  background: var(--ra-dark-2);
+  border: 1px solid var(--border-color);
+  border-radius: var(--ra-radius);
+}
+
+#changelist {
+  padding: 0.5rem;
+}
+
+#changelist-filter {
+  padding: 0;
+  overflow: hidden;
+}
+
+#changelist-filter h2 {
+  background: var(--ra-gold-dim);
+  color: var(--ra-gold);
+  font-family: var(--ra-font-brand);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+#changelist table thead th {
+  background: var(--ra-dark);
+  color: var(--ra-gold);
+  font-family: var(--ra-font-brand);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--hairline-color);
+}
+
+#changelist tbody tr:hover {
+  background: var(--selected-row);
+}
+
+fieldset.module {
+  margin-bottom: 1rem;
+}
+
+.form-row {
+  border-bottom: 1px solid rgba(212, 175, 55, 0.08);
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="url"],
+input[type="number"],
+input[type="tel"],
+textarea,
+select,
+.vTextField,
+.vLargeTextField,
+.vURLField {
+  background: var(--ra-dark) !important;
+  color: var(--ra-text) !important;
+  border: 1px solid rgba(212, 175, 55, 0.28) !important;
+  border-radius: 8px !important;
+  padding: 0.5rem 0.7rem !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  border-color: var(--ra-gold) !important;
+  box-shadow: 0 0 0 2px var(--ra-gold-dim) !important;
+}
+
+/* —— Buttons —— */
+.button,
+input[type="submit"],
+a.button,
+.object-tools a {
+  font-family: var(--ra-font-brand) !important;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  border-radius: 8px !important;
+  border: none !important;
+}
+
+.button.default,
+input[type="submit"].default,
+.submit-row input.default {
+  background: var(--ra-gold) !important;
+  color: var(--ra-dark) !important;
+}
+
+.button.default:hover,
+input[type="submit"].default:hover,
+.submit-row input.default:hover,
+.button:hover,
+input[type="submit"]:hover,
+a.button:hover,
+.object-tools a:hover {
+  background: var(--ra-gold-hover) !important;
+  color: var(--ra-dark) !important;
+}
+
+.object-tools a {
+  background: var(--ra-stone) !important;
+  color: var(--ra-text) !important;
+}
+
+.object-tools a:hover {
+  background: var(--ra-gold) !important;
+  color: var(--ra-dark) !important;
+}
+
+.deletelink,
+a.deletelink {
+  background: var(--ra-danger) !important;
+}
+
+/* —— Messages —— */
+ul.messagelist li {
+  border-radius: var(--ra-radius);
+  border: 1px solid var(--hairline-color);
+}
+
+/* —— Login —— */
+body.login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body.login #container,
+.login #container {
+  width: min(400px, 94vw) !important;
+  margin: 2rem auto !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+body.login #header {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  text-align: center;
+  padding-bottom: 0.25rem;
+}
+
+body.login .raffaello-brand a {
+  align-items: center;
+}
+
+body.login #content {
+  padding: 0;
+}
+
+body.login #content-main {
+  background: transparent !important;
+  border: none;
+  padding: 0;
+}
+
+body.login #login-form {
+  background: var(--ra-dark-3) !important;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem 1.25rem 1.25rem;
+}
+
+body.login .form-row {
+  border: none;
+  padding: 0.45rem 0;
+}
+
+body.login label {
+  color: var(--ra-muted);
+  font-family: var(--ra-font-brand);
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+body.login .submit-row {
+  background: transparent !important;
+  border: none !important;
+  padding: 0.85rem 0 0 !important;
+}
+
+body.login .submit-row input {
+  width: 100%;
+  padding: 0.7rem 1rem !important;
+}
+
+#content-related {
+  background: transparent;
+}
+
+.paginator a:link,
+.paginator a:visited,
+.paginator .this-page {
+  border-radius: 6px;
+}
+
+.actions select {
+  border-radius: 8px !important;
+}
+
+#footer {
+  color: var(--ra-muted);
+  text-align: center;
+  padding: 1.25rem;
+  font-size: 0.8rem;
+}
