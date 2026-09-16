@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
 import { SITE } from '../siteConfig'
@@ -7,6 +8,20 @@ import { ButtonLink } from '../components/ui/Button'
 import { Section, SectionHeading } from '../components/ui/Section'
 
 export default function Boka() {
+  // Always land on the booking form (below the hero).
+  useEffect(() => {
+    const el = document.getElementById('boka-formular')
+    if (!el) return undefined
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const id = window.requestAnimationFrame(() => {
+      el.scrollIntoView({
+        behavior: reduceMotion ? 'auto' : 'smooth',
+        block: 'start',
+      })
+    })
+    return () => window.cancelAnimationFrame(id)
+  }, [])
+
   return (
     <div>
       <Helmet>

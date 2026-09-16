@@ -276,7 +276,13 @@ export default function BookingForm() {
         </div>
       )}
 
-      <form onSubmit={onSubmit} className="mx-auto max-w-xl space-y-5" lang="sv-SE" noValidate>
+      <form
+        id="boka-formular"
+        onSubmit={onSubmit}
+        className="mx-auto max-w-xl scroll-mt-28 space-y-5"
+        lang="sv-SE"
+        noValidate
+      >
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <label htmlFor="first_name" className={labelClass}>

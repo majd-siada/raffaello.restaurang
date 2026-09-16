@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
 import { SITE } from '../siteConfig'
@@ -10,6 +11,20 @@ import { Section, SectionHeading } from '../components/ui/Section'
  * Kontakt = NAP / hours / map / call — booking lives on /boka only.
  */
 export default function Contact() {
+  // Always land on address / phone / hours (below the hero).
+  useEffect(() => {
+    const el = document.getElementById('kontakt-nap')
+    if (!el) return undefined
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const id = window.requestAnimationFrame(() => {
+      el.scrollIntoView({
+        behavior: reduceMotion ? 'auto' : 'smooth',
+        block: 'start',
+      })
+    })
+    return () => window.cancelAnimationFrame(id)
+  }, [])
+
   return (
     <div>
       <Helmet>
@@ -69,7 +84,7 @@ export default function Contact() {
             className="mx-auto mb-14"
           />
           <div className="grid gap-10 lg:grid-cols-5 lg:gap-12">
-            <div className="space-y-8 lg:col-span-2">
+            <div id="kontakt-nap" className="scroll-mt-28 space-y-8 lg:col-span-2">
               <a
                 href={SITE.mapsUrl}
                 target="_blank"
