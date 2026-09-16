@@ -33,7 +33,7 @@ function DishRow({ dish }) {
   )
 }
 
-function WeekSection({ slot, offer, primary }) {
+function WeekSection({ slot, offer, primary, id }) {
   const dishes = offer?.dishes || []
   const hasDishes = dishes.length > 0
   const rawIntro = (offer?.intro_text || '').trim()
@@ -42,6 +42,7 @@ function WeekSection({ slot, offer, primary }) {
 
   return (
     <section
+      id={id}
       className={`scroll-mt-28 rounded-sm border px-6 py-10 sm:px-10 ${
         primary
           ? 'border-gold/50 bg-elevated shadow-[0_0_0_1px_rgba(212,175,55,0.12)] sm:py-12'
@@ -128,6 +129,23 @@ export default function WeeklyOffer() {
     }
   }, [])
 
+  // Always land on this week's offer card (below the hero).
+  useEffect(() => {
+    if (loading || error || !data) return undefined
+    const el = document.getElementById('denna-vecka')
+    if (!el) return undefined
+    const reduceMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const id = window.requestAnimationFrame(() => {
+      el.scrollIntoView({
+        behavior: reduceMotion ? 'auto' : 'smooth',
+        block: 'start',
+      })
+    })
+    return () => window.cancelAnimationFrame(id)
+  }, [loading, error, data])
+
   return (
     <div className="pb-24 md:pb-0">
       <Helmet>
@@ -205,7 +223,12 @@ export default function WeeklyOffer() {
           {!loading && !error && data && (
             <>
               <WeekSection slot="Förra veckan" offer={data.previous} primary={false} />
-              <WeekSection slot="Denna vecka" offer={data.current} primary />
+              <WeekSection
+                id="denna-vecka"
+                slot="Denna vecka"
+                offer={data.current}
+                primary
+              />
               <WeekSection slot="Nästa vecka" offer={data.next} primary={false} />
             </>
           )}
