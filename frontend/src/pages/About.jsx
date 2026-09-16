@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { SITE } from '../siteConfig'
 import HeroBackdrop from '../components/HeroBackdrop'
@@ -6,6 +7,20 @@ import { ButtonLink } from '../components/ui/Button'
 import { Section, SectionHeading } from '../components/ui/Section'
 
 export default function About() {
+  // Always land on the welcome story grid (below the hero).
+  useEffect(() => {
+    const el = document.getElementById('om-oss-valkommen')
+    if (!el) return undefined
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const id = window.requestAnimationFrame(() => {
+      el.scrollIntoView({
+        behavior: reduceMotion ? 'auto' : 'smooth',
+        block: 'start',
+      })
+    })
+    return () => window.cancelAnimationFrame(id)
+  }, [])
+
   return (
     <div>
       <Helmet>
