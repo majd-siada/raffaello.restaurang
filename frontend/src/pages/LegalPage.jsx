@@ -63,9 +63,20 @@ export default function LegalPage({ pageKey }) {
             <div className="space-y-5 text-sm leading-relaxed text-white/70">
               {page.paragraphs
                 .filter((p) => String(p).trim())
-                .map((p) => (
-                  <p key={p.slice(0, 40)}>{p}</p>
-                ))}
+                .map((p) => {
+                  const text = String(p).trim()
+                  if (text.startsWith('## ')) {
+                    return (
+                      <h2
+                        key={text}
+                        className="pt-2 font-heading text-lg font-semibold tracking-wide text-cream first:pt-0 sm:text-xl"
+                      >
+                        {text.slice(3)}
+                      </h2>
+                    )
+                  }
+                  return <p key={text.slice(0, 48)}>{text}</p>
+                })}
             </div>
           ) : (
             <div className="text-center" role="status">

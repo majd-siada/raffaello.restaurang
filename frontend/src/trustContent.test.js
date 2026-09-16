@@ -19,10 +19,12 @@ describe('P1-D trust content contracts', () => {
     assert.equal(faqItemsReady(FAQ_ITEMS).length, 0)
   })
 
-  it('does not ship invented legal paragraphs', () => {
-    assert.equal(legalPageReady('bokningsvillkor'), false)
+  it('ships approved booking terms; privacy stays empty until confirmed', () => {
+    assert.equal(legalPageReady('bokningsvillkor'), true)
     assert.equal(legalPageReady('integritet'), false)
-    assert.ok(Array.isArray(LEGAL_PAGES.bokningsvillkor.paragraphs))
+    assert.match(LEGAL_PAGES.bokningsvillkor.paragraphs.join('\n'), /upp till 6 gäster/)
+    assert.match(LEGAL_PAGES.bokningsvillkor.paragraphs.join('\n'), /Raffaello/)
+    assert.doesNotMatch(LEGAL_PAGES.bokningsvillkor.paragraphs.join('\n'), /Riva/)
     assert.ok(Array.isArray(LEGAL_PAGES.integritet.paragraphs))
   })
 
@@ -68,11 +70,11 @@ describe('P1-D trust content contracts', () => {
     assert.doesNotMatch(src, /unsplash|placeholder\.com|lorem/i)
   })
 
-  it('sitemap includes /galleri and published FAQ route; excludes empty legal', () => {
+  it('sitemap includes /galleri, /faq, and published booking terms; excludes empty privacy', () => {
     const sitemap = readFileSync(join(root, '..', 'public', 'sitemap.xml'), 'utf8')
     assert.match(sitemap, /\/galleri/)
     assert.match(sitemap, /\/faq/)
-    assert.doesNotMatch(sitemap, /\/bokningsvillkor/)
+    assert.match(sitemap, /\/bokningsvillkor/)
     assert.doesNotMatch(sitemap, /\/integritet/)
   })
 
