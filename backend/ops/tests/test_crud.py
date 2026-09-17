@@ -197,6 +197,14 @@ class OpsSystemSecretsTests(TestCase):
         res = self.client.get('/api/ops/system/')
         self.assertEqual(res.status_code, 200)
         raw = str(res.data).lower()
-        for banned in ('bot_token', 'password', 'secret_key', 'telegram_bot_token'):
+        for banned in (
+            'bot_token',
+            'password',
+            'secret_key',
+            'telegram_bot_token',
+            'mailjet_api',
+            'api_secret',
+        ):
             self.assertNotIn(banned, raw)
         self.assertIn('telegram_configured', res.data)
+        self.assertIn('email_configured', res.data)

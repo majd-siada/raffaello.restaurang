@@ -492,6 +492,7 @@ describe('admin System Phase I', () => {
     assert.doesNotMatch(page, /TELEGRAM_BOT_TOKEN|SECRET_KEY|DB_PASSWORD/)
     assert.match(page, /inga hemligheter/)
     assert.match(page, /telegram_configured/)
+    assert.match(page, /email_configured/)
   })
 })
 

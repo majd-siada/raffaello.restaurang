@@ -1,0 +1,48 @@
+name: Set Mailjet email notify env
+
+on:
+  workflow_dispatch:
+
+jobs:
+  set-env:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update backend/.env and recreate backend
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: MAILJET_API_KEY,MAILJET_API_SECRET,NOTIFY_EMAIL_TO,NOTIFY_EMAIL_FROM,NOTIFY_EMAIL_FROM_NAME
+          script: |
+            set -e
+            cd /root/raffaello.restaurang
+            test -f backend/.env
+
+            sed -i \
+              -e '/^MAILJET_API_KEY=/d' \
+              -e '/^MAILJET_API_SECRET=/d' \
+              -e '/^NOTIFY_EMAIL_TO=/d' \
+              -e '/^NOTIFY_EMAIL_FROM=/d' \
+              -e '/^NOTIFY_EMAIL_FROM_NAME=/d' \
+              backend/.env
+
+            printf '\n# Mailjet booking/event email alerts\nMAILJET_API_KEY=%s\nMAILJET_API_SECRET=%s\nNOTIFY_EMAIL_TO=%s\nNOTIFY_EMAIL_FROM=%s\nNOTIFY_EMAIL_FROM_NAME=%s\n' \
+              "$MAILJET_API_KEY" \
+              "$MAILJET_API_SECRET" \
+              "$NOTIFY_EMAIL_TO" \
+              "$NOTIFY_EMAIL_FROM" \
+              "${NOTIFY_EMAIL_FROM_NAME:-Raffaello}" >> backend/.env
+
+            grep -E '^(MAILJET_API_KEY|MAILJET_API_SECRET|NOTIFY_EMAIL_TO|NOTIFY_EMAIL_FROM|NOTIFY_EMAIL_FROM_NAME)=' backend/.env \
+              | sed 's/=.*/=***set***/'
+
+            docker compose up -d --force-recreate backend
+            sleep 5
+            docker compose ps backend
+        env:
+          MAILJET_API_KEY: ${{ secrets.MAILJET_API_KEY }}
+          MAILJET_API_SECRET: ${{ secrets.MAILJET_API_SECRET }}
+          NOTIFY_EMAIL_TO: ${{ secrets.NOTIFY_EMAIL_TO }}
+          NOTIFY_EMAIL_FROM: ${{ secrets.NOTIFY_EMAIL_FROM }}
+          NOTIFY_EMAIL_FROM_NAME: ${{ secrets.NOTIFY_EMAIL_FROM_NAME }}

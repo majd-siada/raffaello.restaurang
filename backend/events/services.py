@@ -1,10 +1,10 @@
-"""Event inquiry create + Telegram notify (fail-closed)."""
+"""Event inquiry create + Telegram/email notify (fail-closed)."""
 
 from __future__ import annotations
 
 import logging
 
-from bookings.whatsapp import send_telegram_text
+from bookings.notify import notify_restaurant
 
 from .models import EventInquiry
 
@@ -39,7 +39,10 @@ def format_event_message(inquiry: EventInquiry) -> str:
 
 def create_event_inquiry_with_notify(validated_data: dict):
     inquiry = EventInquiry.objects.create(**validated_data)
-    sent = send_telegram_text(format_event_message(inquiry))
+    sent = notify_restaurant(
+        text=format_event_message(inquiry),
+        subject='Eventförfrågan — Raffaello',
+    )
     if not sent:
         logger.error('Event inquiry %s notify failed; rolling back', inquiry.pk)
         inquiry.delete()

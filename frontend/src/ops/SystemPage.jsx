@@ -39,6 +39,7 @@ export default function SystemPage() {
         <Field label="Tidszon" value={data.timezone} />
         <Field label="Mat och Mat-synk" value={yesNo(data.matochmat_sync_enabled)} />
         <Field label="Telegram konfigurerad" value={yesNo(data.telegram_configured)} />
+        <Field label="E-postavisering konfigurerad" value={yesNo(data.email_configured)} />
         <Field label="Öppettider-källa" value={data.hours_source} />
         <Field
           label="FAQ/Legal CMS"

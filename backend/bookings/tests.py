@@ -38,7 +38,7 @@ class BookingCreateNotifyTests(TestCase):
     def setUp(self):
         self.client = APIClient()
 
-    @patch('bookings.services.send_booking_telegram', return_value=True)
+    @patch('bookings.services.notify_booking', return_value=True)
     def test_api_success_when_telegram_ok(self, _mock_tg):
         res = self.client.post('/api/bookings/', _future_payload(), format='json')
         self.assertEqual(res.status_code, 201)
@@ -51,7 +51,7 @@ class BookingCreateNotifyTests(TestCase):
         self.assertFalse(booking.is_test)
         self.assertTrue(booking.whatsapp_sent)
 
-    @patch('bookings.services.send_booking_telegram', return_value=True)
+    @patch('bookings.services.notify_booking', return_value=True)
     def test_api_returns_persistent_reference_id(self, _mock_tg):
         res = self.client.post('/api/bookings/', _future_payload(), format='json')
         self.assertEqual(res.status_code, 201)
@@ -60,7 +60,7 @@ class BookingCreateNotifyTests(TestCase):
         self.assertGreater(ref, 0)
         self.assertTrue(Booking.objects.filter(pk=ref).exists())
 
-    @patch('bookings.services.send_booking_telegram', return_value=False)
+    @patch('bookings.services.notify_booking', return_value=False)
     def test_api_rolls_back_when_telegram_fails(self, _mock_tg):
         res = self.client.post('/api/bookings/', _future_payload(), format='json')
         self.assertEqual(res.status_code, 503)
@@ -70,7 +70,7 @@ class BookingCreateNotifyTests(TestCase):
         self.assertIn('Ring restaurangen', res.data['detail'])
         self.assertEqual(Booking.objects.count(), 0)
 
-    @patch('bookings.services.send_booking_telegram', return_value=True)
+    @patch('bookings.services.notify_booking', return_value=True)
     def test_service_marks_test_bookings(self, _mock_tg):
         day = date.today() + timedelta(days=1)
         booking, err = create_booking_with_notify(
@@ -100,7 +100,7 @@ from bookings.management.commands import run_daily_booking_test as _run_daily_bo
 )
 class DailyBookingTestCommandTests(TestCase):
     @patch('bookings.management.commands.run_daily_booking_test.send_telegram_text')
-    @patch('bookings.services.send_booking_telegram', return_value=True)
+    @patch('bookings.services.notify_booking', return_value=True)
     def test_daily_command_pass_deletes_test_row(self, _mock_tg, mock_status):
         call_command('run_daily_booking_test')
         self.assertEqual(Booking.objects.count(), 0)
@@ -109,7 +109,7 @@ class DailyBookingTestCommandTests(TestCase):
         self.assertIn('PASS', status_text)
 
     @patch('bookings.management.commands.run_daily_booking_test.send_telegram_text')
-    @patch('bookings.services.send_booking_telegram', return_value=False)
+    @patch('bookings.services.notify_booking', return_value=False)
     def test_daily_command_fail_on_notify(self, _mock_tg, mock_status):
         with self.assertRaises(CommandError):
             call_command('run_daily_booking_test')

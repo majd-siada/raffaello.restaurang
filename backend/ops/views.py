@@ -187,6 +187,8 @@ class SystemView(StaffAPIView):
             getattr(settings, 'TELEGRAM_BOT_TOKEN', '')
             and getattr(settings, 'TELEGRAM_CHAT_ID', '')
         )
+        from bookings.notify_email import email_notify_configured
+
         return Response(
             {
                 'health': 'ok',
@@ -195,6 +197,7 @@ class SystemView(StaffAPIView):
                     getattr(settings, 'MATOCHMAT_SYNC_ENABLED', False)
                 ),
                 'telegram_configured': telegram_configured,
+                'email_configured': email_notify_configured(),
                 'import_status': import_status_payload(),
                 'counts': {
                     'menu_categories': Category.objects.count(),

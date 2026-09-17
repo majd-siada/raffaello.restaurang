@@ -26,7 +26,7 @@ class EventInquiryApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
 
-    @patch('events.services.send_telegram_text', return_value=True)
+    @patch('events.services.notify_restaurant', return_value=True)
     def test_create_returns_id(self, _mock):
         res = self.client.post('/api/events/', _payload(), format='json')
         self.assertEqual(res.status_code, 201)
@@ -34,7 +34,7 @@ class EventInquiryApiTests(TestCase):
         self.assertIn('id', res.data)
         self.assertTrue(EventInquiry.objects.filter(pk=res.data['id']).exists())
 
-    @patch('events.services.send_telegram_text', return_value=False)
+    @patch('events.services.notify_restaurant', return_value=False)
     def test_notify_fail_rolls_back(self, _mock):
         res = self.client.post('/api/events/', _payload(), format='json')
         self.assertEqual(res.status_code, 503)
@@ -53,7 +53,7 @@ class EventInquiryApiTests(TestCase):
         res = self.client.post('/api/events/', _payload(phone='12'), format='json')
         self.assertEqual(res.status_code, 400)
 
-    @patch('events.services.send_telegram_text', return_value=True)
+    @patch('events.services.notify_restaurant', return_value=True)
     def test_optional_fields_ok(self, _mock):
         res = self.client.post(
             '/api/events/',
@@ -67,7 +67,7 @@ class EventInquiryApiTests(TestCase):
         )
         self.assertEqual(res.status_code, 201)
 
-    @patch('events.services.send_telegram_text', return_value=True)
+    @patch('events.services.notify_restaurant', return_value=True)
     def test_service_marks_notify(self, _mock):
         inquiry, err = create_event_inquiry_with_notify(
             {

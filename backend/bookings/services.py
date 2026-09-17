@@ -1,11 +1,11 @@
-"""Shared booking create + Telegram notify path (real customers and daily test)."""
+"""Shared booking create + notify path (Telegram + optional email)."""
 
 from __future__ import annotations
 
 import logging
 
 from .models import Booking
-from .whatsapp import send_booking_telegram
+from .notify import notify_booking
 
 logger = logging.getLogger(__name__)
 
@@ -20,14 +20,14 @@ TECHNICAL_ERROR_DETAIL = (
 
 def create_booking_with_notify(validated_data: dict, *, is_test: bool = False):
     """
-    Create a booking and notify the restaurant via Telegram.
+    Create a booking and notify the restaurant (Telegram + optional email).
 
     On notify success: returns (booking, None) with whatsapp_sent=True.
     On notify failure: deletes the booking and returns (None, BOOKING_NOTIFY_FAILED).
     """
     create_kwargs = {**validated_data, 'is_test': is_test}
     booking = Booking.objects.create(**create_kwargs)
-    sent = send_booking_telegram(booking)
+    sent = notify_booking(booking)
     if not sent:
         logger.error(
             'Booking %s notify failed; rolling back booking (is_test=%s)',

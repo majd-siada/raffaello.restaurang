@@ -233,6 +233,15 @@ REST_FRAMEWORK = {
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '').strip()
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '').strip()
 
+# Booking / event alerts via Mailjet (optional; alongside Telegram)
+# When all four are set, email notify is required (fail-closed with Telegram).
+# Do not commit real API credentials.
+MAILJET_API_KEY = os.getenv('MAILJET_API_KEY', '').strip()
+MAILJET_API_SECRET = os.getenv('MAILJET_API_SECRET', '').strip()
+NOTIFY_EMAIL_TO = os.getenv('NOTIFY_EMAIL_TO', '').strip()
+NOTIFY_EMAIL_FROM = os.getenv('NOTIFY_EMAIL_FROM', '').strip()
+NOTIFY_EMAIL_FROM_NAME = os.getenv('NOTIFY_EMAIL_FROM_NAME', 'Raffaello').strip()
+
 # Daily lunch sync from Mat och Mat (management command: sync_matochmat_lunch)
 # Canonical source URL (also allowlisted in lunch.matochmat).
 MATOCHMAT_LUNCH_URL = os.getenv(
