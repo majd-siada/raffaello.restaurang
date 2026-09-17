@@ -11,6 +11,24 @@ const API_URL = `${import.meta.env.VITE_API_URL || ''}/api/lunch/`
 const DEFAULT_INTRO =
   'Varje vardag serverar vi dagens lunch — se veckans rätter och priser här.'
 
+/** Public lunch hours: Monday–Friday only; compact when all weekday slots match. */
+function weekdayLunchHours(text) {
+  const parts = String(text || '')
+    .split(';')
+    .map((part) => part.trim())
+    .filter((part) => part && !/^(Lör|Sön)\b/i.test(part))
+  if (parts.length === 0) return ''
+
+  const times = parts.map((part) => {
+    const match = part.match(/^(?:Mån|Tis|Ons|Tor|Fre)\s+(.+)$/i)
+    return match ? match[1].trim() : null
+  })
+  if (times.length > 0 && times.every((t) => t && t === times[0])) {
+    return `Mån–Fre ${times[0]}`
+  }
+  return parts.join('; ')
+}
+
 /** Same writing style as Meny MenuItemRow. */
 function DishRow({ dish }) {
   const priceLabel = formatPrice(dish.price)
@@ -103,7 +121,7 @@ function WeekMenu({ lunch, activeDay, onSelectDay }) {
   const hasDishes = dishes.length > 0
   const intro = (lunch?.intro_text || '').trim() || DEFAULT_INTRO
   const notes = (lunch?.notes || '').trim()
-  const hours = (lunch?.lunch_hours_text || '').trim()
+  const hours = weekdayLunchHours(lunch?.lunch_hours_text)
   const weekLabel = lunch?.week_number != null ? `v ${lunch.week_number}` : ''
   const { days, other } = groupDishes(dishes)
   const today = todayWeekday()

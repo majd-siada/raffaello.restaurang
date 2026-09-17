@@ -372,9 +372,10 @@ def _parse_opening_hours_text(html: str) -> str:
         if not is_open:
             continue
         weekday = int(iso_weekday) - 1
-        if weekday < 0 or weekday > 6:
+        # Lunch hours summary is Mon–Fri only (skip Sat/Sun).
+        if weekday < 0 or weekday > 4:
             continue
-        label = ['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön'][weekday]
+        label = ['Mån', 'Tis', 'Ons', 'Tor', 'Fre'][weekday]
         rows.append(
             f'{label} {_unescape_js_string(opening)}–{_unescape_js_string(closing)}'
         )

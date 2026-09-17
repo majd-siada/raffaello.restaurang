@@ -78,6 +78,23 @@ class ParserUnitTests(TestCase):
         self.assertIn('Mån', week.lunch_hours_text)
         self.assertIn('11:00', week.lunch_hours_text)
 
+    def test_lunch_hours_text_excludes_weekend(self):
+        inject = (
+            'lunchFunctionality:$R[200]={menuText:"x",'
+            'openingHourList:$R[201]=['
+            '$R[202]={closingTime:"14:00",isoWeekdayNumber:1,open:!0,openingTime:"10:45"},'
+            '$R[203]={closingTime:"14:00",isoWeekdayNumber:5,open:!0,openingTime:"10:45"},'
+            '$R[204]={closingTime:"14:00",isoWeekdayNumber:6,open:!0,openingTime:"10:45"},'
+            '$R[205]={closingTime:"14:00",isoWeekdayNumber:7,open:!0,openingTime:"10:45"}'
+            ']},dinnerFunctionality:'
+        )
+        html = MINIMAL_HTML.replace('<script>', f'<script>{inject}', 1)
+        week = parse_weeks_from_html(html, 'raffaello-stekhus-bar')[0]
+        self.assertIn('Mån', week.lunch_hours_text)
+        self.assertIn('Fre', week.lunch_hours_text)
+        self.assertNotIn('Lör', week.lunch_hours_text)
+        self.assertNotIn('Sön', week.lunch_hours_text)
+
     def test_current_day_detection(self):
         week = parse_weeks_from_html(MINIMAL_HTML)[0]
         mon = dishes_for_service_date(week, date(2026, 9, 14))
