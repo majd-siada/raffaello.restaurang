@@ -107,8 +107,6 @@ function WeekMenu({ lunch, activeDay, onSelectDay }) {
   const weekLabel = lunch?.week_number != null ? `v ${lunch.week_number}` : ''
   const { days, other } = groupDishes(dishes)
   const today = todayWeekday()
-  const todayEmpty =
-    hasDishes && lunch?.today_has_dishes === false && lunch?.today_weekday != null
 
   const visibleDays =
     activeDay == null ? days : days.filter((g) => g.weekday === activeDay)
@@ -151,11 +149,6 @@ function WeekMenu({ lunch, activeDay, onSelectDay }) {
         )}
         {hours && (
           <p className="mt-2 text-sm leading-relaxed text-white/55">{hours}</p>
-        )}
-        {todayEmpty && (
-          <p className="mt-4 text-sm italic text-white/60">
-            Ingen lunch publicerad för idag i källan — övriga dagar denna vecka visas nedan.
-          </p>
         )}
       </div>
 
